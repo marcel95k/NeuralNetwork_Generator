@@ -36,13 +36,10 @@ void test(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _grayV
 	drawBarGraph(&_network->at(1));
 }
 
-void setupTest(std::vector<std::vector<Neuron>>* _network) {
+void checkIfTrained(std::vector<std::vector<Neuron>>* _network) {
 
 	std::string userInput_s;
 
-	checkNetForError(5, _network);
-
-	//Check if the current network was trained
 	if (_network->at(0).at(0).getIsTrained() == false) {
 		std::cout << "Netzwerk zuerst trainieren? (J/N)";
 		std::cout << std::endl << "Eingabe: ";
@@ -58,6 +55,12 @@ void setupTest(std::vector<std::vector<Neuron>>* _network) {
 			}
 		}
 	}
+}
+
+void setupTest(std::vector<std::vector<Neuron>>* _network) {
+
+	checkNetForError(5, _network);
+	checkIfTrained(_network);
 
 	std::vector<float>dummyValues;
 	dummyValues.resize(_network->at(0).size());

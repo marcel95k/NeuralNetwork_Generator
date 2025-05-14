@@ -379,59 +379,67 @@ void setupDelete(std::vector<std::vector<Neuron>>* _network) {
 	}
 }
 
+std::string getImageFilePath(const std::string _mainFolder, std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter) {
+
+	return _mainFolder +
+		_network->at(0).at(0).getNetworkName() + "/" +
+		_network->at(1).at(_classification).getClassificationName() + "/" +
+		_network->at(1).at(_classification).getClassificationName() + "_" +
+		std::to_string(_counter) + ".txt";
+}
+
+void fillGrayValues(std::ifstream& _inFile, std::vector<float>* _grayValues) {
+
+	std::string line;
+	while (getline(_inFile, line)) {
+		std::stringstream ss(line);
+		double val;
+		while (ss >> val) {
+			_grayValues->push_back(val);
+		}
+	}
+}
+
 void loadValidationIMG(std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, double& totalAccuracy, int& totalTests) {
 
-	std::vector<float> values;
-	std::string filename = "Validationdata/" + _network->at(0).at(0).getNetworkName() + "/" + _network->at(1).at(_classification).getClassificationName() + "/" + _network->at(1).at(_classification).getClassificationName() + "_" + std::to_string(_counter) + ".txt";
+	std::vector<float> grayValues;
+
+	std::string filename = getImageFilePath(VALIDATIONDATA, _network, _classification, _counter);
 	std::ifstream inFile(filename);
 
 	if (!inFile.is_open()) {
 		throw error(3);
 	}
 
-	std::string line;
-	while (getline(inFile, line)) {
-		std::stringstream ss(line);
-		double val;
-		while (ss >> val) {
-			values.push_back(val);
-		}
-	}
+	fillGrayValues(inFile, &grayValues);
 
-	fitnessTest(_network, &values, _classification, totalAccuracy, totalTests);
+	fitnessTest(_network, &grayValues, _classification, totalAccuracy, totalTests);
 
 	inFile.close();
-	values.clear();
+	grayValues.clear();
 }
 
 void loadTrainingIMG(std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, const double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs) {
 
-	std::vector<float> values;
-	std::string filename = "Trainingdata/" + _network->at(0).at(0).getNetworkName() + "/" + _network->at(1).at(_classification).getClassificationName() + "/" + _network->at(1).at(_classification).getClassificationName() + "_" + std::to_string(_counter) + ".txt";
+	std::vector<float> grayValues;
 
-#ifdef DEBUG_SHOW_TRAININGFILE
-	std::cout << "Training " << filename << std::endl;
-#endif // DEBUG_SHOW_TRAININGFILE
-
+	std::string filename = getImageFilePath(TRAININGDATA, _network, _classification, _counter);
 	std::ifstream inFile(filename);
 
 	if (!inFile.is_open()) {
 		throw error(3);
 	}
 
-	std::string line;
-	while (getline(inFile, line)) {
-		std::stringstream ss(line);
-		double val;
-		while (ss >> val) {
-			values.push_back(val);
-		}
-	}
+	fillGrayValues(inFile, &grayValues);
 
-	training(_network, &values, _classification, _epsilon, _epsilonDecay, _momentumFactor, _epochs);
+#ifdef DEBUG_SHOW_TRAININGFILENAME
+	std::cout << "Training " << filename << std::endl;
+#endif // DEBUG_SHOW_TRAININGFILENAME
+
+	training(_network, &grayValues, _classification, _epsilon, _epsilonDecay, _momentumFactor, _epochs);
 
 	inFile.close();
-	values.clear();
+	grayValues.clear();
 }
 
 

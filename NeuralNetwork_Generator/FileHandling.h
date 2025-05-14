@@ -29,5 +29,7 @@ void loadNet(std::vector<std::vector<Neuron>>* _network);								// Load a netwo
 void setupLoad(std::vector<std::vector<Neuron>>* _network);								// Setup for loading a network 
 void deleteNet(std::vector<std::vector<Neuron>>* _network);								// Delete a network - called from setupDelete()
 void setupDelete(std::vector<std::vector<Neuron>>* _network);							// Setup for deleting a network 
+std::string getImageFilePath(const std::string _mainFolder, std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter);
+void fillGrayValues(std::ifstream& _inFile, std::vector<float>* _grayValues);
 void loadValidationIMG(std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, double& totalAccuracy, int& totalTests);	// Load the validation image and call validation() 
 void loadTrainingIMG(std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, const double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs);	// Load the training image and call training() 

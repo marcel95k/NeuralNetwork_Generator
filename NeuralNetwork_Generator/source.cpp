@@ -1,5 +1,6 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include <opencv2/core/utils/logger.hpp>
 #include "Defines.h"
 #include "ErrorHandling.h"
 #include "FileHandling.h"
@@ -30,6 +31,9 @@ void initializeNet(std::vector<std::vector<Neuron>>* _network) {
 			_network->at(0).at(i).setNewWeight(false);
 		}
 	}
+
+	// Marking the network as NOT trained by changing the information in the first Neuron of the first Layer
+	_network->at(0).at(0).setIsTrained(false);
 }
 
 vector<vector<Neuron>> newNet() {
@@ -82,7 +86,23 @@ vector<vector<Neuron>> newNet() {
 	return network;
 }
 
+void printNetworkInfo(vector<vector<Neuron>>* _network) {
+
+	if (_network->size() > 0) {
+		if (_network->at(0).at(0).getIsSaved() == true) {
+			//cout << network.at(0).at(0).getNetworkName() << " - SAVED\t" << network.at(0).at(0).getAverageAccuracy() << "%" << endl << endl;
+			cout << _network->at(0).at(0).getNetworkName() << " - SAVED" << endl << endl;
+		}
+		else if (_network->at(0).at(0).getIsSaved() == false) {
+			//cout << network.at(0).at(0).getNetworkName() << " - NOT SAVED\t" << network.at(0).at(0).getAverageAccuracy() << "%" << endl << endl;
+			cout << _network->at(0).at(0).getNetworkName() << " - NOT SAVED" << endl << endl;
+		}
+	}
+}
+
 int main() {
+
+	cv::utils::logging::setLogLevel(cv::utils::logging::LOG_LEVEL_SILENT);
 
 	vector<vector<Neuron>> network;
 
@@ -91,18 +111,8 @@ int main() {
 	while (userInput != 9) {
 		system("cls");
 
-		// Display Network Name 
-		if (network.size() > 0) {
-			if (network.at(0).at(0).getIsSaved() == true) {
-				//cout << network.at(0).at(0).getNetworkName() << " - SAVED\t" << network.at(0).at(0).getAverageAccuracy() << "%" << endl << endl;
-				cout << network.at(0).at(0).getNetworkName() << " - SAVED" << endl << endl;
-			}
-			else if (network.at(0).at(0).getIsSaved() == false) {
-				//cout << network.at(0).at(0).getNetworkName() << " - NOT SAVED\t" << network.at(0).at(0).getAverageAccuracy() << "%" << endl << endl;
-				cout << network.at(0).at(0).getNetworkName() << " - NOT SAVED" << endl << endl;
-			}
-		}
-
+		printNetworkInfo(&network);
+		
 		cout << "(1) Neues Netz erstellen" << endl;
 		cout << "(2) Trainingsdaten erstellen" << endl;
 		cout << "(3) Netz speichern" << endl;
@@ -207,8 +217,6 @@ int main() {
 					system("pause");
 				}
 			}
-
-	
 		}
 
 		else if (userInput == 8) {

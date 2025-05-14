@@ -12,7 +12,7 @@ void weightAdaption(std::vector<std::vector<Neuron>>* _network, std::vector<doub
 void calculateErrors(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _errors); // Calculates all errors based on the target MINUS the calculated output
 void forwardPassTraining(std::vector<std::vector<Neuron>>* _network); // Calculates all outputs
 void training(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _grayValues, const int _target, double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs); // Initializes the net and processes the forwardPass + adaptions
-void processTraining(std::vector<std::vector<Neuron>>* _network, const double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs); // Loop for loading processing the training iteration and by loading one image after another 
+void processTraining(std::vector<std::vector<Neuron>>* _network, const double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs); // Loop for processing the training iteration and by loading one image after another 
 void setTrainingParameters(std::vector<std::vector<Neuron>>* _network, double& _epsilon, double& _epsilonDecay, double& _momentumfactor, int& _epochs);	// Setup for training parameters
 void setupTraining(std::vector<std::vector<Neuron>>* _network);														
 

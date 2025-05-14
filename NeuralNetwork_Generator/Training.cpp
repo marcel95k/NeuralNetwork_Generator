@@ -80,24 +80,6 @@ void training(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _g
 		_network->at(1).at(j).setTargetOutputValue(0);
 	}
 	_network->at(1).at(_target).setTargetOutputValue(1);
-
-	for (int i = 0; i < _network->at(0).size(); ++i) {
-		_network->at(0).at(i).resizeWeightVector(_network->at(1).size());
-	}
-
-	// Init weights and bias weights once
-	for (int j = 0; j < _network->at(1).size(); ++j) {
-		double biasInit = ((rand() % 100) / 100.0) - 0.5; // [-0.5, 0.5]
-		_network->at(1).at(j).setBiasWeight(biasInit);
-
-		for (int i = 0; i < _network->at(0).size(); ++i) {
-			if (_network->at(0).at(i).getNewWeight() == false) {
-				double w = ((rand() % 100) / 100.0) - 0.5; // [-0.5, 0.5]
-				_network->at(0).at(i).setWeightAt(j, w);
-				_network->at(0).at(i).setNewWeight(true);
-			}
-		}
-	}
 	
 	for (int epoch = 0; epoch < _epochs; ++epoch) {
 
@@ -132,7 +114,7 @@ void processTraining(std::vector<std::vector<Neuron>>* _network, const double _e
 		// Load training images and validate
 		for (int i = 0; i < _network->at(0).at(0).getIndividualClassifications(); i++) {
 			auto start = std::chrono::high_resolution_clock::now();
-			std::cout << "Training...";
+			std::cout << "Training..." << std::endl;
 			for (int u = 0; u < _network->at(1).size(); u++) {
 				loadTrainingIMG(_network, u, i, _epsilon, _epsilonDecay, _momentumFactor, _epochs);
 			}
@@ -152,6 +134,7 @@ void processTraining(std::vector<std::vector<Neuron>>* _network, const double _e
 					_network->at(0).at(0).setAverageAccuracy(averageAccuracy);
 				}
 			}
+
 			auto end = std::chrono::high_resolution_clock::now();
 			duration = end - start;
 			duration = duration * _network->at(0).at(0).getIndividualClassifications() / 60;

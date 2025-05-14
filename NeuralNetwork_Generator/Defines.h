@@ -21,6 +21,12 @@
 	#define DRAWRADIUS_MIN			3
 
 
+// Foldernames
+
+	#define TRAININGDATA			"Trainingdata/"
+	#define VALIDATIONDATA			"Validationdata/"
+
+
 // Debug
 
-	//#define DEBUG_SHOW_TRAININGFILE
+	//#define DEBUG_SHOW_TRAININGFILENAME

@@ -31,6 +31,7 @@ void checkNetForError(std::vector<std::vector<Neuron>>* _network) {
 }
 
 void checkUserInputForError() {
+
 	if (std::cin.fail()) {
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
