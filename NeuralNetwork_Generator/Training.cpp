@@ -1,0 +1,232 @@
+﻿#include "Training.h"
+
+void fitnessTest(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _grayValues, int digit, double& totalAccuracy, int& totalTests) {
+
+	std::vector<double>percentVector;
+
+	for (int i = 0; i < _network->at(0).size(); ++i) {
+		_network->at(0).at(i).setOutputValue(_grayValues->at(i));
+	}
+
+	double totalSum = 0.0; 	// Calculate total sum of outputs (only once, after calculating all outputs)
+	forwardPassTest(_network, totalSum);
+
+	// Calculate and show percentages of outputs
+	for (int j = 0; j < _network->at(1).size(); ++j) {
+		// Percentage of the current output in relation to the total amount
+		double percentage = (_network->at(1).at(j).getOutputValue() / totalSum) * 100;
+		percentVector.push_back(percentage);
+	}
+
+	// Find highest element
+	auto maxIt = max_element(percentVector.begin(), percentVector.end());
+
+	// Update accuracy statistics
+	if (maxIt != percentVector.end()) {
+		int index = distance(percentVector.begin(), maxIt);
+		totalTests++;
+		if (digit == index) {
+			totalAccuracy += *maxIt;
+		}
+	}
+}
+
+void biasAdaption(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _errors, const double _epsilon) {
+
+	for (int j = 0; j < _network->at(1).size(); ++j) {
+		double delta = _epsilon * _errors->at(j) * sigmoid_derivative(_network->at(1).at(j).getOutputValue()) * 1.0;
+		double newBias = _network->at(1).at(j).getBiasWeight() + delta;
+		_network->at(1).at(j).setBiasWeight(newBias);
+	}
+}
+
+void weightAdaption(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _errors, const double _epsilon, const double _momentumFactor) {
+
+	for (int i = 0; i < _network->at(0).size(); ++i) {
+		for (int j = 0; j < _network->at(1).size(); ++j) {
+			double delta = _epsilon * _errors->at(j) * sigmoid_derivative(_network->at(1).at(j).getOutputValue()) * _network->at(0).at(i).getOutputValue();
+			_network->at(0).at(i).addWeightAt(j, delta, _momentumFactor);
+		}
+	}
+}
+
+void calculateErrors(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _errors) {
+
+	for (int k = 0; k < _network->at(1).size(); ++k) {
+		_errors->at(k) = _network->at(1).at(k).getTargetOutputValue() - _network->at(1).at(k).getOutputValue();
+	}
+}
+
+void forwardPassTraining(std::vector<std::vector<Neuron>>* _network) {
+
+	for (int j = 0; j < _network->at(1).size(); ++j) {
+		double sum = 0.0;
+		for (int i = 0; i < _network->at(0).size(); ++i) {
+			sum += _network->at(0).at(i).getOutputValue() * _network->at(0).at(i).getWeightAt(j);
+
+		}
+		sum += 1.0 * _network->at(1).at(j).getBiasWeight(); // Add bias
+		_network->at(1).at(j).setOutputValue(sigmoid(sum)); // Apply sigmoid to output
+	}
+}
+
+void training(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _grayValues, const int _target, double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs) {
+
+	for (int i = 0; i < _network->at(0).size(); ++i) {
+		_network->at(0).at(i).setOutputValue(_grayValues->at(i));
+	}
+	
+	for (int j = 0; j < _network->at(1).size(); ++j) {
+		_network->at(1).at(j).setTargetOutputValue(0);
+	}
+	_network->at(1).at(_target).setTargetOutputValue(1);
+
+	for (int i = 0; i < _network->at(0).size(); ++i) {
+		_network->at(0).at(i).resizeWeightVector(_network->at(1).size());
+	}
+
+	// Init weights and bias weights once
+	for (int j = 0; j < _network->at(1).size(); ++j) {
+		double biasInit = ((rand() % 100) / 100.0) - 0.5; // [-0.5, 0.5]
+		_network->at(1).at(j).setBiasWeight(biasInit);
+
+		for (int i = 0; i < _network->at(0).size(); ++i) {
+			if (_network->at(0).at(i).getNewWeight() == false) {
+				double w = ((rand() % 100) / 100.0) - 0.5; // [-0.5, 0.5]
+				_network->at(0).at(i).setWeightAt(j, w);
+				_network->at(0).at(i).setNewWeight(true);
+			}
+		}
+	}
+	
+	for (int epoch = 0; epoch < _epochs; ++epoch) {
+
+		std::vector<double>errors(_network->at(1).size());
+
+		if (epoch % 50 == 0 && epoch > 0) {  // After 50 epochs, reduce the learning rate every 50 epochs
+			_epsilon *= _epsilonDecay;  // Reduce learning rate by epsilon decay
+		}
+
+		forwardPassTraining(_network);
+		calculateErrors(_network, &errors);
+		weightAdaption(_network, &errors, _epsilon, _momentumFactor);
+		biasAdaption(_network, &errors, _epsilon);
+
+		errors.clear();
+	}
+}
+
+void processTraining(std::vector<std::vector<Neuron>>* _network, const double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs) {
+
+	double totalAccuracy = 0.0;
+	int totalTests = 0;
+
+	// Variables for drawing the loss function
+	std::vector<cv::Point> lossPoints;
+	int x = 10;
+
+	// Saves the duration of the training loop
+	std::chrono::duration<double> duration = std::chrono::seconds(0);
+
+	try {
+		// Load training images and validate
+		for (int i = 0; i < _network->at(0).at(0).getIndividualClassifications(); i++) {
+			auto start = std::chrono::high_resolution_clock::now();
+			std::cout << "Training...";
+			for (int u = 0; u < _network->at(1).size(); u++) {
+				loadTrainingIMG(_network, u, i, _epsilon, _epsilonDecay, _momentumFactor, _epochs);
+			}
+			if (_network->at(0).at(0).getHasValidationdata()) {
+				std::cout << std::endl << "Validieren...";
+				for (int k = 0; k < 20; k++) {
+					for (int h = 0; h < _network->at(1).size(); h++) {
+						loadValidationIMG(_network, h, k, totalAccuracy, totalTests);
+					}
+				}
+				if (totalTests > 0) {
+					double averageAccuracy = totalAccuracy / totalTests;
+					std::cout << std::endl << "Durchschnittliche Erkennungsgenauigkeit: " << averageAccuracy << "%" << std::endl << std::endl;
+					drawLoss(averageAccuracy, x, &lossPoints, duration);
+
+					// First Neuron of the first Layer will contain the information about the average accuracy
+					_network->at(0).at(0).setAverageAccuracy(averageAccuracy);
+				}
+			}
+			auto end = std::chrono::high_resolution_clock::now();
+			duration = end - start;
+			duration = duration * _network->at(0).at(0).getIndividualClassifications() / 60;
+		}
+	}
+
+	catch (const std::string& error) {
+		std::cerr << error << std::endl;
+	}
+
+	x = 0;
+	lossPoints.clear();
+}
+
+void setTrainingParameters(std::vector<std::vector<Neuron>>* _network, double& _epsilon, double& _epsilonDecay, double& _momentumFactor, int& _epochs) {
+
+	std::cout << std::endl << "Lernrate: ";
+	std::cin >> _epsilon;
+	checkUserInputForError();
+
+	std::cout << "Lernraten-Reduktion (max 1): ";
+	std::cin >> _epsilonDecay;
+	checkUserInputForError();
+
+	if (_epsilonDecay > 1 || _epsilonDecay < 0) { throw error(1); }
+
+	std::cout << "Momentum Faktor (max 0.9): ";
+	std::cin >> _momentumFactor;
+	checkUserInputForError();
+	if (_momentumFactor > 0.9 || _momentumFactor < 0) { throw error(1); }
+
+	std::cout << "Trainingsepochen (min. 60): ";
+	std::cin >> _epochs;
+	checkUserInputForError();
+	if (_epochs < 60) { throw error(1); }
+}
+
+void setupTraining(std::vector<std::vector<Neuron>>* _network) {
+
+	checkNetForError(4, _network);
+
+	std::string userInput_s;
+	double epsilon;
+	double epsilonDecay;
+	double momentumFactor;
+	int epochs;
+
+	std::cout << "Standard Training? (J/N)";
+	std::cout << std::endl << "Eingabe: ";
+	std::cin >> userInput_s;
+
+	if (userInput_s == "j" || userInput_s == "J") {
+		epsilon =			DEFAULT_EPSILON;
+		epsilonDecay =		DEFAULT_EPSILON_DECAY;
+		momentumFactor =	DEFAULT_MOMENTUMFACTOR;
+		epochs =			DEFAULT_EPOCHS;
+	}
+	else if (userInput_s == "n" || userInput_s == "N") {
+		setTrainingParameters(_network, epsilon, epsilonDecay, momentumFactor, epochs);
+	}
+	else { throw error(1); }
+
+	processTraining(_network, epsilon, epsilonDecay, momentumFactor, epochs);
+
+	std::cout << std::endl << "Training abgeschlossen." << std::endl << std::endl;
+	system("pause");
+
+	if (_network->at(0).at(0).getHasValidationdata()) {
+		destroyWindow("Loss");
+	}
+
+	// Marking the network as trained by changing the information in the first Neuron of the first Layer
+	_network->at(0).at(0).setIsTrained(true);
+
+	// Marking the network as NOT saved by changing the information in the first Neuron of the first Layer
+	_network->at(0).at(0).setIsSaved(false);
+}
+
