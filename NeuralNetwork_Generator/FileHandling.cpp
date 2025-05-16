@@ -3,7 +3,7 @@
 namespace fs = std::filesystem;
 
 
-bool networkExisting(const std::string& _filename, const std::string& _networkName) {
+bool FILEHANDLING::networkExisting(const std::string& _filename, const std::string& _networkName) {
 
 	std::ifstream file(_filename);
 	std::string line;
@@ -15,7 +15,7 @@ bool networkExisting(const std::string& _filename, const std::string& _networkNa
 	return false;
 }
 
-void writeGrayscaleToFile(const std::string _mainFolder, std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, cv::Mat _centered) {
+void FILEHANDLING::writeGrayscaleToFile(const std::string _mainFolder, std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, cv::Mat _centered) {
 
 	std::ofstream outFile(_mainFolder + _network->at(0).at(0).getNetworkName() + "/" + _network->at(1).at(_classification).getClassificationName() + "/" + _network->at(1).at(_classification).getClassificationName() + "_" + std::to_string(_counter) + ".txt");
 	if (outFile.is_open()) {
@@ -33,7 +33,26 @@ void writeGrayscaleToFile(const std::string _mainFolder, std::vector<std::vector
 	}
 }
 
-void createNewValdiationFolders(std::vector<std::vector<Neuron>>* _network) {
+int FILEHANDLING::createValidationdataLoop(std::vector<std::vector<Neuron>>* _network, const int _amountOfIndividualClassifications) {
+
+	int classification = 0;
+	int counter = 0;
+	while (classification < _network->at(1).size()) {
+		int status = GRAPHICS::drawValidationdata(_network, counter, classification);
+		if (GRAPHICS::processKeyPressValidation(status, counter, classification, _amountOfIndividualClassifications) == 1) {
+			FILEHANDLING::deleteValidationFolders(_network);
+
+			// Marking the network as NOT having validationdata by changing the information in the first Neuron of the first Layer
+			_network->at(0).at(0).setHasValidationdata(false);
+
+			destroyWindow("ZeichenfensterValidation");
+			return 1;
+		}
+	}
+}
+
+
+void FILEHANDLING::createNewValdiationFolders(std::vector<std::vector<Neuron>>* _network) {
 
 	// Create the main folder and name it after the name of the network.
 	std::string mainFolder = VALIDATIONDATA + _network->at(0).at(0).getNetworkName();
@@ -46,9 +65,9 @@ void createNewValdiationFolders(std::vector<std::vector<Neuron>>* _network) {
 	}
 }
 
-void createValidationdata(std::vector<std::vector<Neuron>>* _network) {
+void FILEHANDLING::createValidationdataSetup(std::vector<std::vector<Neuron>>* _network) {
 	
-	checkNetForError(8, _network);
+	ERRORHANDLING::checkNetForError(8, _network);
 	
 	std::string userInput_s;
 	std::cout << "Validierungsdaten ertsellen? (J/N)" << std::endl;
@@ -56,32 +75,47 @@ void createValidationdata(std::vector<std::vector<Neuron>>* _network) {
 	std::cin >> userInput_s;
 
 	if (userInput_s == "J" || userInput_s == "j") {
-		std::string folderName = VALIDATIONDATA + _network->at(0).at(0).getNetworkName();
-
-		std::error_code ec;
-		std::uintmax_t amount = std::filesystem::remove_all(folderName, ec);
+		
+		FILEHANDLING::deleteValidationFolders(_network);
+		FILEHANDLING::createNewValdiationFolders(_network);
 
 		// 30% of individual classifications will be the amount of individual validation classifications
 		int amountOfIndividualClassifications = (_network->at(0).at(0).getIndividualClassifications() * VALIDATION_SHARE) / 100;	
 
-		setupSave(_network);
-		createNewValdiationFolders(_network);
-
-		int classification = 0; //u
-		int counter = 0;	//i
-		while (classification < _network->at(1).size()) {
-			int status = drawValidationdata(_network, counter, classification);
-			if (processKeyPress(status, counter, classification, amountOfIndividualClassifications) == 1) { destroyWindow("ZeichenfensterValidation"); }
-		}
+		if (FILEHANDLING::createValidationdataLoop(_network, amountOfIndividualClassifications) == 1) { return; }
 
 		if (cv::getWindowProperty("ZeichenfensterValidation", cv::WND_PROP_VISIBLE) >= 0) { destroyWindow("ZeichenfensterValidation"); }
 
 		// Marking the network as having validationdata by changing the information in the first Neuron of the first Layer
 		_network->at(0).at(0).setHasValidationdata(true);
 	}
+	else if (userInput_s == "N" || userInput_s == "n") {
+		// Marking the network as NOT having validationdata by changing the information in the first Neuron of the first Layer
+		_network->at(0).at(0).setHasValidationdata(false);
+	}
+	else { throw ERRORHANDLING::error(1); }
+
+	// Marking the network as NOT saved by changing the information in the first Neuron of the first Layer
+	_network->at(0).at(0).setIsSaved(false);
 }
 
-void createNewTrainingFolders(std::vector<std::vector<Neuron>>* _network) {
+int FILEHANDLING::createTrainingdataLoop(std::vector<std::vector<Neuron>>* _network, const int _amountOfIndividualClassifications) {
+
+	int classification = 0;
+	int counter = 0;
+	while (classification < _network->at(1).size()) {
+		int status = GRAPHICS::drawTrainingdata(_network, counter, classification);
+		if (GRAPHICS::processKeyPressTraining(status, counter, classification, _amountOfIndividualClassifications) == 1) {
+			_network->at(0).at(0).setIndividualClassifications(0);
+			FILEHANDLING::deleteTrainingFolders(_network);
+			destroyWindow("Zeichenfenster");
+			return 1;
+		}
+	}
+}
+
+
+void FILEHANDLING::createNewTrainingFolders(std::vector<std::vector<Neuron>>* _network) {
 
 	// Create the main folder and name it after the name of the network.
 	std::string mainFolder = TRAININGDATA + _network->at(0).at(0).getNetworkName();
@@ -94,48 +128,54 @@ void createNewTrainingFolders(std::vector<std::vector<Neuron>>* _network) {
 	}
 }
 
-void createTrainingdata(std::vector<std::vector<Neuron>>* _network) {
+void FILEHANDLING::createTrainingdataSetup(std::vector<std::vector<Neuron>>* _network) {
 
-	checkNetForError(8, _network);
-
-	std::string folderName = TRAININGDATA + _network->at(0).at(0).getNetworkName();
-
-	std::error_code ec;
-	std::uintmax_t amount = std::filesystem::remove_all(folderName, ec);
-
-	setupSave(_network);
-	createNewTrainingFolders(_network);
+	ERRORHANDLING::checkNetForError(8, _network);
 
 	int amountOfIndividualClassifications;
 	std::cout << std::endl << "Wieviele individuelle Einheiten pro Klassifikation? (min. 10, max. 80)" << std::endl;
 	std::cout << std::endl << "Eingabe: ";
 	std::cin >> amountOfIndividualClassifications;
 
-	checkUserInputForError();
+	ERRORHANDLING::checkUserInputForError();
 
-	if (amountOfIndividualClassifications > 80 || amountOfIndividualClassifications < 10) { throw error(1); }
+	if (amountOfIndividualClassifications > 80 || amountOfIndividualClassifications < 10) { throw ERRORHANDLING::error(1); }
+
+	FILEHANDLING::deleteFolders(_network);
+	FILEHANDLING::createNewTrainingFolders(_network);
 
 	// First Neuron of the first Layer will contain the information about how many individual entities of a classification exist
 	_network->at(0).at(0).setIndividualClassifications(amountOfIndividualClassifications);
 
-	int classification = 0; //u
-	int counter = 0;	//i
-	while (classification < _network->at(1).size()) {
-		int status = drawTrainingdata(_network, counter, classification);
-		if (processKeyPress(status, counter, classification, amountOfIndividualClassifications) == 1) { destroyWindow("Zeichenfenster"); }
-	}
+	if (FILEHANDLING::createTrainingdataLoop(_network, amountOfIndividualClassifications) == 1) { return; }
 
 	if (cv::getWindowProperty("Zeichenfenster", cv::WND_PROP_VISIBLE) >= 0) { destroyWindow("Zeichenfenster"); }
 
 	// Marking the network as NOT trained by changing the information in the first Neuron of the first Layer
 	_network->at(0).at(0).setIsTrained(false);
+
+	// Marking the network as NOT saved by changing the information in the first Neuron of the first Layer
+	_network->at(0).at(0).setIsSaved(false);
+
+	// First Neuron of the first Layer will contain the information about how many individual entities of a classification exist --> AGAIN
+	_network->at(0).at(0).setIndividualClassifications(amountOfIndividualClassifications);
+	
+	system("cls");
+	try {
+		FILEHANDLING::createValidationdataSetup(_network);
+	}
+	catch (const std::string& error) {
+		std::cerr << error << std::endl;
+		system("pause");
+	}
+
 }
 
-void saveNeuronLayer(const std::vector<Neuron>& _layer, const std::string& _filename) {
+void FILEHANDLING::saveNeuronLayer(const std::vector<Neuron>& _layer, const std::string& _filename) {
 
 	std::ofstream out(_filename, std::ios::binary);
 	if (!out) {
-		throw error(3);
+		throw ERRORHANDLING::error(3);
 	}
 
 	size_t size = _layer.size();
@@ -145,12 +185,12 @@ void saveNeuronLayer(const std::vector<Neuron>& _layer, const std::string& _file
 	}
 }
 
-std::vector<Neuron> loadNeuronLayer(const std::string& _filename) {
+std::vector<Neuron> FILEHANDLING::loadNeuronLayer(const std::string& _filename) {
 
 	std::vector<Neuron> layer;
 	std::ifstream in(_filename, std::ios::binary);
 	if (!in) {
-		throw error(3);
+		throw ERRORHANDLING::error(3);
 	}
 
 	size_t size;
@@ -163,12 +203,12 @@ std::vector<Neuron> loadNeuronLayer(const std::string& _filename) {
 	return layer;
 }
 
-void displaySavedNetworks() {
+void FILEHANDLING::displaySavedNetworks() {
 
-	std::ifstream savedNetworks("Networks/saved_networks.txt");
+	std::ifstream savedNetworks(SAVED_NETWORKS);
 
 	if (!savedNetworks) {
-		throw error(3);
+		throw ERRORHANDLING::error(3);
 	}
 
 	std::string content;
@@ -179,7 +219,7 @@ void displaySavedNetworks() {
 	savedNetworks.close();
 }
 
-void checkIfSaved(std::vector<std::vector<Neuron>>* _network) {
+int FILEHANDLING::checkIfSaved(std::vector<std::vector<Neuron>>* _network) {
 
 	std::string userInput_s;
 
@@ -191,29 +231,33 @@ void checkIfSaved(std::vector<std::vector<Neuron>>* _network) {
 			std::cin >> userInput_s;
 			if (userInput_s == "J" || userInput_s == "j") {
 				try {
-					setupSave(_network);
+					FILEHANDLING::setupSave(_network);
 				}
 				catch (const std::string& error) {
 					std::cerr << error << std::endl;
 					system("pause");
+					return 1;
 				}
+				return 0;
+			}
+			else if(userInput_s == "N" || userInput_s == "n") {
+				return 0;
 			}
 			else {
-				std::cin.clear();
-				std::cin.ignore();
+				throw ERRORHANDLING::error(1);
 			}
 		}
 	}
 }
 
-void saveNet(std::vector<std::vector<Neuron>>* _network) {
+void FILEHANDLING::saveNet(std::vector<std::vector<Neuron>>* _network) {
 
 	// Marking the network as saved by changing the information in the first Neuron of the first Layer
 	_network->at(0).at(0).setIsSaved(true);
 
 	for (int i = 0; i < _network->size(); i++) {
 		try {
-			saveNeuronLayer(_network->at(i), "Networks/" + _network->at(0).at(0).getNetworkName() + "_" + std::to_string(i) + ".dat");
+			FILEHANDLING::saveNeuronLayer(_network->at(i), NETWORKS + _network->at(0).at(0).getNetworkName() + "_" + std::to_string(i) + ".dat");
 		}
 		catch (const std::string& error) {
 			std::cerr << error << std::endl;
@@ -221,21 +265,21 @@ void saveNet(std::vector<std::vector<Neuron>>* _network) {
 		}
 	}
 
-	std::ofstream savedNetworks("Networks/saved_networks.txt", std::ios::app);
+	std::ofstream savedNetworks(SAVED_NETWORKS, std::ios::app);
 
 	if (!savedNetworks) {
-		throw error(3);
+		throw ERRORHANDLING::error(3);
 	}
 
 	// Check if the network already exists in the "saved_networks.txt" file and write it if not
-	if (!networkExisting("Networks/saved_networks.txt", _network->at(0).at(0).getNetworkName())) {
+	if (!networkExisting(SAVED_NETWORKS, _network->at(0).at(0).getNetworkName())) {
 		savedNetworks << _network->at(0).at(0).getNetworkName() << std::endl;
 		savedNetworks.close();
 	}
 }
-void setupSave(std::vector<std::vector<Neuron>>* _network) {
+void FILEHANDLING::setupSave(std::vector<std::vector<Neuron>>* _network) {
 	
-	checkNetForError(2, _network);
+	ERRORHANDLING::checkNetForError(2, _network);
 
 	try {
 		saveNet(_network);
@@ -246,7 +290,7 @@ void setupSave(std::vector<std::vector<Neuron>>* _network) {
 	}
 }
 
-void loadNet(std::vector<std::vector<Neuron>>* _network) {
+void FILEHANDLING::loadNet(std::vector<std::vector<Neuron>>* _network) {
 
 	system("cls");
 
@@ -255,21 +299,21 @@ void loadNet(std::vector<std::vector<Neuron>>* _network) {
 
 	std::string userInput_s;
 
-	displaySavedNetworks();
+	FILEHANDLING::displaySavedNetworks();
 
 	std::cout << std::endl << "Laden: ";
 	std::cin >> userInput_s;
 	
 	// Check if the network exists in the "saved_networks.txt" file and throw and exception if not
-	if (!networkExisting("Networks/saved_networks.txt", userInput_s)) {
-		throw error(3);
+	if (!FILEHANDLING::networkExisting(SAVED_NETWORKS, userInput_s)) {
+		throw ERRORHANDLING::error(3);
 	}
 
 	_network->clear(); // Resetting the network
 
 	try {
-		inputLayer = loadNeuronLayer("Networks/" + userInput_s + "_0.dat");
-		outputLayer = loadNeuronLayer("Networks/" + userInput_s + "_1.dat");
+		inputLayer = FILEHANDLING::loadNeuronLayer(NETWORKS + userInput_s + "_0.dat");
+		outputLayer = FILEHANDLING::loadNeuronLayer(NETWORKS + userInput_s + "_1.dat");
 		_network->push_back(inputLayer);
 		_network->push_back(outputLayer);
 	}
@@ -280,12 +324,12 @@ void loadNet(std::vector<std::vector<Neuron>>* _network) {
 	}
 }
 
-void setupLoad(std::vector<std::vector<Neuron>>* _network) {
+void FILEHANDLING::setupLoad(std::vector<std::vector<Neuron>>* _network) {
 
-	checkIfSaved(_network);
+	FILEHANDLING::checkIfSaved(_network);
 	
 	try {
-		loadNet(_network);
+		FILEHANDLING::loadNet(_network);
 	}
 	catch (const std::string& error) {
 		std::cerr << error << std::endl;
@@ -293,20 +337,49 @@ void setupLoad(std::vector<std::vector<Neuron>>* _network) {
 	}
 }
 
-void deleteNet(std::vector<std::vector<Neuron>>* _network) {
+void FILEHANDLING::deleteValidationFolders(std::vector<std::vector<Neuron>>* _network) {
+
+	std::string folderNameValidation = VALIDATIONDATA + _network->at(0).at(0).getNetworkName();
+
+	std::error_code ecValidation;
+	std::uintmax_t amountValidation = std::filesystem::remove_all(folderNameValidation, ecValidation);
+}
+
+void FILEHANDLING::deleteTrainingFolders(std::vector<std::vector<Neuron>>* _network) {
+
+	std::string folderNameTraining = TRAININGDATA + _network->at(0).at(0).getNetworkName();
+
+	std::error_code ecTraining;
+	std::uintmax_t amountTraining = std::filesystem::remove_all(folderNameTraining, ecTraining);
+}
+
+void FILEHANDLING::deleteFolders(std::vector<std::vector<Neuron>>* _network) {
+
+	std::string folderNameTraining = TRAININGDATA + _network->at(0).at(0).getNetworkName();
+
+	std::error_code ecTraining;
+	std::uintmax_t amountTraining = std::filesystem::remove_all(folderNameTraining, ecTraining);
+
+	std::string folderNameValidation = VALIDATIONDATA + _network->at(0).at(0).getNetworkName();
+
+	std::error_code ecValidation;
+	std::uintmax_t amountValidation = std::filesystem::remove_all(folderNameValidation, ecValidation);
+}
+
+void FILEHANDLING::deleteNet(std::vector<std::vector<Neuron>>* _network) {
 	
 	for (int i = 0; i < _network->size(); i++) {
-		std::string filenameDAT = "Networks/" + _network->at(0).at(0).getNetworkName() + "_" + std::to_string(i) + ".dat";
+		std::string filenameDAT = NETWORKS+ _network->at(0).at(0).getNetworkName() + "_" + std::to_string(i) + ".dat";
 		std::remove(filenameDAT.c_str());
 	}
 
-	std::string filenameTXT = "Networks/saved_networks.txt";
+	std::string filenameTXT = SAVED_NETWORKS;
 	std::ifstream infile(filenameTXT);
 	std::ofstream tempFile("temp.txt");
 	std::string line;
 
 	if (!infile || !tempFile) {
-		throw error(3);
+		throw ERRORHANDLING::error(3);
 	}
 
 	while (std::getline(infile, line)) {
@@ -322,31 +395,24 @@ void deleteNet(std::vector<std::vector<Neuron>>* _network) {
 	std::remove(filenameTXT.c_str());
 	std::rename("temp.txt", filenameTXT.c_str());
 
-	std::string folderNameTraining = TRAININGDATA + _network->at(0).at(0).getNetworkName();
-
-	std::error_code ecTraining;
-	std::uintmax_t amountTraining = std::filesystem::remove_all(folderNameTraining, ecTraining);
-
-	std::string folderNameValidation = VALIDATIONDATA + _network->at(0).at(0).getNetworkName();
-
-	std::error_code ecValidation;
-	std::uintmax_t amountVaidation = std::filesystem::remove_all(folderNameValidation, ecValidation);
+	FILEHANDLING::deleteFolders(_network);
 
 	_network->resize(0);
 }
 
-void setupDelete(std::vector<std::vector<Neuron>>* _network) {
+void FILEHANDLING::setupDelete(std::vector<std::vector<Neuron>>* _network) {
 
-	checkNetForError(6, _network);
+	ERRORHANDLING::checkNetForError(6, _network);
 
 	system("cls");
 	std::string userInput_s;
 	std::cout << std::endl << "Netz sicher loeschen?(J/N)";
 	std::cout << std::endl << "Eingabe: ";
 	std::cin >> userInput_s;
+
 	if (userInput_s == "J" || userInput_s == "j") {
 		try {
-			deleteNet(_network);
+			FILEHANDLING::deleteNet(_network);
 		}
 		catch (const std::string& error) {
 			std::cerr << error << std::endl;
@@ -355,7 +421,26 @@ void setupDelete(std::vector<std::vector<Neuron>>* _network) {
 	}
 }
 
-std::string getImageFilePath(const std::string _mainFolder, std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter) {
+int FILEHANDLING::setupExit(std::vector<std::vector<Neuron>>* _network) {
+	
+	// Check if a network exists
+	if (_network->size() > 0) {
+		if (FILEHANDLING::checkIfSaved(_network) == 1) {
+			return 1;
+		}
+		else {
+			if (FILEHANDLING::networkExisting(SAVED_NETWORKS, _network->at(0).at(0).getNetworkName()) == true) {
+				return 0;
+			}
+			else if (FILEHANDLING::networkExisting(SAVED_NETWORKS, _network->at(0).at(0).getNetworkName()) == false) {
+				FILEHANDLING::deleteFolders(_network);
+				return 0;
+			}
+		}
+	}
+}
+
+std::string FILEHANDLING::getImageFilePath(const std::string _mainFolder, std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter) {
 
 	return _mainFolder +
 		_network->at(0).at(0).getNetworkName() + "/" +
@@ -364,7 +449,7 @@ std::string getImageFilePath(const std::string _mainFolder, std::vector<std::vec
 		std::to_string(_counter) + ".txt";
 }
 
-void fillGrayValues(std::ifstream& _inFile, std::vector<float>* _grayValues) {
+void FILEHANDLING::fillGrayValues(std::ifstream& _inFile, std::vector<float>* _grayValues) {
 
 	std::string line;
 	while (getline(_inFile, line)) {
@@ -376,47 +461,47 @@ void fillGrayValues(std::ifstream& _inFile, std::vector<float>* _grayValues) {
 	}
 }
 
-void loadValidationIMG(std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, double& totalAccuracy, int& totalTests) {
+void FILEHANDLING::loadValidationIMG(std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, double& totalAccuracy, int& totalTests) {
 
 	std::vector<float> grayValues;
 
-	std::string filename = getImageFilePath(VALIDATIONDATA, _network, _classification, _counter);
+	std::string filename = FILEHANDLING::getImageFilePath(VALIDATIONDATA, _network, _classification, _counter);
 	std::ifstream inFile(filename);
 
 	if (!inFile.is_open()) {
-		throw error(3);
+		throw ERRORHANDLING::error(3);
 	}
 
-	fillGrayValues(inFile, &grayValues);
+	FILEHANDLING::fillGrayValues(inFile, &grayValues);
 
 #ifdef DEBUG_SHOW_VALIDATIONFILENAME
 	std::cout << "Validating " << filename << std::endl;
 #endif // DEBUG_SHOW_VALIDATIONFILENAME
 
-	fitnessTest(_network, &grayValues, _classification, totalAccuracy, totalTests);
+	TRAINING::fitnessTest(_network, &grayValues, _classification, totalAccuracy, totalTests);
 
 	inFile.close();
 	grayValues.clear();
 }
 
-void loadTrainingIMG(std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, const double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs) {
+void FILEHANDLING::loadTrainingIMG(std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, const double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs) {
 
 	std::vector<float> grayValues;
 
-	std::string filename = getImageFilePath(TRAININGDATA, _network, _classification, _counter);
+	std::string filename = FILEHANDLING::getImageFilePath(TRAININGDATA, _network, _classification, _counter);
 	std::ifstream inFile(filename);
 
 	if (!inFile.is_open()) {
-		throw error(3);
+		throw ERRORHANDLING::error(3);
 	}
 
-	fillGrayValues(inFile, &grayValues);
+	FILEHANDLING::fillGrayValues(inFile, &grayValues);
 
 #ifdef DEBUG_SHOW_TRAININGFILENAME
 	std::cout << "Training " << filename << std::endl;
 #endif // DEBUG_SHOW_TRAININGFILENAME
 
-	training(_network, &grayValues, _classification, _epsilon, _epsilonDecay, _momentumFactor, _epochs);
+	TRAINING::training(_network, &grayValues, _classification, _epsilon, _epsilonDecay, _momentumFactor, _epochs);
 
 	inFile.close();
 	grayValues.clear();

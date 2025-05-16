@@ -14,7 +14,7 @@ using namespace std;
 
 void initializeNet(std::vector<std::vector<Neuron>>* _network) {
 
-	checkNetForError(9, _network);
+	ERRORHANDLING::checkNetForError(9, _network);
 
 	for (int i = 0; i < _network->at(0).size(); ++i) {
 		_network->at(0).at(i).resizeWeightVector(_network->at(1).size());
@@ -42,13 +42,13 @@ vector<vector<Neuron>> newNet() {
 
 	string networkName;
 
-	displaySavedNetworks();
+	FILEHANDLING::displaySavedNetworks();
 
 	cout << endl << "Name des Netzes: ";
 	cin >> networkName;
 
 	// Check if the network already exists in the "saved_networks.txt" file
-	if (networkExisting("Networks/saved_networks.txt", networkName)) { 
+	if (FILEHANDLING::networkExisting(SAVED_NETWORKS, networkName)) {
 		cout << endl << "Netztwerk existiert bereits!" << endl; 
 		system("pause");
 		return network;
@@ -66,9 +66,9 @@ vector<vector<Neuron>> newNet() {
 	cout << endl << "Eingabe: "; 
 	cin >> amountOfOutpus;
 
-	checkUserInputForError();
+	ERRORHANDLING::checkUserInputForError();
 
-	if (amountOfOutpus < MIN_OUTPUTNEURONS || amountOfOutpus > MAX_OUTPUTNEURONS) { throw error(1); }
+	if (amountOfOutpus < MIN_OUTPUTNEURONS || amountOfOutpus > MAX_OUTPUTNEURONS) { throw ERRORHANDLING::error(1); }
 	network.at(1).resize(amountOfOutpus);
 
 	cout << endl;
@@ -112,7 +112,7 @@ int main() {
 
 	int userInput = 0;
 
-	while (userInput != 9) {
+	while (true) {
 		system("cls");
 
 		printNetworkInfo(&network);
@@ -125,7 +125,7 @@ int main() {
 		cout << "(6) Netz testen" << endl;
 		cout << "(7) Netz neu initialisieren" << endl;
 		cout << "(8) Netz loeschen" << endl;
-		cout << endl <<"(9) Ende" << endl;
+		cout << endl <<"(0) Ende" << endl;
 		cout << endl << "Eingabe: "; 
 		cin >> userInput;
 
@@ -136,7 +136,7 @@ int main() {
 
 		if (userInput == 1) {
 			system("cls");
-			checkIfSaved(&network);
+			FILEHANDLING::checkIfSaved(&network);
 			try {
 				system("cls");
 				network = newNet();
@@ -150,9 +150,8 @@ int main() {
 		else if (userInput == 2) {
 			system("cls");
 			try {
-				createTrainingdata(&network);
+				FILEHANDLING::createTrainingdataSetup(&network);
 				system("cls");
-				createValidationdata(&network);
 			}
 			catch (const string& error) {
 				cerr << error << endl;
@@ -162,7 +161,7 @@ int main() {
 
 		else if (userInput == 3) {
 			try {
-				setupSave(&network);
+				FILEHANDLING::setupSave(&network);
 			}
 			catch (const string& error) {
 				cerr << error << endl;
@@ -173,7 +172,7 @@ int main() {
 		else if (userInput == 4) {
 			system("cls");
 			try {
-				setupLoad(&network);
+				FILEHANDLING::setupLoad(&network);
 			}
 			catch (const string& error) {
 				cerr << error << endl;
@@ -184,7 +183,7 @@ int main() {
 		else if (userInput == 5) {
 			system("cls");
 			try {
-				setupTraining(&network);
+				TRAINING::setupTraining(&network);
 			}
 			catch (const string& error) {
 				cerr << error << endl;
@@ -195,7 +194,7 @@ int main() {
 		else if (userInput == 6) {
 			system("cls");
 			try {
-				setupTest(&network);
+				TEST::setupTest(&network);
 			}
 			catch (const string& error) {
 				cerr << error << endl;
@@ -224,7 +223,7 @@ int main() {
 		else if (userInput == 8) {
 			system("cls");
 			try {
-				setupDelete(&network);
+				FILEHANDLING::setupDelete(&network);
 			}
 			catch (const string& error) {
 				cerr << error << endl;
@@ -232,17 +231,17 @@ int main() {
 			}
 		}
 
-		else if (userInput == 9) {
+		else if (userInput == 0) {
 			system("cls");
 			try {
-				checkIfSaved(&network);
-				break;
+				if (FILEHANDLING::setupExit(&network) == 0) {
+					return 0;
+				}
 			}
 			catch (const string& error) {
 				cerr << error << endl;
 				system("pause");
 			}
-			
 		}
 
 	}

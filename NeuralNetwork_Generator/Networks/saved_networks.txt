@@ -9,3 +9,5 @@ Ziffern
 abc_klein
 netz
 Baum
+digits
+a

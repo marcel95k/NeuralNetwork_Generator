@@ -1,6 +1,6 @@
 #include "ErrorHandling.h"
 
-std::string error(const int _what) {
+std::string ERRORHANDLING::error(const int _what) {
 	switch (_what) {
 	case 1: return "\nUngueltige Einagbe!\n";
 	case 2: return "\nNetz leer! Speichern fehlgeschlagen!\n";
@@ -16,25 +16,25 @@ std::string error(const int _what) {
 	}
 }
 
-void checkNetForError(const int _errorCode, std::vector<std::vector<Neuron>>* _network) {
+void ERRORHANDLING::checkNetForError(const int _errorCode, std::vector<std::vector<Neuron>>* _network) {
 
 	if (_network->size() == 0) {											// Check if a network exists and if NOT, throw an exception based on the given errorCode
-		throw error(_errorCode);
+		throw ERRORHANDLING::error(_errorCode);
 	}
 }
 
-void checkNetForError(std::vector<std::vector<Neuron>>* _network) {
+void ERRORHANDLING::checkNetForError(std::vector<std::vector<Neuron>>* _network) {
 
 	if (_network->at(0).at(0).getIndividualClassifications() == 0) {		// Check if training data exist and throw an exception if not
-		throw error(7);
+		throw ERRORHANDLING::error(7);
 	}
 }
 
-void checkUserInputForError() {
+void ERRORHANDLING::checkUserInputForError() {
 
 	if (std::cin.fail()) {
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-		throw error(1);
+		throw ERRORHANDLING::error(1);
 	}
 }

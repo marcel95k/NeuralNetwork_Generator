@@ -1,6 +1,6 @@
 ﻿#include "Training.h"
 
-void fitnessTest(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _grayValues, int digit, double& totalAccuracy, int& totalTests) {
+void TRAINING::fitnessTest(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _grayValues, int digit, double& totalAccuracy, int& totalTests) {
 
 	std::vector<double>percentVector;
 
@@ -9,9 +9,9 @@ void fitnessTest(std::vector<std::vector<Neuron>>* _network, std::vector<float>*
 	}
 
 	double totalSum = 0.0; 	// Calculate total sum of outputs (only once, after calculating all outputs)
-	forwardPassTest(_network, totalSum);
+	TEST::forwardPassTest(_network, totalSum);
 
-	// Calculate and show percentages of outputs
+	// Calculate percentages of outputs and fill the percentVector
 	for (int j = 0; j < _network->at(1).size(); ++j) {
 		// Percentage of the current output in relation to the total amount
 		double percentage = (_network->at(1).at(j).getOutputValue() / totalSum) * 100;
@@ -31,14 +31,14 @@ void fitnessTest(std::vector<std::vector<Neuron>>* _network, std::vector<float>*
 #ifdef DEBUG_SHOW_FITNESSDETAILS
 			std::cout << std::endl << _network->at(1).at(digit).getClassificationName()
 				<< " erkannt als " << _network->at(1).at(index).getClassificationName()
-				<< " mit " << *maxIt << "% ";
+				<< " mit " << *maxIt << "%";
 #endif // DEBUG_SHOW_FITNESSDETAILS 
 
 		}
 	}
 }
 
-void biasAdaption(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _errors, const double _epsilon) {
+void TRAINING::biasAdaption(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _errors, const double _epsilon) {
 
 	for (int j = 0; j < _network->at(1).size(); ++j) {
 		double delta = _epsilon * _errors->at(j) * sigmoid_derivative(_network->at(1).at(j).getOutputValue()) * 1.0;
@@ -47,7 +47,7 @@ void biasAdaption(std::vector<std::vector<Neuron>>* _network, std::vector<double
 	}
 }
 
-void weightAdaption(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _errors, const double _epsilon, const double _momentumFactor) {
+void TRAINING::weightAdaption(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _errors, const double _epsilon, const double _momentumFactor) {
 
 	for (int i = 0; i < _network->at(0).size(); ++i) {
 		for (int j = 0; j < _network->at(1).size(); ++j) {
@@ -57,14 +57,14 @@ void weightAdaption(std::vector<std::vector<Neuron>>* _network, std::vector<doub
 	}
 }
 
-void calculateErrors(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _errors) {
+void TRAINING::calculateErrors(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _errors) {
 
 	for (int k = 0; k < _network->at(1).size(); ++k) {
 		_errors->at(k) = _network->at(1).at(k).getTargetOutputValue() - _network->at(1).at(k).getOutputValue();
 	}
 }
 
-void forwardPassTraining(std::vector<std::vector<Neuron>>* _network) {
+void TRAINING::forwardPassTraining(std::vector<std::vector<Neuron>>* _network) {
 
 	for (int j = 0; j < _network->at(1).size(); ++j) {
 		double sum = 0.0;
@@ -77,7 +77,7 @@ void forwardPassTraining(std::vector<std::vector<Neuron>>* _network) {
 	}
 }
 
-void training(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _grayValues, const int _target, double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs) {
+void TRAINING::training(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _grayValues, const int _target, double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs) {
 
 	for (int i = 0; i < _network->at(0).size(); ++i) {
 		_network->at(0).at(i).setOutputValue(_grayValues->at(i));
@@ -96,10 +96,10 @@ void training(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _g
 			_epsilon *= _epsilonDecay;  // Reduce learning rate by epsilon decay
 		}
 
-		forwardPassTraining(_network);
-		calculateErrors(_network, &errors);
-		weightAdaption(_network, &errors, _epsilon, _momentumFactor);
-		biasAdaption(_network, &errors, _epsilon);
+		TRAINING::forwardPassTraining(_network);
+		TRAINING::calculateErrors(_network, &errors);
+		TRAINING::weightAdaption(_network, &errors, _epsilon, _momentumFactor);
+		TRAINING::biasAdaption(_network, &errors, _epsilon);
 
 		//_epsilon *= _epsilonDecay;
 
@@ -107,25 +107,25 @@ void training(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _g
 	}
 }
 
-void processValidation(std::vector<std::vector<Neuron>>* _network, double& totalAccuracy, int& totalTests, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration) {
+void TRAINING::processValidation(std::vector<std::vector<Neuron>>* _network, double& totalAccuracy, int& totalTests, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration) {
 
 	std::cout << std::endl << "Validieren...";
 	for (int k = 0; k < (_network->at(0).at(0).getIndividualClassifications() * VALIDATION_SHARE) / 100; k++) {
 		for (int h = 0; h < _network->at(1).size(); h++) {
-			loadValidationIMG(_network, h, k, totalAccuracy, totalTests);
+			FILEHANDLING::loadValidationIMG(_network, h, k, totalAccuracy, totalTests);
 		}
 	}
 	if (totalTests > 0) {
 		double averageAccuracy = totalAccuracy / totalTests;
 		std::cout << std::endl << "Durchschnittliche Erkennungsgenauigkeit: " << averageAccuracy << "%" << std::endl << std::endl;
-		drawLoss(averageAccuracy, x, _lossPoints, _duration);
+		GRAPHICS::drawLoss(averageAccuracy, x, _lossPoints, _duration);
 
 		// First Neuron of the first Layer will contain the information about the average accuracy
 		_network->at(0).at(0).setAverageAccuracy(averageAccuracy);
 	}
 }
 
-void processTraining(std::vector<std::vector<Neuron>>* _network, const double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs) {
+void TRAINING::processTraining(std::vector<std::vector<Neuron>>* _network, const double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs) {
 
 	double totalAccuracy = 0.0;
 	int totalTests = 0;
@@ -144,12 +144,13 @@ void processTraining(std::vector<std::vector<Neuron>>* _network, const double _e
 
 			std::cout << "Training..." << std::endl;
 			for (int u = 0; u < _network->at(1).size(); u++) {
-				loadTrainingIMG(_network, u, i, _epsilon, _epsilonDecay, _momentumFactor, _epochs);
+				FILEHANDLING::loadTrainingIMG(_network, u, i, _epsilon, _epsilonDecay, _momentumFactor, _epochs);
 			}
+#ifdef VALIDATE_ON
 			if (_network->at(0).at(0).getHasValidationdata()) {
-				processValidation(_network, totalAccuracy, totalTests, x, lossPoints, duration);
+				TRAINING::processValidation(_network, totalAccuracy, totalTests, x, lossPoints, duration);
 			}
-
+#endif // VALIDATE_ON
 			auto end = std::chrono::high_resolution_clock::now();
 			duration = end - start;
 			duration = duration * _network->at(0).at(0).getIndividualClassifications() / 60;
@@ -163,32 +164,33 @@ void processTraining(std::vector<std::vector<Neuron>>* _network, const double _e
 	lossPoints.clear();
 }
 
-void setTrainingParameters(std::vector<std::vector<Neuron>>* _network, double& _epsilon, double& _epsilonDecay, double& _momentumFactor, int& _epochs) {
+void TRAINING::setTrainingParameters(std::vector<std::vector<Neuron>>* _network, double& _epsilon, double& _epsilonDecay, double& _momentumFactor, int& _epochs) {
 
 	std::cout << std::endl << "Lernrate: ";
 	std::cin >> _epsilon;
-	checkUserInputForError();
+	ERRORHANDLING::checkUserInputForError();
 
 	std::cout << "Lernraten-Reduktion (max 1): ";
 	std::cin >> _epsilonDecay;
-	checkUserInputForError();
+	ERRORHANDLING::checkUserInputForError();
 
-	if (_epsilonDecay > 1 || _epsilonDecay < 0) { throw error(1); }
+	if (_epsilonDecay > 1 || _epsilonDecay < 0) { throw ERRORHANDLING::error(1); }
 
 	std::cout << "Momentum Faktor (max 0.9): ";
 	std::cin >> _momentumFactor;
-	checkUserInputForError();
-	if (_momentumFactor > 0.9 || _momentumFactor < 0) { throw error(1); }
+	ERRORHANDLING::checkUserInputForError();
+	if (_momentumFactor > 0.9 || _momentumFactor < 0) { throw ERRORHANDLING::error(1); }
 
 	std::cout << "Trainingsepochen (min. 60): ";
 	std::cin >> _epochs;
-	checkUserInputForError();
-	if (_epochs < 60) { throw error(1); }
+	ERRORHANDLING::checkUserInputForError();
+	if (_epochs < 60) { throw ERRORHANDLING::error(1); }
 }
 
-void setupTraining(std::vector<std::vector<Neuron>>* _network) {
+void TRAINING::setupTraining(std::vector<std::vector<Neuron>>* _network) {
 
-	checkNetForError(4, _network);
+	ERRORHANDLING::checkNetForError(4, _network);
+	ERRORHANDLING::checkNetForError(_network);
 
 	std::string userInput_s;
 	double epsilon;
@@ -207,18 +209,20 @@ void setupTraining(std::vector<std::vector<Neuron>>* _network) {
 		epochs =			DEFAULT_EPOCHS;
 	}
 	else if (userInput_s == "n" || userInput_s == "N") {
-		setTrainingParameters(_network, epsilon, epsilonDecay, momentumFactor, epochs);
+		TRAINING::setTrainingParameters(_network, epsilon, epsilonDecay, momentumFactor, epochs);
 	}
-	else { throw error(1); }
+	else { throw ERRORHANDLING::error(1); }
 
-	processTraining(_network, epsilon, epsilonDecay, momentumFactor, epochs);
+	TRAINING::processTraining(_network, epsilon, epsilonDecay, momentumFactor, epochs);
 
 	std::cout << std::endl << "Training abgeschlossen." << std::endl << std::endl;
 	system("pause");
 
+#ifdef VALIDATE_ON
 	if (_network->at(0).at(0).getHasValidationdata()) {
 		destroyWindow("Loss");
 	}
+#endif // VALIDATE_ON
 
 	// Marking the network as trained by changing the information in the first Neuron of the first Layer
 	_network->at(0).at(0).setIsTrained(true);

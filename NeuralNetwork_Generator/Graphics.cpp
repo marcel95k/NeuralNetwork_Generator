@@ -8,15 +8,36 @@ int DRAW_RADIUS = 7;
 Mat window(WINDOW_HEIGHT, WINDOW_WIDTH, CV_8UC1, Scalar(255));  // White background
 Mat canvas(CANVAS_SIZE, CANVAS_SIZE, CV_8UC1, Scalar(0));       // Black drawing area
 
-void draw(int x, int y) {
+void GRAPHICS::draw(int x, int y) {
     circle(canvas, Point(x, y), DRAW_RADIUS, Scalar(255), FILLED);  // Draw white
 }
 
-void erase(int x, int y) {
+void GRAPHICS::erase(int x, int y) {
     circle(canvas, Point(x, y), DRAW_RADIUS, Scalar(0), FILLED);    // Draw black (erase)
 }
 
-int processKeyPress(const int _status, int& _counter, int& _classification, const int _amountOfIndividualClassifications) {
+int GRAPHICS::processKeyPressValidation(const int _status, int& _counter, int& _classification, const int _amountOfIndividualClassifications) {
+
+	if (_status == 1) { // ESC was pressed
+		return 1;
+	}
+	else if (_status == -1) {	// 'b' was pressed: back to previous individual or previous classification	
+		if (_counter > 0) { _counter--; }
+		else if (_classification > 0) {
+			_classification--;
+			_counter = _amountOfIndividualClassifications - 1;
+		}
+	}
+	else {	// Continue to next individual
+		_counter++;
+		if (_counter == _amountOfIndividualClassifications) {	// Continue to next classifiction when _amountOfIndividualClassifications is reached
+			_classification++;
+			_counter = 0;
+		}
+	}
+}
+
+int GRAPHICS::processKeyPressTraining(const int _status, int& _counter, int& _classification, const int _amountOfIndividualClassifications) {
 
 	if (_status == 1) { // ESC was pressed
 		return 1;
@@ -37,7 +58,7 @@ int processKeyPress(const int _status, int& _counter, int& _classification, cons
 	}
 }
 
-void mouseHandler(int event, int x, int y, int flags, void*) {
+void GRAPHICS::mouseHandler(int event, int x, int y, int flags, void*) {
 	
 	static bool drawing = false;
 	static bool erasing = false;
@@ -58,12 +79,12 @@ void mouseHandler(int event, int x, int y, int flags, void*) {
 		else if (event == EVENT_LBUTTONUP) drawing = false;
 		else if (event == EVENT_RBUTTONUP) erasing = false;
 
-		if (drawing) draw(localX, localY);
-		else if (erasing) erase(localX, localY);
+		if (drawing) GRAPHICS::draw(localX, localY);
+		else if (erasing) GRAPHICS::erase(localX, localY);
 	}
 }	
 
-Mat centerImage(const Mat& input, const Size& targetSize) {
+Mat GRAPHICS::centerImage(const Mat& input, const Size& targetSize) {
 
 	// Resize to target size
 	Mat resized;
@@ -87,7 +108,7 @@ Mat centerImage(const Mat& input, const Size& targetSize) {
 	return centered;
 }
 
-void drawTestImage(std::vector<std::vector<Neuron>>* _network) {
+void GRAPHICS::drawTestImage(std::vector<std::vector<Neuron>>* _network) {
 	
 	cv::Mat image(400, 600, CV_8UC3, cv::Scalar(255, 255, 255)); // White background
 	cv::imshow("Balkendiagramm", image);
@@ -95,7 +116,7 @@ void drawTestImage(std::vector<std::vector<Neuron>>* _network) {
 	cv::waitKey(1);
 	std::vector<float>grayValues;
 	namedWindow("ZeichenfensterTest");
-	setMouseCallback("ZeichenfensterTest", mouseHandler);
+	setMouseCallback("ZeichenfensterTest", GRAPHICS::mouseHandler);
 
 	while (true) {
 
@@ -108,12 +129,7 @@ void drawTestImage(std::vector<std::vector<Neuron>>* _network) {
 		std::string infoText = _network->at(0).at(0).getNetworkName();
 		putText(window, infoText, Point(20, 60), FONT_ITALIC, 0.8, Scalar(0), 2);
 
-		// Text right next to drawing area
-		putText(window, "T = TEST", Point(340, 100), FONT_ITALIC, 0.6, Scalar(0), 2);
-		putText(window, "C = CLEAR", Point(340, 140), FONT_ITALIC, 0.6, Scalar(0), 2);
-		putText(window, "RADIUS = " + std::to_string(DRAW_RADIUS), Point(340, 180), FONT_ITALIC, 0.6, Scalar(0), 2);
-
-		cv::circle(window, Point(490, 175), DRAW_RADIUS, Scalar(0, 0, 255), FILLED);
+		GRAPHICS::displaySidebarTextTest(window);
 
 		imshow("ZeichenfensterTest", window);
 		char key = (char)waitKey(1);
@@ -145,7 +161,7 @@ void drawTestImage(std::vector<std::vector<Neuron>>* _network) {
 				}
 			}
 
-			test(_network, &grayValues);
+			TEST::test(_network, &grayValues);
 			grayValues.clear();
 		}
 		else if (key == 27) break; // ESC to exit
@@ -154,10 +170,10 @@ void drawTestImage(std::vector<std::vector<Neuron>>* _network) {
 	destroyWindow("Balkendiagramm");
 }
 
-int drawValidationdata(std::vector<std::vector<Neuron>>* _network, const int _counter, const int _classification) {
+int GRAPHICS::drawValidationdata(std::vector<std::vector<Neuron>>* _network, const int _counter, const int _classification) {
 
 	namedWindow("ZeichenfensterValidation");
-	setMouseCallback("ZeichenfensterValidation", mouseHandler);
+	setMouseCallback("ZeichenfensterValidation", GRAPHICS::mouseHandler);
 
 	while (true) {
 		// Insert drawing area into main window
@@ -171,16 +187,16 @@ int drawValidationdata(std::vector<std::vector<Neuron>>* _network, const int _co
 
 		putText(window, infoText, Point(20, 60), FONT_ITALIC, 0.8, Scalar(0), 2);
 
-		displaySidebarText(window);
+		GRAPHICS::displaySidebarText(window);
 
 		imshow("ZeichenfensterValidation", window);
 		char key = (char)waitKey(1);
 
 		if (key == 's' || key == 'S') {
 
-			Mat centered = centerImage(canvas, Size(20, 20));
+			Mat centered = GRAPHICS::centerImage(canvas, Size(20, 20));
 
-			writeGrayscaleToFile("Validationdata/", _network, _classification, _counter, centered);
+			FILEHANDLING::writeGrayscaleToFile("Validationdata/", _network, _classification, _counter, centered);
 
 			canvas = Scalar(0);  // Reset image to black
 			break;
@@ -196,10 +212,10 @@ int drawValidationdata(std::vector<std::vector<Neuron>>* _network, const int _co
 	}
 }
 
-int drawTrainingdata(std::vector<std::vector<Neuron>>* _network, const int _counter, const int _classification) {
+int GRAPHICS::drawTrainingdata(std::vector<std::vector<Neuron>>* _network, const int _counter, const int _classification) {
 
 	namedWindow("Zeichenfenster");
-	setMouseCallback("Zeichenfenster", mouseHandler);
+	setMouseCallback("Zeichenfenster", GRAPHICS::mouseHandler);
 
 	while (true) {
 		// Insert drawing area into main window
@@ -211,15 +227,15 @@ int drawTrainingdata(std::vector<std::vector<Neuron>>* _network, const int _coun
 		std::string infoText = _network->at(1).at(_classification).getClassificationName() + " " + std::to_string(_counter + 1) + "/" + std::to_string(_network->at(0).at(0).getIndividualClassifications());
 		putText(window, infoText, Point(20, 60), FONT_ITALIC, 0.8, Scalar(0), 2);
 
-		displaySidebarText(window);
+		GRAPHICS::displaySidebarText(window);
 
 		imshow("Zeichenfenster", window);
 		char key = (char)waitKey(1);
 
 		if (key == 's' || key == 'S') {
 
-			Mat centered = centerImage(canvas, Size(20, 20));
-			writeGrayscaleToFile("Trainingdata/", _network, _classification, _counter, centered);
+			Mat centered = GRAPHICS::centerImage(canvas, Size(20, 20));
+			FILEHANDLING::writeGrayscaleToFile(TRAININGDATA, _network, _classification, _counter, centered);
 
 			canvas = Scalar(0);  // Reset image to black
 			break;
@@ -235,7 +251,17 @@ int drawTrainingdata(std::vector<std::vector<Neuron>>* _network, const int _coun
 	}
 }
 
-void displaySidebarText(Mat& window) {
+void GRAPHICS::displaySidebarTextTest(Mat& window) {
+
+	// Text right next to drawing area
+	putText(window, "T = TEST", Point(340, 100), FONT_ITALIC, 0.6, Scalar(0), 2);
+	putText(window, "C = CLEAR", Point(340, 140), FONT_ITALIC, 0.6, Scalar(0), 2);
+	putText(window, "RADIUS = " + std::to_string(DRAW_RADIUS), Point(340, 180), FONT_ITALIC, 0.6, Scalar(0), 2);
+
+	cv::circle(window, Point(490, 175), DRAW_RADIUS, Scalar(0, 0, 255), FILLED);
+}
+
+void GRAPHICS::displaySidebarText(Mat& window) {
 
 	// Draw instruction text
 	putText(window, "S = SAVE", Point(340, 100), FONT_ITALIC, 0.6, Scalar(0), 2);
@@ -247,7 +273,7 @@ void displaySidebarText(Mat& window) {
 	cv::circle(window, Point(490, 215), DRAW_RADIUS, Scalar(0, 0, 255), FILLED);
 }
 
-void drawBarGraph(std::vector<Neuron>* outputNeurons, int width, int height) {
+void GRAPHICS::drawBarGraph(std::vector<Neuron>* outputNeurons, int width, int height) {
 	cv::Mat image(height, width, CV_8UC3, cv::Scalar(255, 255, 255)); // White backgroud
 
 	int numBars = outputNeurons->size();
@@ -285,7 +311,7 @@ void drawBarGraph(std::vector<Neuron>* outputNeurons, int width, int height) {
 	cv::waitKey(1);
 }
 
-void drawLoss(const double _accuracy, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration) {
+void GRAPHICS::drawLoss(const double _accuracy, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration) {
 	cv::Mat lossGraph(200, 800, CV_8UC3, cv::Scalar(0, 0, 0));
 	const int graphWidth = 700;
 	const int graphOffset = 50;
@@ -331,7 +357,7 @@ void drawLoss(const double _accuracy, int& x, std::vector<cv::Point>& _lossPoint
 	if (x >= graphWidth) {
 		// Shift all points left
 		for (auto& point : _lossPoints) {
-			point.x -= 50;
+			point.x -= 20;
 		}
 
 		// Remove points that move out of the visible area
@@ -351,7 +377,7 @@ void drawLoss(const double _accuracy, int& x, std::vector<cv::Point>& _lossPoint
 
 	// Increment X for the next point
 	if (x < graphWidth) {
-		x += 50;
+		x += 20;
 	}
 }
 
