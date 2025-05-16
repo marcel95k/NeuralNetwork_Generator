@@ -30,24 +30,23 @@
 	#define VALIDATIONDATA			"Validationdata/"
 
 
-
 // Debug
 
 	//#define DEBUG_SHOW_TRAININGFILENAME
 	//#define DEBUG_SHOW_VALIDATIONFILENAME
 	//#define DEBUG_SHOW_FITNESSDETAILS
-	//#define VALIDATE_ON
 
 
 // ASSERT-Makro
-#define NN_ASSERT(condition, message)							\
-    do {														\
-        if (!(condition)) {										\
-            std::cerr << "Assertion failed: (" #condition		\
-                      << "), function " << __FUNCTION__			\
-                      << ", file " << __FILE__					\
-                      << ", line " << __LINE__ << ".\n"			\
-                      << "Message: " << message << std::endl;	\
-						system("pause")			;				\
-        }														\
-    } while (false)												\
+
+	#define NN_ASSERT(condition, message)							\
+	    do {														\
+	        if (!(condition)) {										\
+	            std::cerr << "Assertion failed: (" #condition		\
+	                      << "), function " << __FUNCTION__			\
+	                      << ", file " << __FILE__					\
+	                      << ", line " << __LINE__ << ".\n"			\
+	                      << "Message: " << message << std::endl;	\
+							system("pause")			;				\
+	        }														\
+	    } while (false)												\

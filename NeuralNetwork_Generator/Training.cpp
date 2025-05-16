@@ -33,7 +33,6 @@ void TRAINING::fitnessTest(std::vector<std::vector<Neuron>>* _network, std::vect
 				<< " erkannt als " << _network->at(1).at(index).getClassificationName()
 				<< " mit " << *maxIt << "%";
 #endif // DEBUG_SHOW_FITNESSDETAILS 
-
 		}
 	}
 }
@@ -146,11 +145,10 @@ void TRAINING::processTraining(std::vector<std::vector<Neuron>>* _network, const
 			for (int u = 0; u < _network->at(1).size(); u++) {
 				FILEHANDLING::loadTrainingIMG(_network, u, i, _epsilon, _epsilonDecay, _momentumFactor, _epochs);
 			}
-#ifdef VALIDATE_ON
 			if (_network->at(0).at(0).getHasValidationdata()) {
 				TRAINING::processValidation(_network, totalAccuracy, totalTests, x, lossPoints, duration);
 			}
-#endif // VALIDATE_ON
+
 			auto end = std::chrono::high_resolution_clock::now();
 			duration = end - start;
 			duration = duration * _network->at(0).at(0).getIndividualClassifications() / 60;
@@ -218,11 +216,9 @@ void TRAINING::setupTraining(std::vector<std::vector<Neuron>>* _network) {
 	std::cout << std::endl << "Training abgeschlossen." << std::endl << std::endl;
 	system("pause");
 
-#ifdef VALIDATE_ON
 	if (_network->at(0).at(0).getHasValidationdata()) {
 		destroyWindow("Loss");
 	}
-#endif // VALIDATE_ON
 
 	// Marking the network as trained by changing the information in the first Neuron of the first Layer
 	_network->at(0).at(0).setIsTrained(true);
