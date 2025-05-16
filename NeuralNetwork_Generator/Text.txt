@@ -1,2 +1,6 @@
-1. Wenn man ESC drückt geht der Zähler beim Zeichnen von Trainingsbildern nach oben.
+1. Wenn man ESC drÃ¼ckt geht der ZÃ¤hler beim Zeichnen von Trainingsbildern nach oben.
+2. Funktion setupExit() erstellen
+    2.1. Ruft networkExisting()
+        2.1.1. Falls TRUE -> exit
+        2.1.2. Falls FALSE -> Trainingsordner werden gelÃ¶scht
 
