@@ -5,14 +5,15 @@
 	#define MIN_OUTPUTNEURONS	2
 	#define MAX_OUTPUTNEURONS	30
 	#define INPUTSIZE			400
+	#define VALIDATION_SHARE	30
 
 
 // Learning parameters
 
-	#define DEFAULT_EPSILON			0.4
-	#define DEFAULT_EPSILON_DECAY	0.9
-	#define DEFAULT_MOMENTUMFACTOR	0.9
-	#define DEFAULT_EPOCHS			100
+	#define DEFAULT_EPSILON			0.4		// 0.4
+	#define DEFAULT_EPSILON_DECAY	0.9		// 0.9
+	#define DEFAULT_MOMENTUMFACTOR	0.9		// 0.9
+	#define DEFAULT_EPOCHS			100		// 100
 
 
 // Drawing parameters
@@ -30,3 +31,5 @@
 // Debug
 
 	//#define DEBUG_SHOW_TRAININGFILENAME
+	//#define DEBUG_SHOW_TRAININGFILENAME
+	//#define DEBUG_SHOW_FITNESSDETAILS

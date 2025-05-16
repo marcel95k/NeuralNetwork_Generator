@@ -2,12 +2,13 @@
 
 namespace fs = std::filesystem;
 
+
 bool networkExisting(const std::string& _filename, const std::string& _networkName) {
 
 	std::ifstream file(_filename);
 	std::string line;
 	while (std::getline(file, line)) {
-		if (line == _networkName) {
+		if (cv::toLowerCase(line) == cv::toLowerCase(_networkName)) {
 			return true; 
 		}
 	}
@@ -35,7 +36,7 @@ void writeGrayscaleToFile(const std::string _mainFolder, std::vector<std::vector
 void createNewValdiationFolders(std::vector<std::vector<Neuron>>* _network) {
 
 	// Create the main folder and name it after the name of the network.
-	std::string mainFolder = "Validationdata/" + _network->at(0).at(0).getNetworkName();
+	std::string mainFolder = VALIDATIONDATA + _network->at(0).at(0).getNetworkName();
 	fs::create_directories(mainFolder);
 
 	// Create the folders for each classification
@@ -55,39 +56,25 @@ void createValidationdata(std::vector<std::vector<Neuron>>* _network) {
 	std::cin >> userInput_s;
 
 	if (userInput_s == "J" || userInput_s == "j") {
-		std::string folderName = "Validationdata/" + _network->at(0).at(0).getNetworkName();
+		std::string folderName = VALIDATIONDATA + _network->at(0).at(0).getNetworkName();
 
 		std::error_code ec;
 		std::uintmax_t amount = std::filesystem::remove_all(folderName, ec);
 
+		// 30% of individual classifications will be the amount of individual validation classifications
+		int amountOfIndividualClassifications = (_network->at(0).at(0).getIndividualClassifications() * VALIDATION_SHARE) / 100;	
+
+		setupSave(_network);
 		createNewValdiationFolders(_network);
 
-		int u = 0;
-		int i = 0;
-		while (u < _network->at(1).size()) {
-			int status = drawValidationdata(_network, i, u);
-
-			if (status == 1) { // ESC was pressed
-				destroyWindow("ZeichenfensterValidation");
-				return;
-			}
-			else if (status == -1) {	// 'b' was pressed: back to previous individual or previous classification	
-				if (i > 0) { i--; }
-				else if (u > 0) {
-					u--;
-					i = 19;
-				}
-			}
-			else {	// Continue to next individual
-				i++;
-				if (i == 20) {	// Continue to next classifiction when 20 individuals are reached
-					u++;
-					i = 0;
-				}
-			}
+		int classification = 0; //u
+		int counter = 0;	//i
+		while (classification < _network->at(1).size()) {
+			int status = drawValidationdata(_network, counter, classification);
+			if (processKeyPress(status, counter, classification, amountOfIndividualClassifications) == 1) { destroyWindow("ZeichenfensterValidation"); }
 		}
 
-		destroyWindow("ZeichenfensterValidation");
+		if (cv::getWindowProperty("ZeichenfensterValidation", cv::WND_PROP_VISIBLE) >= 0) { destroyWindow("ZeichenfensterValidation"); }
 
 		// Marking the network as having validationdata by changing the information in the first Neuron of the first Layer
 		_network->at(0).at(0).setHasValidationdata(true);
@@ -97,7 +84,7 @@ void createValidationdata(std::vector<std::vector<Neuron>>* _network) {
 void createNewTrainingFolders(std::vector<std::vector<Neuron>>* _network) {
 
 	// Create the main folder and name it after the name of the network.
-	std::string mainFolder = "Trainingdata/" + _network->at(0).at(0).getNetworkName();
+	std::string mainFolder = TRAININGDATA + _network->at(0).at(0).getNetworkName();
 	fs::create_directories(mainFolder);
 
 	// Create the folders for each classification
@@ -111,11 +98,12 @@ void createTrainingdata(std::vector<std::vector<Neuron>>* _network) {
 
 	checkNetForError(8, _network);
 
-	std::string folderName = "Trainingdata/" + _network->at(0).at(0).getNetworkName();
+	std::string folderName = TRAININGDATA + _network->at(0).at(0).getNetworkName();
 
 	std::error_code ec;
 	std::uintmax_t amount = std::filesystem::remove_all(folderName, ec);
 
+	setupSave(_network);
 	createNewTrainingFolders(_network);
 
 	int amountOfIndividualClassifications;
@@ -130,32 +118,14 @@ void createTrainingdata(std::vector<std::vector<Neuron>>* _network) {
 	// First Neuron of the first Layer will contain the information about how many individual entities of a classification exist
 	_network->at(0).at(0).setIndividualClassifications(amountOfIndividualClassifications);
 
-	int u = 0;
-	int i = 0;
-	while (u < _network->at(1).size()) {
-		int status = drawTrainingdata(_network, i, u);
-
-		if (status == 1) { // ESC was pressed
-			destroyWindow("Zeichenfenster");
-			return;
-		}
-		else if (status == -1) {	// 'b' was pressed: back to previous individual or previous classification	
-			if (i > 0) { i--; }
-			else if (u > 0) {
-				u--;
-				i = amountOfIndividualClassifications - 1;
-			}
-		}
-		else {	// Continue to next individual
-			i++;
-			if (i == amountOfIndividualClassifications) {	// Continue to next classifiction when amountOfIndividualClassifications is reached
-				u++;
-				i = 0;
-			}
-		}
+	int classification = 0; //u
+	int counter = 0;	//i
+	while (classification < _network->at(1).size()) {
+		int status = drawTrainingdata(_network, counter, classification);
+		if (processKeyPress(status, counter, classification, amountOfIndividualClassifications) == 1) { destroyWindow("Zeichenfenster"); }
 	}
 
-	destroyWindow("Zeichenfenster");
+	if (cv::getWindowProperty("Zeichenfenster", cv::WND_PROP_VISIBLE) >= 0) { destroyWindow("Zeichenfenster"); }
 
 	// Marking the network as NOT trained by changing the information in the first Neuron of the first Layer
 	_network->at(0).at(0).setIsTrained(false);
@@ -191,6 +161,22 @@ std::vector<Neuron> loadNeuronLayer(const std::string& _filename) {
 		layer.push_back(n);
 	}
 	return layer;
+}
+
+void displaySavedNetworks() {
+
+	std::ifstream savedNetworks("Networks/saved_networks.txt");
+
+	if (!savedNetworks) {
+		throw error(3);
+	}
+
+	std::string content;
+	while (std::getline(savedNetworks, content)) {
+		std::cout << content << std::endl;
+	}
+
+	savedNetworks.close();
 }
 
 void checkIfSaved(std::vector<std::vector<Neuron>>* _network) {
@@ -268,18 +254,8 @@ void loadNet(std::vector<std::vector<Neuron>>* _network) {
 	std::vector<Neuron>outputLayer;
 
 	std::string userInput_s;
-	std::ifstream savedNetworks("Networks/saved_networks.txt");
 
-	if (!savedNetworks) {
-		throw error(3);
-	}
-
-	std::string content;
-	while (std::getline(savedNetworks, content)) {
-		std::cout << content << std::endl;
-	}
-
-	savedNetworks.close();
+	displaySavedNetworks();
 
 	std::cout << std::endl << "Laden: ";
 	std::cin >> userInput_s;
@@ -346,12 +322,12 @@ void deleteNet(std::vector<std::vector<Neuron>>* _network) {
 	std::remove(filenameTXT.c_str());
 	std::rename("temp.txt", filenameTXT.c_str());
 
-	std::string folderNameTraining = "Trainingdata/" + _network->at(0).at(0).getNetworkName();
+	std::string folderNameTraining = TRAININGDATA + _network->at(0).at(0).getNetworkName();
 
 	std::error_code ecTraining;
 	std::uintmax_t amountTraining = std::filesystem::remove_all(folderNameTraining, ecTraining);
 
-	std::string folderNameValidation = "Validationdata/" + _network->at(0).at(0).getNetworkName();
+	std::string folderNameValidation = VALIDATIONDATA + _network->at(0).at(0).getNetworkName();
 
 	std::error_code ecValidation;
 	std::uintmax_t amountVaidation = std::filesystem::remove_all(folderNameValidation, ecValidation);
@@ -412,6 +388,10 @@ void loadValidationIMG(std::vector<std::vector<Neuron>>* _network, const int _cl
 	}
 
 	fillGrayValues(inFile, &grayValues);
+
+#ifdef DEBUG_SHOW_VALIDATIONFILENAME
+	std::cout << "Validating " << filename << std::endl;
+#endif // DEBUG_SHOW_VALIDATIONFILENAME
 
 	fitnessTest(_network, &grayValues, _classification, totalAccuracy, totalTests);
 

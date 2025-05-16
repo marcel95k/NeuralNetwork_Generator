@@ -27,6 +27,13 @@ void fitnessTest(std::vector<std::vector<Neuron>>* _network, std::vector<float>*
 		totalTests++;
 		if (digit == index) {
 			totalAccuracy += *maxIt;
+
+#ifdef DEBUG_SHOW_FITNESSDETAILS
+			std::cout << std::endl << _network->at(1).at(digit).getClassificationName()
+				<< " erkannt als " << _network->at(1).at(index).getClassificationName()
+				<< " mit " << *maxIt << "% ";
+#endif // DEBUG_SHOW_FITNESSDETAILS 
+
 		}
 	}
 }
@@ -94,7 +101,27 @@ void training(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _g
 		weightAdaption(_network, &errors, _epsilon, _momentumFactor);
 		biasAdaption(_network, &errors, _epsilon);
 
+		//_epsilon *= _epsilonDecay;
+
 		errors.clear();
+	}
+}
+
+void processValidation(std::vector<std::vector<Neuron>>* _network, double& totalAccuracy, int& totalTests, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration) {
+
+	std::cout << std::endl << "Validieren...";
+	for (int k = 0; k < (_network->at(0).at(0).getIndividualClassifications() * VALIDATION_SHARE) / 100; k++) {
+		for (int h = 0; h < _network->at(1).size(); h++) {
+			loadValidationIMG(_network, h, k, totalAccuracy, totalTests);
+		}
+	}
+	if (totalTests > 0) {
+		double averageAccuracy = totalAccuracy / totalTests;
+		std::cout << std::endl << "Durchschnittliche Erkennungsgenauigkeit: " << averageAccuracy << "%" << std::endl << std::endl;
+		drawLoss(averageAccuracy, x, _lossPoints, _duration);
+
+		// First Neuron of the first Layer will contain the information about the average accuracy
+		_network->at(0).at(0).setAverageAccuracy(averageAccuracy);
 	}
 }
 
@@ -114,25 +141,13 @@ void processTraining(std::vector<std::vector<Neuron>>* _network, const double _e
 		// Load training images and validate
 		for (int i = 0; i < _network->at(0).at(0).getIndividualClassifications(); i++) {
 			auto start = std::chrono::high_resolution_clock::now();
+
 			std::cout << "Training..." << std::endl;
 			for (int u = 0; u < _network->at(1).size(); u++) {
 				loadTrainingIMG(_network, u, i, _epsilon, _epsilonDecay, _momentumFactor, _epochs);
 			}
 			if (_network->at(0).at(0).getHasValidationdata()) {
-				std::cout << std::endl << "Validieren...";
-				for (int k = 0; k < 20; k++) {
-					for (int h = 0; h < _network->at(1).size(); h++) {
-						loadValidationIMG(_network, h, k, totalAccuracy, totalTests);
-					}
-				}
-				if (totalTests > 0) {
-					double averageAccuracy = totalAccuracy / totalTests;
-					std::cout << std::endl << "Durchschnittliche Erkennungsgenauigkeit: " << averageAccuracy << "%" << std::endl << std::endl;
-					drawLoss(averageAccuracy, x, &lossPoints, duration);
-
-					// First Neuron of the first Layer will contain the information about the average accuracy
-					_network->at(0).at(0).setAverageAccuracy(averageAccuracy);
-				}
+				processValidation(_network, totalAccuracy, totalTests, x, lossPoints, duration);
 			}
 
 			auto end = std::chrono::high_resolution_clock::now();
@@ -140,7 +155,6 @@ void processTraining(std::vector<std::vector<Neuron>>* _network, const double _e
 			duration = duration * _network->at(0).at(0).getIndividualClassifications() / 60;
 		}
 	}
-
 	catch (const std::string& error) {
 		std::cerr << error << std::endl;
 	}

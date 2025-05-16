@@ -21,6 +21,7 @@ void createNewTrainingFolders(std::vector<std::vector<Neuron>>* _network);				//
 void createTrainingdata(std::vector<std::vector<Neuron>>* _network);					// Create new trainingdata
 void saveNeuronLayer(const std::vector<Neuron>& _layer, const std::string& _filename);	// Save a layer of a network - called from saveNet()
 std::vector<Neuron> loadNeuronLayer(const std::string& _filename);						// Load a layer of a network - called from loadNet()
+void displaySavedNetworks();															// Display the list of all saved networks
 void checkIfSaved(std::vector<std::vector<Neuron>>* _network);							// Check if a network is existing and not saved yet
 void saveNet(std::vector<std::vector<Neuron>>* _network);								// Save a network - called from setupSave()
 void setupSave(std::vector<std::vector<Neuron>>* _network);								// Setup for saving a network 
@@ -31,5 +32,5 @@ void deleteNet(std::vector<std::vector<Neuron>>* _network);								// Delete a n
 void setupDelete(std::vector<std::vector<Neuron>>* _network);							// Setup for deleting a network 
 std::string getImageFilePath(const std::string _mainFolder, std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter);
 void fillGrayValues(std::ifstream& _inFile, std::vector<float>* _grayValues);
-void loadValidationIMG(std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, double& totalAccuracy, int& totalTests);	// Load the validation image and call validation() 
+void loadValidationIMG(std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, double& totalAccuracy, int& totalTests);	// Load the validation image and call fitnessTest() 
 void loadTrainingIMG(std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, const double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs);	// Load the training image and call training() 

@@ -38,4 +38,3 @@ void checkUserInputForError() {
 		throw error(1);
 	}
 }
-

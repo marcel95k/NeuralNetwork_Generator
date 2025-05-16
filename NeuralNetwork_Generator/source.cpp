@@ -39,8 +39,12 @@ void initializeNet(std::vector<std::vector<Neuron>>* _network) {
 vector<vector<Neuron>> newNet() {
 
 	vector<vector<Neuron>> network;
+
 	string networkName;
-	cout << "Name des Netzes: ";
+
+	displaySavedNetworks();
+
+	cout << endl << "Name des Netzes: ";
 	cin >> networkName;
 
 	// Check if the network already exists in the "saved_networks.txt" file
@@ -147,10 +151,8 @@ int main() {
 			system("cls");
 			try {
 				createTrainingdata(&network);
-				setupSave(&network);
 				system("cls");
 				createValidationdata(&network);
-				setupSave(&network);
 			}
 			catch (const string& error) {
 				cerr << error << endl;
@@ -232,8 +234,15 @@ int main() {
 
 		else if (userInput == 9) {
 			system("cls");
-			checkIfSaved(&network);
-			return 0;
+			try {
+				checkIfSaved(&network);
+				break;
+			}
+			catch (const string& error) {
+				cerr << error << endl;
+				system("pause");
+			}
+			
 		}
 
 	}
