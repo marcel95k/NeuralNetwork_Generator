@@ -6,6 +6,7 @@
 #include "FileHandling.h"
 #include "MathFunctions.h"
 #include "Neuron.h"
+#include "NetworkProperties.h"
 #include "Test.h"
 #include "Training.h"
 #include "Graphics.h"
@@ -31,9 +32,7 @@ void initializeNet(std::vector<std::vector<Neuron>>* _network) {
 			_network->at(0).at(i).setNewWeight(false);
 		}
 	}
-
-	// Marking the network as NOT trained by changing the information in the first Neuron of the first Layer
-	_network->at(0).at(0).setIsTrained(false);
+	NETWORKPROPERTIES::setNetworkAsUntrained(_network);
 }
 
 vector<vector<Neuron>> newNet() {
@@ -49,7 +48,7 @@ vector<vector<Neuron>> newNet() {
 
 	// Check if the network already exists in the "saved_networks.txt" file
 	if (FILEHANDLING::networkExisting(SAVED_NETWORKS, networkName)) {
-		cout << endl << "Netztwerk existiert bereits!" << endl; 
+		cout << endl << "\033[31mNetztwerk existiert bereits!\033[0m" << endl; 
 		system("pause");
 		return network;
 	}
@@ -83,9 +82,7 @@ vector<vector<Neuron>> newNet() {
 	network.at(0).at(0).setNetworkName(networkName);
 
 	initializeNet(&network);
-
-	// Marking the network as NOT saved by changing the information in the first Neuron of the first Layer
-	network.at(0).at(0).setIsSaved(false);
+	NETWORKPROPERTIES::setNetworkAsUnsaved(&network);
 	
 	return network;
 }
@@ -110,7 +107,7 @@ int main() {
 
 	vector<vector<Neuron>> network;
 
-	int userInput = 0;
+	int userInput;
 
 	while (true) {
 		system("cls");
@@ -132,11 +129,19 @@ int main() {
 		if (cin.fail()) {
 			cin.clear();
 			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			continue;
 		}
 
 		if (userInput == 1) {
 			system("cls");
-			FILEHANDLING::checkIfSaved(&network);
+			try {
+				FILEHANDLING::checkIfSaved(&network);
+			}
+			catch (const string& error) {
+				cerr << error << endl;
+				system("pause");
+			}
+			
 			try {
 				system("cls");
 				network = newNet();

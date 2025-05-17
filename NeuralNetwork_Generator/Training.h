@@ -3,6 +3,7 @@
 #include <vector>
 #include <opencv2/opencv.hpp>
 #include "Neuron.h"
+#include "NetworkProperties.h"
 #include "MathFunctions.h"
 #include "FileHandling.h"
 #include "Defines.h"

@@ -312,6 +312,7 @@ void GRAPHICS::drawBarGraph(std::vector<Neuron>* outputNeurons, int width, int h
 }
 
 void GRAPHICS::drawLoss(const double _accuracy, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration) {
+
 	cv::Mat lossGraph(200, 800, CV_8UC3, cv::Scalar(0, 0, 0));
 	const int graphWidth = 700;
 	const int graphOffset = 50;

@@ -45,7 +45,7 @@ void TEST::checkIfTrained(std::vector<std::vector<Neuron>>* _network) {
 		std::cout << std::endl << "Eingabe: ";
 		std::cin >> userInput_s;
 		if (userInput_s == "J" || userInput_s == "j") {
-			ERRORHANDLING::checkNetForError(_network);
+			ERRORHANDLING::checkNetForTrainingData(_network);
 			try {
 				TRAINING::setupTraining(_network);
 			}

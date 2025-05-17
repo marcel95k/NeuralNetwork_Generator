@@ -42,8 +42,7 @@ int FILEHANDLING::createValidationdataLoop(std::vector<std::vector<Neuron>>* _ne
 		if (GRAPHICS::processKeyPressValidation(status, counter, classification, _amountOfIndividualClassifications) == 1) {
 			FILEHANDLING::deleteValidationFolders(_network);
 
-			// Marking the network as NOT having validationdata by changing the information in the first Neuron of the first Layer
-			_network->at(0).at(0).setHasValidationdata(false);
+			NETWORKPROPERTIES::clearValidationFlag(_network);
 
 			destroyWindow("ZeichenfensterValidation");
 			return 1;
@@ -86,17 +85,12 @@ void FILEHANDLING::createValidationdataSetup(std::vector<std::vector<Neuron>>* _
 
 		if (cv::getWindowProperty("ZeichenfensterValidation", cv::WND_PROP_VISIBLE) >= 0) { destroyWindow("ZeichenfensterValidation"); }
 
-		// Marking the network as having validationdata by changing the information in the first Neuron of the first Layer
-		_network->at(0).at(0).setHasValidationdata(true);
+		NETWORKPROPERTIES::enableValidationFlag(_network);
 	}
 	else if (userInput_s == "N" || userInput_s == "n") {
-		// Marking the network as NOT having validationdata by changing the information in the first Neuron of the first Layer
-		_network->at(0).at(0).setHasValidationdata(false);
+		NETWORKPROPERTIES::clearValidationFlag(_network);
 	}
 	else { throw ERRORHANDLING::error(1); }
-
-	// Marking the network as NOT saved by changing the information in the first Neuron of the first Layer
-	_network->at(0).at(0).setIsSaved(false);
 }
 
 int FILEHANDLING::createTrainingdataLoop(std::vector<std::vector<Neuron>>* _network, const int _amountOfIndividualClassifications) {
@@ -151,11 +145,7 @@ void FILEHANDLING::createTrainingdataSetup(std::vector<std::vector<Neuron>>* _ne
 
 	if (cv::getWindowProperty("Zeichenfenster", cv::WND_PROP_VISIBLE) >= 0) { destroyWindow("Zeichenfenster"); }
 
-	// Marking the network as NOT trained by changing the information in the first Neuron of the first Layer
-	_network->at(0).at(0).setIsTrained(false);
-
-	// Marking the network as NOT saved by changing the information in the first Neuron of the first Layer
-	_network->at(0).at(0).setIsSaved(false);
+	NETWORKPROPERTIES::setNetworkAsUntrained(_network);
 
 	// First Neuron of the first Layer will contain the information about how many individual entities of a classification exist --> AGAIN
 	_network->at(0).at(0).setIndividualClassifications(amountOfIndividualClassifications);
@@ -168,7 +158,7 @@ void FILEHANDLING::createTrainingdataSetup(std::vector<std::vector<Neuron>>* _ne
 		std::cerr << error << std::endl;
 		system("pause");
 	}
-
+	NETWORKPROPERTIES::setNetworkAsUnsaved(_network);
 }
 
 void FILEHANDLING::saveNeuronLayer(const std::vector<Neuron>& _layer, const std::string& _filename) {
@@ -252,8 +242,7 @@ int FILEHANDLING::checkIfSaved(std::vector<std::vector<Neuron>>* _network) {
 
 void FILEHANDLING::saveNet(std::vector<std::vector<Neuron>>* _network) {
 
-	// Marking the network as saved by changing the information in the first Neuron of the first Layer
-	_network->at(0).at(0).setIsSaved(true);
+	NETWORKPROPERTIES::setNetworkAsSaved(_network);
 
 	for (int i = 0; i < _network->size(); i++) {
 		try {
@@ -298,8 +287,14 @@ void FILEHANDLING::loadNet(std::vector<std::vector<Neuron>>* _network) {
 	std::vector<Neuron>outputLayer;
 
 	std::string userInput_s;
-
-	FILEHANDLING::displaySavedNetworks(); // <==== Try
+	
+	try {
+		FILEHANDLING::displaySavedNetworks();
+	}
+	catch (const std::string& error) {
+		std::cerr << error << std::endl;
+		system("pause");
+	}
 
 	std::cout << std::endl << "Laden: ";
 	std::cin >> userInput_s;
@@ -461,9 +456,7 @@ void FILEHANDLING::fillGrayValues(std::ifstream& _inFile, std::vector<float>* _g
 	}
 }
 
-void FILEHANDLING::loadValidationIMG(std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, double& totalAccuracy, int& totalTests) {
-
-	std::vector<float> grayValues;
+void FILEHANDLING::loadValidationIMG(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _grayValues, const int _classification, const int _counter, double& totalAccuracy, int& totalTests) {
 
 	std::string filename = FILEHANDLING::getImageFilePath(VALIDATIONDATA, _network, _classification, _counter);
 	std::ifstream inFile(filename);
@@ -472,21 +465,16 @@ void FILEHANDLING::loadValidationIMG(std::vector<std::vector<Neuron>>* _network,
 		throw ERRORHANDLING::error(3);
 	}
 
-	FILEHANDLING::fillGrayValues(inFile, &grayValues);
+	FILEHANDLING::fillGrayValues(inFile, _grayValues);
 
 #ifdef DEBUG_SHOW_VALIDATIONFILENAME
 	std::cout << "Validating " << filename << std::endl;
 #endif // DEBUG_SHOW_VALIDATIONFILENAME
 
-	TRAINING::fitnessTest(_network, &grayValues, _classification, totalAccuracy, totalTests); // <==== Call from processTraining()! grayValues should be handed over into this function
-
 	inFile.close();
-	grayValues.clear();
 }
 
-void FILEHANDLING::loadTrainingIMG(std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, const double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs) {
-
-	std::vector<float> grayValues;
+void FILEHANDLING::loadTrainingIMG(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _grayValues, const int _classification, const int _counter, const double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs) {
 
 	std::string filename = FILEHANDLING::getImageFilePath(TRAININGDATA, _network, _classification, _counter);
 	std::ifstream inFile(filename);
@@ -495,16 +483,13 @@ void FILEHANDLING::loadTrainingIMG(std::vector<std::vector<Neuron>>* _network, c
 		throw ERRORHANDLING::error(3);
 	}
 
-	FILEHANDLING::fillGrayValues(inFile, &grayValues);
+	FILEHANDLING::fillGrayValues(inFile, _grayValues);
 
 #ifdef DEBUG_SHOW_TRAININGFILENAME
 	std::cout << "Training " << filename << std::endl;
 #endif // DEBUG_SHOW_TRAININGFILENAME
 
-	TRAINING::training(_network, &grayValues, _classification, _epsilon, _epsilonDecay, _momentumFactor, _epochs); // <==== Call from processTraining()! grayValues should be handed over into this function
-
 	inFile.close();
-	grayValues.clear();
 }
 
 
