@@ -299,7 +299,7 @@ void FILEHANDLING::loadNet(std::vector<std::vector<Neuron>>* _network) {
 
 	std::string userInput_s;
 
-	FILEHANDLING::displaySavedNetworks();
+	FILEHANDLING::displaySavedNetworks(); // <==== Try
 
 	std::cout << std::endl << "Laden: ";
 	std::cin >> userInput_s;
