@@ -478,7 +478,7 @@ void FILEHANDLING::loadValidationIMG(std::vector<std::vector<Neuron>>* _network,
 	std::cout << "Validating " << filename << std::endl;
 #endif // DEBUG_SHOW_VALIDATIONFILENAME
 
-	TRAINING::fitnessTest(_network, &grayValues, _classification, totalAccuracy, totalTests);
+	TRAINING::fitnessTest(_network, &grayValues, _classification, totalAccuracy, totalTests); // <==== Call from processTraining()! grayValues should be handed over into this function
 
 	inFile.close();
 	grayValues.clear();
@@ -501,7 +501,7 @@ void FILEHANDLING::loadTrainingIMG(std::vector<std::vector<Neuron>>* _network, c
 	std::cout << "Training " << filename << std::endl;
 #endif // DEBUG_SHOW_TRAININGFILENAME
 
-	TRAINING::training(_network, &grayValues, _classification, _epsilon, _epsilonDecay, _momentumFactor, _epochs);
+	TRAINING::training(_network, &grayValues, _classification, _epsilon, _epsilonDecay, _momentumFactor, _epochs); // <==== Call from processTraining()! grayValues should be handed over into this function
 
 	inFile.close();
 	grayValues.clear();
