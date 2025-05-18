@@ -25,14 +25,28 @@ void TRAINING::fitnessTest(std::vector<std::vector<Neuron>>* _network, std::vect
 	if (maxIt != percentVector.end()) {
 		int index = distance(percentVector.begin(), maxIt);
 		totalTests++;
+
 		if (digit == index) {
 			totalAccuracy += *maxIt;
+#ifdef DEBUG_SHOW_FITNESSDETAILS_CORRECT
+			std::cout << "\033[32m"
+				<< std::setw(15) << _network->at(1).at(digit).getClassificationName()
+				<< " erkannt als "
+				<< std::setw(15) << _network->at(1).at(index).getClassificationName()
+				<< " mit "
+				<< std::setw(6) << *maxIt << "%\033[0m" << std::endl;
+#endif // DEBUG_SHOW_FITNESSDETAILS_CORRECT
+		}
 
-#ifdef DEBUG_SHOW_FITNESSDETAILS
-			std::cout << "\033[32m" << std::endl << _network->at(1).at(digit).getClassificationName()
-				<< " erkannt als " << _network->at(1).at(index).getClassificationName()
-				<< " mit " << *maxIt << "%\033[0m";
-#endif // DEBUG_SHOW_FITNESSDETAILS 
+		else if (digit != index) {
+#ifdef DEBUG_SHOW_FITNESSDETAILS_WRONG
+			std::cout << "\033[31m"
+				<< std::setw(15) << _network->at(1).at(digit).getClassificationName()
+				<< " erkannt als "
+				<< std::setw(15) << _network->at(1).at(index).getClassificationName()
+				<< " mit "
+				<< std::setw(6) << *maxIt << "%\033[0m" << std::endl;
+#endif // DEBUG_SHOW_FITNESSDETAILS_WRONG
 		}
 	}
 }
@@ -102,6 +116,27 @@ void TRAINING::training(std::vector<std::vector<Neuron>>* _network, std::vector<
 
 		//errors.clear();
 	}
+}
+
+void TRAINING::processValidationManaul(std::vector<std::vector<Neuron>>* _network) {
+
+	ERRORHANDLING::checkNetForError(10, _network);
+
+	std::vector<float>grayValues;
+	double totalAccuracy = 0.0;
+	int totalTests = 0;
+	
+	std::cout << std::endl << "Validieren..." << std::endl;
+	for (int counter = 0; counter < (_network->at(0).at(0).getIndividualClassifications() * VALIDATION_SHARE) / 100; counter++) {
+		for (int classification = 0; classification < _network->at(1).size(); classification++) {
+			FILEHANDLING::loadValidationIMG(_network, &grayValues, classification, counter, totalAccuracy, totalTests);
+			TRAINING::fitnessTest(_network, &grayValues, classification, totalAccuracy, totalTests);
+			grayValues.clear();
+		}
+	}
+	double averageAccuracy = totalAccuracy / totalTests;
+	std::cout << std::endl << "Durchschnittliche Erkennungsgenauigkeit: " << averageAccuracy << "%" << std::endl << std::endl;
+	system("pause");
 }
 
 void TRAINING::processValidation(std::vector<std::vector<Neuron>>* _network, double& totalAccuracy, int& totalTests, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration) {

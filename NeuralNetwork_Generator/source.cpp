@@ -121,8 +121,9 @@ int main() {
 		cout << "(4) Netz laden" << endl;
 		cout << "(5) Netz trainieren" << endl;
 		cout << "(6) Netz testen" << endl;
-		cout << "(7) Netz neu initialisieren" << endl;
-		cout << "(8) Netz loeschen" << endl;
+		cout << "(7) Netz auf alle Validierungsdaten testen" << endl;
+		cout << "(8) Netz neu initialisieren" << endl;
+		cout << "(9) Netz loeschen" << endl;
 		cout << endl <<"(0) Ende" << endl;
 		cout << endl << "Eingabe: "; 
 		cin >> userInput;
@@ -210,6 +211,17 @@ int main() {
 
 		else if (userInput == 7) {
 			system("cls");
+			try {
+				TRAINING::processValidationManaul(&network);
+			}
+			catch (const string& error) {
+				cerr << error << endl;
+				system("pause");
+			}
+		}
+
+		else if (userInput == 8) {
+			system("cls");
 			string userInput_s;
 
 			cout << endl << "Netz sicher neu initialisieren?(J/N)";
@@ -226,7 +238,7 @@ int main() {
 			}
 		}
 
-		else if (userInput == 8) {
+		else if (userInput == 9) {
 			system("cls");
 			try {
 				FILEHANDLING::setupDelete(&network);

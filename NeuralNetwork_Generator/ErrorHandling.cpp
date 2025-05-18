@@ -11,6 +11,7 @@ std::string ERRORHANDLING::error(const int _what) {
 	case 7: return "\n\033[31mKeine Trainingsdaten gefunden! Training fehlgeschlagen!\n\033[0m";
 	case 8: return "\n\033[31mNetz leer! Trainingsdaten erstellen fehlgeschlagen!\n\033[0m";
 	case 9: return "\n\033[31mNetz leer! Initialisierung fehlgeschlagen!\n\033[0m";
+	case 10: return "\n\033[31mNetz leer! Validieren fehlgeschlagen!\n\033[0m";
 	default:
 		break;
 	}

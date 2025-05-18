@@ -103,7 +103,7 @@ int FILEHANDLING::createTrainingdataLoop(std::vector<std::vector<Neuron>>* _netw
 	while (classification < _network->at(1).size()) {
 		int status = GRAPHICS::drawTrainingdata(_network, counter, classification);
 		if (GRAPHICS::processKeyPressTraining(status, counter, classification, _amountOfIndividualClassifications) == 1) {
-			//_network->at(0).at(0).setIndividualClassifications(0);
+			_network->at(0).at(0).setIndividualClassifications(0);
 			FILEHANDLING::deleteTrainingFolders(_network);
 			destroyWindow("Zeichenfenster");
 			return 1;
