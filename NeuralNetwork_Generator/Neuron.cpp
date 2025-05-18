@@ -1,19 +1,19 @@
 #include "Neuron.h"
 
-int Neuron::getIndividualClassifications() { return individualClassifications; }
-double Neuron::getInputValue() { return inputValue; }
-double Neuron::getOutputValue() { return outputValue; }
-double Neuron::getBiasWeight() { return biasWeight; }
-double Neuron::getTargetOutputValue() { return targetOutputValue; }
-double Neuron::getAverageAccuracy() { return averageAccuracy; }
-bool Neuron::getNewWeight() { return newWeight; }
-bool Neuron::getNewBiasWeight() { return newBiasWeight; }
-bool Neuron::getIsTrained() { return isTrained; }
-bool Neuron::getIsSaved() { return isSaved; }
-bool Neuron::getHasValidationdata() { return hasValidationdata; }
-std::string Neuron::getClassificationName() { return classificationName; }
-std::string Neuron::getNetworkName() { return networkName; }
-double Neuron::getWeightAt(const int _position) { return weights.at(_position); }
+int Neuron::getIndividualClassifications() const { return individualClassifications; }
+double Neuron::getInputValue() const { return inputValue; }
+double Neuron::getOutputValue() const { return outputValue; }
+double Neuron::getBiasWeight() const { return biasWeight; }
+double Neuron::getTargetOutputValue() const { return targetOutputValue; }
+double Neuron::getAverageAccuracy() const { return averageAccuracy; }
+bool Neuron::getNewWeight() const { return newWeight; }
+bool Neuron::getNewBiasWeight() const { return newBiasWeight; }
+bool Neuron::getIsTrained() const { return isTrained; }
+bool Neuron::getIsSaved() const { return isSaved; }
+bool Neuron::getHasValidationdata() const { return hasValidationdata; }
+std::string Neuron::getClassificationName() const { return classificationName; }
+std::string Neuron::getNetworkName() const { return networkName; }
+double Neuron::getWeightAt(const int _position) const { return weights.at(_position); }
 
 void Neuron::setIndividualClassifications(const int _individualClassifications) { individualClassifications = _individualClassifications; }
 void Neuron::setInputValue(const double _inputValue) { inputValue = _inputValue; }

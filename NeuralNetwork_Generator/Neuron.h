@@ -6,11 +6,11 @@
 
 class Neuron {
 private:
-	int individualClassifications;	// Amount of how many individual images of a classification exist
-	double inputValue;
-	double outputValue;
-	double biasWeight;
-	double targetOutputValue;
+	int individualClassifications = 0;	// Amount of how many individual images of a classification exist
+	double inputValue = 0;
+	double outputValue = 0;
+	double biasWeight = 0;
+	double targetOutputValue = 0;
 	double averageAccuracy = 0;
 	double momentum = 0;
 	bool newWeight = false;
@@ -23,20 +23,20 @@ private:
 	std::vector<double>weights;
 
 public:
-	int getIndividualClassifications();
-	double getInputValue();
-	double getOutputValue();
-	double getBiasWeight();
-	double getTargetOutputValue();
-	double getAverageAccuracy();
-	bool getNewWeight();
-	bool getNewBiasWeight();
-	bool getIsTrained();
-	bool getIsSaved();
-	bool getHasValidationdata();
-	std::string getClassificationName();
-	std::string getNetworkName();
-	double getWeightAt(const int _position);
+	int getIndividualClassifications() const;
+	double getInputValue() const;
+	double getOutputValue() const;
+	double getBiasWeight() const;
+	double getTargetOutputValue() const;
+	double getAverageAccuracy() const;
+	bool getNewWeight() const;
+	bool getNewBiasWeight() const;
+	bool getIsTrained() const;
+	bool getIsSaved() const;
+	bool getHasValidationdata() const;
+	std::string getClassificationName() const;
+	 std::string getNetworkName() const;
+	double getWeightAt(const int _position) const;
 
 	void setIndividualClassifications(const int _individualClassifications);
 	void setInputValue(const double _inputValue);

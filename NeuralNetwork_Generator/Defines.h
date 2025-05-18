@@ -2,10 +2,10 @@
 
 // Network parameters
 
-	#define MIN_OUTPUTNEURONS	2
-	#define MAX_OUTPUTNEURONS	30
-	#define INPUTSIZE			400
-	#define VALIDATION_SHARE	30
+	#define MIN_OUTPUTNEURONS	2			// 2
+	#define MAX_OUTPUTNEURONS	30			// 30
+	#define INPUTSIZE			400			// 400
+	#define VALIDATION_SHARE	30			// 30
 
 
 // Learning parameters
@@ -18,16 +18,16 @@
 
 // Drawing parameters
 
-	#define DRAWRADIUS_MAX			20
-	#define DRAWRADIUS_MIN			3
+	#define DRAWRADIUS_MAX			20		// 30
+	#define DRAWRADIUS_MIN			3		// 3
 
 
 // Filenames and Foldernames
 
-	#define SAVED_NETWORKS			"Networks/saved_networks.txt"
-	#define NETWORKS				"Networks/"		
-	#define TRAININGDATA			"Trainingdata/"
-	#define VALIDATIONDATA			"Validationdata/"
+	#define SAVED_NETWORKS			"Networks/saved_networks.txt"	// "Networks/saved_networks.txt"
+	#define NETWORKS				"Networks/"						// "Networks/"
+	#define TRAININGDATA			"Trainingdata/"					// "Trainingdata/"	
+	#define VALIDATIONDATA			"Validationdata/"				// "Validationdata/"
 
 
 // Debug
@@ -39,14 +39,22 @@
 
 // ASSERT-Makro
 
-	#define NN_ASSERT(condition, message)							\
-	    do {														\
-	        if (!(condition)) {										\
-	            std::cerr << "Assertion failed: (" #condition		\
-	                      << "), function " << __FUNCTION__			\
-	                      << ", file " << __FILE__					\
-	                      << ", line " << __LINE__ << ".\n"			\
-	                      << "Message: " << message << std::endl;	\
-							system("pause")			;				\
-	        }														\
-	    } while (false)												\
+	#define NN_ASSERT(condition, message)								\
+	    do {															\
+	        if (!(condition)) {											\
+	            std::cerr << "\033[31mAssertion failed: (" #condition	\
+	                      << ")\033[0m, function " << __FUNCTION__		\
+	                      << ", file " << __FILE__						\
+	                      << ", line " << __LINE__ << ".\n"				\
+	                      << "Message: " << message << std::endl;		\
+							system("pause")			;					\
+	        }															\
+			else if ((condition)) {										\
+	            std::cerr << "\033[32mAssertion passed: (" #condition	\
+	                      << ")\033[0m, function " << __FUNCTION__		\
+	                      << ", file " << __FILE__						\
+	                      << ", line " << __LINE__ << ".\n"				\
+	                      << "Message: " << message << std::endl;		\
+							system("pause")			;					\
+	        }															\
+	    } while (false)													\

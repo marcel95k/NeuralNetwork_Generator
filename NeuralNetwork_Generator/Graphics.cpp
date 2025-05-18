@@ -35,6 +35,7 @@ int GRAPHICS::processKeyPressValidation(const int _status, int& _counter, int& _
 			_counter = 0;
 		}
 	}
+	return 0;
 }
 
 int GRAPHICS::processKeyPressTraining(const int _status, int& _counter, int& _classification, const int _amountOfIndividualClassifications) {
@@ -56,6 +57,7 @@ int GRAPHICS::processKeyPressTraining(const int _status, int& _counter, int& _cl
 			_counter = 0;
 		}
 	}
+	return 0;
 }
 
 void GRAPHICS::mouseHandler(int event, int x, int y, int flags, void*) {

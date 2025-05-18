@@ -18,14 +18,14 @@ std::string ERRORHANDLING::error(const int _what) {
 
 void ERRORHANDLING::checkNetForError(const int _errorCode, std::vector<std::vector<Neuron>>* _network) {
 
-	if (_network->size() == 0) {											// Check if a network exists and if NOT, throw an exception based on the given errorCode
+	if (_network->size() == 0) {											
 		throw ERRORHANDLING::error(_errorCode);
 	}
 }
 
 void ERRORHANDLING::checkNetForTrainingData(std::vector<std::vector<Neuron>>* _network) {
 
-	if (_network->at(0).at(0).getIndividualClassifications() == 0) {		// Check if training data exist and throw an exception if not
+	if (_network->at(0).at(0).getIndividualClassifications() == 0) {		
 		throw ERRORHANDLING::error(7);
 	}
 }

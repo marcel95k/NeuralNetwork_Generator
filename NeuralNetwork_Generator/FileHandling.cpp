@@ -42,7 +42,7 @@ int FILEHANDLING::createValidationdataLoop(std::vector<std::vector<Neuron>>* _ne
 		if (GRAPHICS::processKeyPressValidation(status, counter, classification, _amountOfIndividualClassifications) == 1) {
 			FILEHANDLING::deleteValidationFolders(_network);
 
-			NETWORKPROPERTIES::clearValidationFlag(_network);
+			NETWORKPROPERTIES::disableValidationFlag(_network);
 
 			destroyWindow("ZeichenfensterValidation");
 			return 1;
@@ -88,9 +88,12 @@ void FILEHANDLING::createValidationdataSetup(std::vector<std::vector<Neuron>>* _
 		NETWORKPROPERTIES::enableValidationFlag(_network);
 	}
 	else if (userInput_s == "N" || userInput_s == "n") {
-		NETWORKPROPERTIES::clearValidationFlag(_network);
+		NETWORKPROPERTIES::disableValidationFlag(_network);
 	}
-	else { throw ERRORHANDLING::error(1); }
+	else { 
+		NETWORKPROPERTIES::disableValidationFlag(_network);
+		throw ERRORHANDLING::error(1); 
+	}
 }
 
 int FILEHANDLING::createTrainingdataLoop(std::vector<std::vector<Neuron>>* _network, const int _amountOfIndividualClassifications) {
@@ -100,7 +103,7 @@ int FILEHANDLING::createTrainingdataLoop(std::vector<std::vector<Neuron>>* _netw
 	while (classification < _network->at(1).size()) {
 		int status = GRAPHICS::drawTrainingdata(_network, counter, classification);
 		if (GRAPHICS::processKeyPressTraining(status, counter, classification, _amountOfIndividualClassifications) == 1) {
-			_network->at(0).at(0).setIndividualClassifications(0);
+			//_network->at(0).at(0).setIndividualClassifications(0);
 			FILEHANDLING::deleteTrainingFolders(_network);
 			destroyWindow("Zeichenfenster");
 			return 1;
@@ -135,7 +138,7 @@ void FILEHANDLING::createTrainingdataSetup(std::vector<std::vector<Neuron>>* _ne
 
 	if (amountOfIndividualClassifications > 80 || amountOfIndividualClassifications < 10) { throw ERRORHANDLING::error(1); }
 
-	FILEHANDLING::deleteFolders(_network);
+	FILEHANDLING::deleteTrainingFolders(_network);
 	FILEHANDLING::createNewTrainingFolders(_network);
 
 	// First Neuron of the first Layer will contain the information about how many individual entities of a classification exist
@@ -145,10 +148,10 @@ void FILEHANDLING::createTrainingdataSetup(std::vector<std::vector<Neuron>>* _ne
 
 	if (cv::getWindowProperty("Zeichenfenster", cv::WND_PROP_VISIBLE) >= 0) { destroyWindow("Zeichenfenster"); }
 
-	NETWORKPROPERTIES::setNetworkAsUntrained(_network);
+	NETWORKPROPERTIES::disableTrainedFlag(_network);
 
-	// First Neuron of the first Layer will contain the information about how many individual entities of a classification exist --> AGAIN
-	_network->at(0).at(0).setIndividualClassifications(amountOfIndividualClassifications);
+	//// First Neuron of the first Layer will contain the information about how many individual entities of a classification exist --> AGAIN if createTrainingdataLoop resets it
+	//_network->at(0).at(0).setIndividualClassifications(amountOfIndividualClassifications);
 	
 	system("cls");
 	try {
@@ -158,7 +161,7 @@ void FILEHANDLING::createTrainingdataSetup(std::vector<std::vector<Neuron>>* _ne
 		std::cerr << error << std::endl;
 		system("pause");
 	}
-	NETWORKPROPERTIES::setNetworkAsUnsaved(_network);
+	NETWORKPROPERTIES::disableSavdFlag(_network);
 }
 
 void FILEHANDLING::saveNeuronLayer(const std::vector<Neuron>& _layer, const std::string& _filename) {
@@ -242,7 +245,7 @@ int FILEHANDLING::checkIfSaved(std::vector<std::vector<Neuron>>* _network) {
 
 void FILEHANDLING::saveNet(std::vector<std::vector<Neuron>>* _network) {
 
-	NETWORKPROPERTIES::setNetworkAsSaved(_network);
+	NETWORKPROPERTIES::enableSavedFlag(_network);
 
 	for (int i = 0; i < _network->size(); i++) {
 		try {
@@ -386,9 +389,12 @@ void FILEHANDLING::deleteNet(std::vector<std::vector<Neuron>>* _network) {
 	infile.close();
 	tempFile.close();
 
-	// Replace original
-	std::remove(filenameTXT.c_str());
-	std::rename("temp.txt", filenameTXT.c_str());
+	if (std::remove(filenameTXT.c_str()) != 0) {
+		throw ERRORHANDLING::error(3);
+	}
+	if (std::rename("temp.txt", filenameTXT.c_str()) != 0) {
+		throw ERRORHANDLING::error(3);
+	}
 
 	FILEHANDLING::deleteFolders(_network);
 

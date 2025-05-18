@@ -11,9 +11,10 @@
 #include "Training.h"
 #include "Graphics.h"
 
+
 using namespace std;
 
-void initializeNet(std::vector<std::vector<Neuron>>* _network) {
+static void initializeNet(std::vector<std::vector<Neuron>>* _network) {
 
 	ERRORHANDLING::checkNetForError(9, _network);
 
@@ -32,10 +33,10 @@ void initializeNet(std::vector<std::vector<Neuron>>* _network) {
 			_network->at(0).at(i).setNewWeight(false);
 		}
 	}
-	NETWORKPROPERTIES::setNetworkAsUntrained(_network);
+	NETWORKPROPERTIES::disableTrainedFlag(_network);
 }
 
-vector<vector<Neuron>> newNet() {
+static vector<vector<Neuron>> newNet() {
 
 	vector<vector<Neuron>> network;
 
@@ -82,12 +83,12 @@ vector<vector<Neuron>> newNet() {
 	network.at(0).at(0).setNetworkName(networkName);
 
 	initializeNet(&network);
-	NETWORKPROPERTIES::setNetworkAsUnsaved(&network);
+	NETWORKPROPERTIES::disableSavdFlag(&network);
 	
 	return network;
 }
 
-void printNetworkInfo(vector<vector<Neuron>>* _network) {
+static void printNetworkInfo(vector<vector<Neuron>>* _network) {
 
 	if (_network->size() > 0) {
 		if (_network->at(0).at(0).getIsSaved() == true) {
@@ -248,6 +249,5 @@ int main() {
 				system("pause");
 			}
 		}
-
 	}
 }

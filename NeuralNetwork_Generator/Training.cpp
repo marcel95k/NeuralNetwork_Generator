@@ -29,9 +29,9 @@ void TRAINING::fitnessTest(std::vector<std::vector<Neuron>>* _network, std::vect
 			totalAccuracy += *maxIt;
 
 #ifdef DEBUG_SHOW_FITNESSDETAILS
-			std::cout << std::endl << _network->at(1).at(digit).getClassificationName()
+			std::cout << "\033[32m" << std::endl << _network->at(1).at(digit).getClassificationName()
 				<< " erkannt als " << _network->at(1).at(index).getClassificationName()
-				<< " mit " << *maxIt << "%";
+				<< " mit " << *maxIt << "%\033[0m";
 #endif // DEBUG_SHOW_FITNESSDETAILS 
 		}
 	}
@@ -100,7 +100,7 @@ void TRAINING::training(std::vector<std::vector<Neuron>>* _network, std::vector<
 		TRAINING::weightAdaption(_network, &errors, _epsilon, _momentumFactor);
 		TRAINING::biasAdaption(_network, &errors, _epsilon);
 
-		errors.clear();
+		//errors.clear();
 	}
 }
 
@@ -226,7 +226,7 @@ void TRAINING::setupTraining(std::vector<std::vector<Neuron>>* _network) {
 		destroyWindow("Loss");
 	}
 
-	NETWORKPROPERTIES::setNetworkAsTrained(_network);
-	NETWORKPROPERTIES::setNetworkAsUnsaved(_network);
+	NETWORKPROPERTIES::enableTrainedFlag(_network);
+	NETWORKPROPERTIES::disableSavdFlag(_network);
 }
 
