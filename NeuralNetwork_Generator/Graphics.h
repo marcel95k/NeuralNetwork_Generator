@@ -25,6 +25,6 @@ namespace GRAPHICS {
 	void displaySidebarTextTest(Mat& window);
 	void displaySidebarText(Mat& window);
 	void drawBarGraph(std::vector<Neuron>* outputNeurons, int width = 600, int height = 400);
-	void drawLoss(const double _accuracy, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration);
+	void drawLoss(const double _accuracy, const int _counter, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration);
 	void drawLossT(const double _accuracy, int& x, std::vector<cv::Point>* _lossPoints);
 }

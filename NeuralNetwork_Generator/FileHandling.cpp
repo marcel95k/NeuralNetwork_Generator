@@ -29,7 +29,7 @@ void FILEHANDLING::writeGrayscaleToFile(const std::string _mainFolder, std::vect
 	}
 
 	else {
-		std::cerr << "Konnte Datei nicht laden!" << std::endl;
+		throw(ERRORHANDLING::error(3));
 	}
 }
 
@@ -41,9 +41,7 @@ int FILEHANDLING::createValidationdataLoop(std::vector<std::vector<Neuron>>* _ne
 		int status = GRAPHICS::drawValidationdata(_network, counter, classification);
 		if (GRAPHICS::processKeyPressValidation(status, counter, classification, _amountOfIndividualClassifications) == 1) {
 			FILEHANDLING::deleteValidationFolders(_network);
-
 			NETWORKPROPERTIES::disableValidationFlag(_network);
-
 			destroyWindow("ZeichenfensterValidation");
 			return 1;
 		}
@@ -145,9 +143,7 @@ void FILEHANDLING::createTrainingdataSetup(std::vector<std::vector<Neuron>>* _ne
 	_network->at(0).at(0).setIndividualClassifications(amountOfIndividualClassifications);
 
 	if (FILEHANDLING::createTrainingdataLoop(_network, amountOfIndividualClassifications) == 1) { return; }
-
 	if (cv::getWindowProperty("Zeichenfenster", cv::WND_PROP_VISIBLE) >= 0) { destroyWindow("Zeichenfenster"); }
-
 	NETWORKPROPERTIES::disableTrainedFlag(_network);
 
 	//// First Neuron of the first Layer will contain the information about how many individual entities of a classification exist --> AGAIN if createTrainingdataLoop resets it

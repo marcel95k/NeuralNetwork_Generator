@@ -38,16 +38,17 @@ void TRAINING::fitnessTest(std::vector<std::vector<Neuron>>* _network, std::vect
 #endif // DEBUG_SHOW_FITNESSDETAILS_CORRECT
 		}
 
-		else if (digit != index) {
 #ifdef DEBUG_SHOW_FITNESSDETAILS_WRONG
+		else if (digit != index) {
 			std::cout << "\033[31m"
 				<< std::setw(15) << _network->at(1).at(digit).getClassificationName()
 				<< " erkannt als "
 				<< std::setw(15) << _network->at(1).at(index).getClassificationName()
 				<< " mit "
 				<< std::setw(6) << *maxIt << "%\033[0m" << std::endl;
-#endif // DEBUG_SHOW_FITNESSDETAILS_WRONG
 		}
+#endif // DEBUG_SHOW_FITNESSDETAILS_WRONG
+
 	}
 }
 
@@ -139,7 +140,7 @@ void TRAINING::processValidationManaul(std::vector<std::vector<Neuron>>* _networ
 	system("pause");
 }
 
-void TRAINING::processValidation(std::vector<std::vector<Neuron>>* _network, double& totalAccuracy, int& totalTests, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration) {
+void TRAINING::processValidation(std::vector<std::vector<Neuron>>* _network, const int _counter, double& totalAccuracy, int& totalTests, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration) {
 
 	std::vector<float>grayValues;
 
@@ -154,7 +155,7 @@ void TRAINING::processValidation(std::vector<std::vector<Neuron>>* _network, dou
 	if (totalTests > 0) {
 		double averageAccuracy = totalAccuracy / totalTests;
 		std::cout << std::endl << "Durchschnittliche Erkennungsgenauigkeit: " << averageAccuracy << "%" << std::endl << std::endl;
-		GRAPHICS::drawLoss(averageAccuracy, x, _lossPoints, _duration);
+		GRAPHICS::drawLoss(averageAccuracy, _counter, x, _lossPoints, _duration);
 
 		// First Neuron of the first Layer will contain the information about the average accuracy
 		_network->at(0).at(0).setAverageAccuracy(averageAccuracy);
@@ -187,7 +188,7 @@ void TRAINING::processTraining(std::vector<std::vector<Neuron>>* _network, const
 				grayValues.clear();
 			}
 			if (_network->at(0).at(0).getHasValidationdata()) {
-				TRAINING::processValidation(_network, totalAccuracy, totalTests, x, lossPoints, duration);
+				TRAINING::processValidation(_network, counter, totalAccuracy, totalTests, x, lossPoints, duration);
 			}
 
 			auto end = std::chrono::high_resolution_clock::now();

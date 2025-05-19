@@ -20,7 +20,7 @@ namespace TRAINING {
 	void training(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _grayValues, const int _target, double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs); // Initializes the net and processes the forwardPass + adaptions
 	
 	void processValidationManaul(std::vector<std::vector<Neuron>>* _network); // Loop for processing the validation iteration and by loading one image after another 
-	void processValidation(std::vector<std::vector<Neuron>>* _network, double& totalAccuracy, int& totalTests, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration); // Loop for processing the validation iteration and by loading one image after another and drawing the loss-graph
+	void processValidation(std::vector<std::vector<Neuron>>* _network, const int _counter, double& totalAccuracy, int& totalTests, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration); // Loop for processing the validation iteration and by loading one image after another and drawing the loss-graph
 	void processTraining(std::vector<std::vector<Neuron>>* _network, const double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs); // Loop for processing the training iteration and by loading one image after another 
 	
 	void setTrainingParameters(std::vector<std::vector<Neuron>>* _network, double& _epsilon, double& _epsilonDecay, double& _momentumfactor, int& _epochs);	// Setup for training parameters

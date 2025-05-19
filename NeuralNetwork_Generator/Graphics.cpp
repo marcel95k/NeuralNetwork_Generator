@@ -313,7 +313,7 @@ void GRAPHICS::drawBarGraph(std::vector<Neuron>* outputNeurons, int width, int h
 	cv::waitKey(1);
 }
 
-void GRAPHICS::drawLoss(const double _accuracy, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration) {
+void GRAPHICS::drawLoss(const double _accuracy, const int _counter, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration) {
 
 	cv::Mat lossGraph(200, 800, CV_8UC3, cv::Scalar(0, 0, 0));
 	const int graphWidth = 700;
@@ -337,7 +337,7 @@ void GRAPHICS::drawLoss(const double _accuracy, int& x, std::vector<cv::Point>& 
 
 	// Add labels
 	cv::putText(lossGraph, "Genauigkeit (%)", cv::Point(10, 12), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
-	cv::putText(lossGraph, "Batch", cv::Point(700, 195), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
+	cv::putText(lossGraph, "Batch " + std::to_string(_counter + 1), cv::Point(700, 195), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
 	cv::putText(lossGraph, estimatedDurationText, cv::Point(400, 12), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
 
 	// Draw Y-axis ticks
