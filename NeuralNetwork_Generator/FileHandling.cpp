@@ -214,7 +214,7 @@ int FILEHANDLING::checkIfSaved(std::vector<std::vector<Neuron>>* _network) {
 
 	if (_network->size() > 0) {
 
-		if (_network->at(0).at(0).getIsSaved() == false) {
+		if (NETWORKPROPERTIES::getSavedFlag(_network) == false) {
 			std::cout << std::endl << "Netz zuerst speichern?(J/N)";
 			std::cout << std::endl << "Eingabe: ";
 			std::cin >> userInput_s;
@@ -229,7 +229,7 @@ int FILEHANDLING::checkIfSaved(std::vector<std::vector<Neuron>>* _network) {
 				}
 				return 0;
 			}
-			else if(userInput_s == "N" || userInput_s == "n") {
+			else if (userInput_s == "N" || userInput_s == "n") {
 				return 0;
 			}
 			else {

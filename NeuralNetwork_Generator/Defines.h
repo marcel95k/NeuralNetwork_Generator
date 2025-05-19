@@ -1,5 +1,15 @@
 #pragma once
 
+/*------------------------------------------------------------*/
+/* Reccuring constant variables throughout the entire program */
+/*------------------------------------------------------------*/
+
+/*Still left to implement:
+	
+*/
+
+
+
 // Network parameters
 
 	#define MIN_OUTPUTNEURONS	2			// 2
@@ -40,10 +50,13 @@
 
 // ASSERT-Makro
 
+#ifdef NDEBUG
+	#define NN_ASSERT(conditon, message) ((void)0)
+#else
 	#define NN_ASSERT(condition, message)								\
 	    do {															\
 	        if (!(condition)) {											\
-	            std::cerr << "\033[31mAssertion failed: (" #condition	\
+	            std::cerr << "\n\033[31mAssertion failed: (" #condition	\
 	                      << ")\033[0m, function " << __FUNCTION__		\
 	                      << ", file " << __FILE__						\
 	                      << ", line " << __LINE__ << ".\n"				\
@@ -51,7 +64,7 @@
 							system("pause")			;					\
 	        }															\
 			else if ((condition)) {										\
-	            std::cerr << "\033[32mAssertion passed: (" #condition	\
+	            std::cerr << "\n\033[32mAssertion passed: (" #condition	\
 	                      << ")\033[0m, function " << __FUNCTION__		\
 	                      << ", file " << __FILE__						\
 	                      << ", line " << __LINE__ << ".\n"				\
@@ -59,3 +72,5 @@
 							system("pause")			;					\
 	        }															\
 	    } while (false)													\
+
+#endif

@@ -1,0 +1,358 @@
+#include <iostream>
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/utils/logger.hpp>
+#include "Defines.h"
+#include "ErrorHandling.h"
+#include "FileHandling.h"
+#include "MathFunctions.h"
+#include "Neuron.h"
+#include "NetworkProperties.h"
+#include "Test.h"
+#include "Training.h"
+#include "Graphics.h"
+
+
+using namespace std;
+
+// Button structure to hold button properties
+struct Button {
+	Rect rect;
+	string label;
+};
+
+// List of buttons
+vector<Button> buttons = {
+	{{100, 50, 300, 50}, "Neues Netz erstellen"},
+	{{100, 120, 300, 50}, "Trainingsdaten erstellen"},
+	{{100, 190, 300, 50}, "Netz speichern"},
+	{{100, 260, 300, 50}, "Netz laden"},
+	{{100, 330, 300, 50}, "Netz trainieren"},
+	{{100, 400, 300, 50}, "Netz testen"},
+	{{100, 470, 300, 50}, "Netz neu initialisieren"},
+	{{100, 540, 300, 50}, "Netz loeschen"},
+	{{100, 610, 300, 50}, "Beenden"}
+};
+
+// Input field states
+bool isEnteringNetworkName = false;
+bool isEnteringOutputCount = false;
+string networkName = "";
+string outputCount = "";
+
+void drawButtons(Mat& img) {
+	for (const auto& button : buttons) {
+		rectangle(img, button.rect, Scalar(0, 0, 255), FILLED);
+		putText(img, button.label, Point(button.rect.x + 20, button.rect.y + 35), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(255, 255, 255), 2);
+	}
+	// Draw input fields if active
+	if (isEnteringNetworkName) {
+		rectangle(img, Rect(100, 700, 300, 50), Scalar(255, 255, 255), FILLED);
+		putText(img, "Netzname: " + networkName, Point(110, 735), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(0, 0, 0), 2);
+	}
+	if (isEnteringOutputCount) {
+		rectangle(img, Rect(100, 770, 300, 50), Scalar(255, 255, 255), FILLED);
+		putText(img, "Outputs: " + outputCount, Point(110, 805), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(0, 0, 0), 2);
+	}
+}
+
+
+static void initializeNet(std::vector<std::vector<Neuron>>* _network) {
+
+	ERRORHANDLING::checkNetForError(9, _network);
+
+	for (int i = 0; i < _network->at(0).size(); ++i) {
+		_network->at(0).at(i).resizeWeightVector(_network->at(1).size());
+	}
+
+	// Init weights and bias weights once
+	for (int j = 0; j < _network->at(1).size(); ++j) {
+		double biasInit = ((rand() % 100) / 100.0) - 0.5; // [-0.5, 0.5]
+		_network->at(1).at(j).setBiasWeight(biasInit);
+
+		for (int i = 0; i < _network->at(0).size(); ++i) {
+			double w = ((rand() % 100) / 100.0) - 0.5; // [-0.5, 0.5]
+			_network->at(0).at(i).setWeightAt(j, w);
+			_network->at(0).at(i).setNewWeight(false);
+		}
+	}
+	NETWORKPROPERTIES::disableTrainedFlag(_network);
+}
+
+static vector<vector<Neuron>> newNet() {
+
+	vector<vector<Neuron>> network;
+
+	string networkName;
+
+	FILEHANDLING::displaySavedNetworks();
+
+	cout << endl << "Name des Netzes: ";
+	cin >> networkName;
+
+	// Check if the network already exists in the "saved_networks.txt" file
+	if (FILEHANDLING::networkExisting(SAVED_NETWORKS, networkName)) {
+		cout << endl << "\033[31mNetztwerk existiert bereits!\033[0m" << endl; 
+		system("pause");
+		return network;
+	}
+
+	vector<Neuron>inputLayer;
+	vector<Neuron>outputLayer;
+	network.push_back(inputLayer);
+	network.push_back(outputLayer);
+
+	network.at(0).resize(INPUTSIZE);
+
+	int amountOfOutpus;
+	cout << endl << "Wieviele Ausgaben soll das Netz haben? (min. 2, max. 30)" << endl;
+	cout << endl << "Eingabe: "; 
+	cin >> amountOfOutpus;
+
+	ERRORHANDLING::checkUserInputForError();
+
+	if (amountOfOutpus < MIN_OUTPUTNEURONS || amountOfOutpus > MAX_OUTPUTNEURONS) { throw ERRORHANDLING::error(1); }
+	network.at(1).resize(amountOfOutpus);
+
+	cout << endl;
+	for (int i = 0; i < network.at(1).size(); i++) {
+		string classification;
+		cout << "Klassifiaktion von Output " << i << ": ";
+		cin >> classification;
+		network.at(1).at(i).setClassificationName(classification);
+	}
+
+	// First Neuron of the first Layer will contain the Network name
+	network.at(0).at(0).setNetworkName(networkName);
+
+	initializeNet(&network);
+	NETWORKPROPERTIES::disableSavdFlag(&network);
+	
+	return network;
+}
+
+void onMouse(int event, int x, int y, int, void* userdata) {
+	auto* network = static_cast<vector<vector<Neuron>>*>(userdata);
+	if (event == EVENT_LBUTTONDOWN) {
+		for (int i = 0; i < buttons.size(); ++i) {
+			if (buttons[i].rect.contains(Point(x, y))) {
+				cout << "Button geklickt: " << buttons[i].label << endl;
+				if (buttons[i].label == "Neues Netz erstellen") {
+					*network = newNet();
+				}
+				else if (buttons[i].label == "Beenden") {
+					exit(0);
+				}
+				else if (buttons[i].label == "Netz testen") {
+					system("cls");
+					try {
+						TEST::setupTest(network);
+					}
+					catch (const string& error) {
+						cerr << error << endl;
+						system("pause");
+					}
+				}
+				else if (buttons[i].label == "Netz laden") {
+					system("cls");
+					try {
+						FILEHANDLING::setupLoad(network);
+					}
+					catch (const string& error) {
+						cerr << error << endl;
+						system("pause");
+					}
+				}
+			}
+		}
+	}
+}
+
+
+static void printNetworkInfo(vector<vector<Neuron>>* _network) {
+
+	if (_network->size() > 0) {
+		if (_network->at(0).at(0).getIsSaved() == true) {
+			//cout << network.at(0).at(0).getNetworkName() << " - SAVED\t" << network.at(0).at(0).getAverageAccuracy() << "%" << endl << endl;
+			cout << _network->at(0).at(0).getNetworkName() << " - SAVED" << endl << endl;
+		}
+		else if (_network->at(0).at(0).getIsSaved() == false) {
+			//cout << network.at(0).at(0).getNetworkName() << " - NOT SAVED\t" << network.at(0).at(0).getAverageAccuracy() << "%" << endl << endl;
+			cout << _network->at(0).at(0).getNetworkName() << " - NOT SAVED" << endl << endl;
+		}
+	}
+}
+
+int main() {
+	vector<vector<Neuron>> network;  // Netz in der main
+	Mat img(850, 500, CV_8UC3, Scalar(50, 50, 50));
+	namedWindow("Netzwerk Menu");
+	setMouseCallback("Netzwerk Menu", onMouse, &network);
+
+	while (true) {
+		Mat display = img.clone();
+		drawButtons(display);
+		imshow("Netzwerk Menu", display);
+		int key = waitKey(30);
+		if (key == 27) break;  // ESC to exit
+	}
+
+
+	cv::utils::logging::setLogLevel(cv::utils::logging::LOG_LEVEL_SILENT);
+
+	//vector<vector<Neuron>> network;
+
+	int userInput;
+
+	while (true) {
+		system("cls");
+
+		printNetworkInfo(&network);
+		
+		cout << "(1) Neues Netz erstellen" << endl;
+		cout << "(2) Trainingsdaten erstellen" << endl;
+		cout << "(3) Netz speichern" << endl;
+		cout << "(4) Netz laden" << endl;
+		cout << "(5) Netz trainieren" << endl;
+		cout << "(6) Netz testen" << endl;
+		cout << "(7) Netz auf alle Validierungsdaten testen" << endl;
+		cout << "(8) Netz neu initialisieren" << endl;
+		cout << "(9) Netz loeschen" << endl;
+		cout << endl <<"(0) Ende" << endl;
+		cout << endl << "Eingabe: "; 
+		cin >> userInput;
+
+		if (cin.fail()) {
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			continue;
+		}
+
+		if (userInput == 1) {
+			system("cls");
+			try {
+				FILEHANDLING::checkIfSaved(&network);
+			}
+			catch (const string& error) {
+				cerr << error << endl;
+				system("pause");
+			}
+			
+			try {
+				system("cls");
+				network = newNet();
+			}
+			catch (const string& error) {
+				cerr << error << endl;
+				system("pause");
+			}
+		}
+
+		else if (userInput == 2) {
+			system("cls");
+			try {
+				FILEHANDLING::createTrainingdataSetup(&network);
+				system("cls");
+			}
+			catch (const string& error) {
+				cerr << error << endl;
+				system("pause");
+			}
+		}
+
+		else if (userInput == 3) {
+			try {
+				FILEHANDLING::setupSave(&network);
+			}
+			catch (const string& error) {
+				cerr << error << endl;
+				system("pause");
+			}
+		}
+
+		else if (userInput == 4) {
+			system("cls");
+			try {
+				FILEHANDLING::setupLoad(&network);
+			}
+			catch (const string& error) {
+				cerr << error << endl;
+				system("pause");
+			}
+		}
+
+		else if (userInput == 5) {
+			system("cls");
+			try {
+				TRAINING::setupTraining(&network);
+			}
+			catch (const string& error) {
+				cerr << error << endl;
+				system("pause");
+			}
+		}
+
+		else if (userInput == 6) {
+			system("cls");
+			try {
+				TEST::setupTest(&network);
+			}
+			catch (const string& error) {
+				cerr << error << endl;
+				system("pause");
+			}
+		}
+
+		else if (userInput == 7) {
+			system("cls");
+			try {
+				TRAINING::processValidationManaul(&network);
+			}
+			catch (const string& error) {
+				cerr << error << endl;
+				system("pause");
+			}
+		}
+
+		else if (userInput == 8) {
+			system("cls");
+			string userInput_s;
+
+			cout << endl << "Netz sicher neu initialisieren?(J/N)";
+			cout << endl << "Eingabe: ";
+			cin >> userInput_s;
+			if (userInput_s == "J" || userInput_s == "j") {
+				try {
+					initializeNet(&network);
+				}
+				catch (const string& error) {
+					cerr << error << endl;
+					system("pause");
+				}
+			}
+		}
+
+		else if (userInput == 9) {
+			system("cls");
+			try {
+				FILEHANDLING::setupDelete(&network);
+			}
+			catch (const string& error) {
+				cerr << error << endl;
+				system("pause");
+			}
+		}
+
+		else if (userInput == 0) {
+			system("cls");
+			try {
+				if (FILEHANDLING::setupExit(&network) == 0) {
+					return 0;
+				}
+			}
+			catch (const string& error) {
+				cerr << error << endl;
+				system("pause");
+			}
+		}
+	}
+}

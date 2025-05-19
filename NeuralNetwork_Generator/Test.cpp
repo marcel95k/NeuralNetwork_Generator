@@ -40,7 +40,7 @@ void TEST::checkIfTrained(std::vector<std::vector<Neuron>>* _network) {
 
 	std::string userInput_s;
 
-	if (_network->at(0).at(0).getIsTrained() == false) {
+	if (NETWORKPROPERTIES::getTrainedFlag(_network) == false) {
 		std::cout << "Netzwerk zuerst trainieren? (J/N)";
 		std::cout << std::endl << "Eingabe: ";
 		std::cin >> userInput_s;

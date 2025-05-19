@@ -12,6 +12,15 @@
 #include "ErrorHandling.h"
 #include "Graphics.h"
 
+/*-----------------------------------------------------------*/
+/* Manages all network- and image-related fielhandling tasks */
+/*-----------------------------------------------------------*/
+
+/*Still left to implement:
+
+*/
+
+
 namespace fs = std::filesystem;
 
 

@@ -8,6 +8,15 @@
 #include "Graphics.h"
 #include "ErrorHandling.h"
 
+/*------------------------------------*/
+/* Handles all testing-relazted tasks */
+/*------------------------------------*/
+
+/*Still left to implement:
+
+*/
+
+
 namespace TEST {
 
 	void forwardPassTest(std::vector<std::vector<Neuron>>* _network, double& _totalSum);

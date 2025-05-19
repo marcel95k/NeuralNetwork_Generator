@@ -22,3 +22,18 @@ void NETWORKPROPERTIES::enableValidationFlag(std::vector<std::vector<Neuron>>* _
 void NETWORKPROPERTIES::disableValidationFlag(std::vector<std::vector<Neuron>>* _network) {
 	_network->at(0).at(0).setHasValidationdata(false);
 }
+
+
+
+bool NETWORKPROPERTIES::getSavedFlag(std::vector<std::vector<Neuron>>* _network) {
+	return _network->at(0).at(0).getIsSaved() == true ? true : false;
+}
+
+bool NETWORKPROPERTIES::getTrainedFlag(std::vector<std::vector<Neuron>>* _network) {
+	return _network->at(0).at(0).getIsTrained() == true ? true : false;
+}
+
+bool NETWORKPROPERTIES::getValidationFlag(std::vector<std::vector<Neuron>>* _network) {
+	return _network->at(0).at(0).getHasValidationdata() == true ? true : false;
+}
+

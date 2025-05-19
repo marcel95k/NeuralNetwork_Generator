@@ -187,7 +187,7 @@ void TRAINING::processTraining(std::vector<std::vector<Neuron>>* _network, const
 				TRAINING::training(_network, &grayValues, classification, _epsilon, _epsilonDecay, _momentumFactor, _epochs);
 				grayValues.clear();
 			}
-			if (_network->at(0).at(0).getHasValidationdata()) {
+			if (NETWORKPROPERTIES::getValidationFlag(_network) == true) {
 				TRAINING::processValidation(_network, counter, totalAccuracy, totalTests, x, lossPoints, duration);
 			}
 
@@ -258,7 +258,7 @@ void TRAINING::setupTraining(std::vector<std::vector<Neuron>>* _network) {
 	std::cout << std::endl << "\033[32mTraining abgeschlossen.\033[0m" << std::endl << std::endl;
 	system("pause");
 
-	if (_network->at(0).at(0).getHasValidationdata()) {
+	if (NETWORKPROPERTIES::getValidationFlag(_network) == true) {
 		destroyWindow("Loss");
 	}
 

@@ -39,3 +39,10 @@ void ERRORHANDLING::checkUserInputForError() {
 		throw ERRORHANDLING::error(1);
 	}
 }
+
+void ERRORHANDLING::globalNetworkAssertion(std::vector<std::vector<Neuron>>* _network) {
+
+	NN_ASSERT(_network->at(0).size() == 400, "Input Size");
+	NN_ASSERT(_network->at(1).size() >= MIN_OUTPUTNEURONS && _network->at(1).size() <= MAX_OUTPUTNEURONS, "Output Size");
+	NN_ASSERT(_network->at(0).at(0).getIndividualClassifications() >= 10 && _network->at(0).at(0).getIndividualClassifications() <= 80, "Individual classifications");
+}

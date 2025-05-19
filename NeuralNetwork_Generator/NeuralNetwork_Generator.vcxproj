@@ -139,6 +139,7 @@
     <ClCompile Include="FileHandling.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="MathFunctions.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="NetworkProperties.cpp" />
     <ClCompile Include="Neuron.cpp" />
     <ClCompile Include="source.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="FileHandling.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="MathFunctions.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="NetworkProperties.h" />
     <ClInclude Include="Neuron.h" />
     <ClInclude Include="Test.h" />
@@ -158,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Text.txt" />
+    <Text Include="Thoughts.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

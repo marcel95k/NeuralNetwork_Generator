@@ -9,6 +9,14 @@
 #include "Test.h"
 #include "Defines.h"
 
+/*---------------------------------------------*/
+/* Manages all graphical aspecs of the program */
+/*---------------------------------------------*/
+
+/*Still left to implement:
+
+*/
+
 using namespace cv;
 
 namespace GRAPHICS {

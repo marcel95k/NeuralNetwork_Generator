@@ -2,12 +2,22 @@
 #include <string>
 #include <vector>
 #include <iomanip>
+#include <assert.h>
 #include <opencv2/opencv.hpp>
 #include "Neuron.h"
 #include "NetworkProperties.h"
 #include "MathFunctions.h"
 #include "FileHandling.h"
 #include "Defines.h"
+
+/*-------------------------------------*/
+/* Handles all training-relazted tasks */
+/*-------------------------------------*/
+
+/*Still left to implement:
+
+*/
+
 
 namespace TRAINING {
 
