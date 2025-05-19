@@ -1,6 +1,3 @@
 Left to implement:
 
 	- Changing classification names of outputs
-	- Network name flag in NetworkProperties
-	- Individual classifications flag in NetworkProperties
-	- Various mathematical functions in MathFunctions

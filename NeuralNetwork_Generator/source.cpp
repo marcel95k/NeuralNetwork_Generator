@@ -30,9 +30,10 @@ static void initializeNet(std::vector<std::vector<Neuron>>* _network) {
 		for (int i = 0; i < _network->at(0).size(); ++i) {
 			double w = ((rand() % 100) / 100.0) - 0.5; // [-0.5, 0.5]
 			_network->at(0).at(i).setWeightAt(j, w);
-			_network->at(0).at(i).setNewWeight(false);
+			_network->at(0).at(i).setNewWeight(true);
 		}
 	}
+
 	NETWORKPROPERTIES::disableTrainedFlag(_network);
 }
 
@@ -79,11 +80,10 @@ static vector<vector<Neuron>> newNet() {
 		network.at(1).at(i).setClassificationName(classification);
 	}
 
-	// First Neuron of the first Layer will contain the Network name
-	network.at(0).at(0).setNetworkName(networkName);
+	NETWORKPROPERTIES::setNetworkName(&network, networkName);
 
 	initializeNet(&network);
-	NETWORKPROPERTIES::disableSavdFlag(&network);
+	NETWORKPROPERTIES::disableSavedFlag(&network);
 	
 	return network;
 }
@@ -91,13 +91,13 @@ static vector<vector<Neuron>> newNet() {
 static void printNetworkInfo(vector<vector<Neuron>>* _network) {
 
 	if (_network->size() > 0) {
-		if (_network->at(0).at(0).getIsSaved() == true) {
+		if (NETWORKPROPERTIES::getSavedFlag(_network) == true) {
 			//cout << network.at(0).at(0).getNetworkName() << " - SAVED\t" << network.at(0).at(0).getAverageAccuracy() << "%" << endl << endl;
-			cout << _network->at(0).at(0).getNetworkName() << " - SAVED" << endl << endl;
+			cout << NETWORKPROPERTIES::getNetworkName(_network) << " - SAVED" << endl << endl;
 		}
-		else if (_network->at(0).at(0).getIsSaved() == false) {
+		else if (NETWORKPROPERTIES::getSavedFlag(_network) == false) {
 			//cout << network.at(0).at(0).getNetworkName() << " - NOT SAVED\t" << network.at(0).at(0).getAverageAccuracy() << "%" << endl << endl;
-			cout << _network->at(0).at(0).getNetworkName() << " - NOT SAVED" << endl << endl;
+			cout << NETWORKPROPERTIES::getNetworkName(_network) << " - NOT SAVED" << endl << endl;
 		}
 	}
 }

@@ -30,11 +30,11 @@ namespace FILEHANDLING {
 
 	void writeGrayscaleToFile(const std::string _mainFolder, std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, cv::Mat _centered);	// Writes the grayscale values into a .txt file
 
-	int createValidationdataLoop(std::vector<std::vector<Neuron>>* _network, const int _amountOfIndividualClassifications);
+	int createValidationdataLoop(std::vector<std::vector<Neuron>>* _network, const int _amountOfIndividualSamples);
 	void createNewValdiationFolders(std::vector<std::vector<Neuron>>* _network);			// Creates validationdata folders for a created network - called from createValidationdataSetup()
 	void createValidationdataSetup(std::vector<std::vector<Neuron>>* _network);				// Setup for creating new validationdata
 
-	int createTrainingdataLoop(std::vector<std::vector<Neuron>>* _network, const int _amountOfIndividualClassifications);
+	int createTrainingdataLoop(std::vector<std::vector<Neuron>>* _network, const int _amountOfIndividualSamples);
 	void createNewTrainingFolders(std::vector<std::vector<Neuron>>* _network);				// Creates trainingdata folders for a created network - called from createTrainingdataSetup()
 	void createTrainingdataSetup(std::vector<std::vector<Neuron>>* _network);				// Setup for creating new trainingdata
 
@@ -56,7 +56,7 @@ namespace FILEHANDLING {
 	int setupExit(std::vector<std::vector<Neuron>>* _network);								// Setup exiting the program
 	std::string getImageFilePath(const std::string _mainFolder, std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter);
 
-	void fillGrayValues(std::ifstream& _inFile, std::vector<float>* _grayValues);
-	void loadValidationIMG(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _grayValues, const int _classification, const int _counter, double& totalAccuracy, int& totalTests);	// Load the validation image and call fitnessTest() 
-	void loadTrainingIMG(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _grayValues, const int _classification, const int _counter, const double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs);	// Load the training image and call training() 
+	void fillGrayValues(std::ifstream& _inFile, std::vector<double>* _grayValues);
+	void loadValidationIMG(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues, const int _classification, const int _counter, double& totalAccuracy, int& totalTests);	// Load the validation image and call fitnessTest() 
+	void loadTrainingIMG(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues, const int _classification, const int _counter, const double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs);	// Load the training image and call training() 
 }

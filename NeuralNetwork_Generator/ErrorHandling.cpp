@@ -15,6 +15,7 @@ std::string ERRORHANDLING::error(const int _what) {
 	default:
 		break;
 	}
+	return "";
 }
 
 void ERRORHANDLING::checkNetForError(const int _errorCode, std::vector<std::vector<Neuron>>* _network) {
@@ -26,7 +27,7 @@ void ERRORHANDLING::checkNetForError(const int _errorCode, std::vector<std::vect
 
 void ERRORHANDLING::checkNetForTrainingData(std::vector<std::vector<Neuron>>* _network) {
 
-	if (_network->at(0).at(0).getIndividualClassifications() == 0) {		
+	if (NETWORKPROPERTIES::getIndividualSamples(_network) == 0) {
 		throw ERRORHANDLING::error(7);
 	}
 }
@@ -42,7 +43,9 @@ void ERRORHANDLING::checkUserInputForError() {
 
 void ERRORHANDLING::globalNetworkAssertion(std::vector<std::vector<Neuron>>* _network) {
 
-	NN_ASSERT(_network->at(0).size() == 400, "Input Size");
-	NN_ASSERT(_network->at(1).size() >= MIN_OUTPUTNEURONS && _network->at(1).size() <= MAX_OUTPUTNEURONS, "Output Size");
-	NN_ASSERT(_network->at(0).at(0).getIndividualClassifications() >= 10 && _network->at(0).at(0).getIndividualClassifications() <= 80, "Individual classifications");
+	if (_network->size() != 0) {
+		NN_ASSERT(_network->at(0).size() == 400, "Input Size");
+		NN_ASSERT(_network->at(1).size() >= MIN_OUTPUTNEURONS && _network->at(1).size() <= MAX_OUTPUTNEURONS, "Output Size");
+		NN_ASSERT(NETWORKPROPERTIES::getIndividualSamples(_network) >= 10 && NETWORKPROPERTIES::getIndividualSamples(_network) <= 80, "Individual samples");
+	}
 }

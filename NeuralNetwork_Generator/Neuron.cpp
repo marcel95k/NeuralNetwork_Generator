@@ -1,6 +1,6 @@
 #include "Neuron.h"
 
-int Neuron::getIndividualClassifications() const { return individualClassifications; }
+int Neuron::getIndividualSamples() const { return individualSamples; }
 double Neuron::getInputValue() const { return inputValue; }
 double Neuron::getOutputValue() const { return outputValue; }
 double Neuron::getBiasWeight() const { return biasWeight; }
@@ -15,7 +15,7 @@ std::string Neuron::getClassificationName() const { return classificationName; }
 std::string Neuron::getNetworkName() const { return networkName; }
 double Neuron::getWeightAt(const int _position) const { return weights.at(_position); }
 
-void Neuron::setIndividualClassifications(const int _individualClassifications) { individualClassifications = _individualClassifications; }
+void Neuron::setIndividualSamples(const int _individualSamples) { individualSamples = _individualSamples; }
 void Neuron::setInputValue(const double _inputValue) { inputValue = _inputValue; }
 void Neuron::setOutputValue(const double _outoutValue) { outputValue = _outoutValue; }
 void Neuron::setBiasWeight(const double _biasWeight) { biasWeight = _biasWeight; }
@@ -37,7 +37,7 @@ void Neuron::addWeightAt(const int _position, const double _value, const double 
 void Neuron::resizeWeightVector(const int _size) { weights.resize(_size); }
 
 void Neuron::save(std::ofstream& out) const {
-    out.write(reinterpret_cast<const char*>(&individualClassifications), sizeof(individualClassifications));
+    out.write(reinterpret_cast<const char*>(&individualSamples), sizeof(individualSamples));
     out.write(reinterpret_cast<const char*>(&inputValue), sizeof(inputValue));
     out.write(reinterpret_cast<const char*>(&outputValue), sizeof(outputValue));
     out.write(reinterpret_cast<const char*>(&biasWeight), sizeof(biasWeight));
@@ -68,7 +68,7 @@ void Neuron::save(std::ofstream& out) const {
 }
 
 void Neuron::load(std::ifstream& in) {
-    in.read(reinterpret_cast<char*>(&individualClassifications), sizeof(individualClassifications));
+    in.read(reinterpret_cast<char*>(&individualSamples), sizeof(individualSamples));
     in.read(reinterpret_cast<char*>(&inputValue), sizeof(inputValue));
     in.read(reinterpret_cast<char*>(&outputValue), sizeof(outputValue));
     in.read(reinterpret_cast<char*>(&biasWeight), sizeof(biasWeight));

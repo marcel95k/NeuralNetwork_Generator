@@ -16,7 +16,7 @@ void GRAPHICS::erase(int x, int y) {
     circle(canvas, Point(x, y), DRAW_RADIUS, Scalar(0), FILLED);    // Draw black (erase)
 }
 
-int GRAPHICS::processKeyPressValidation(const int _status, int& _counter, int& _classification, const int _amountOfIndividualClassifications) {
+int GRAPHICS::processKeyPressValidation(const int _status, int& _counter, int& _classification, const int _amountOfIndividualSamples) {
 
 	if (_status == 1) { // ESC was pressed
 		return 1;
@@ -25,12 +25,12 @@ int GRAPHICS::processKeyPressValidation(const int _status, int& _counter, int& _
 		if (_counter > 0) { _counter--; }
 		else if (_classification > 0) {
 			_classification--;
-			_counter = _amountOfIndividualClassifications - 1;
+			_counter = _amountOfIndividualSamples - 1;
 		}
 	}
 	else {	// Continue to next individual
 		_counter++;
-		if (_counter == _amountOfIndividualClassifications) {	// Continue to next classifiction when _amountOfIndividualClassifications is reached
+		if (_counter == _amountOfIndividualSamples) {	// Continue to next classifiction when _amountOfIndividualClassifications is reached
 			_classification++;
 			_counter = 0;
 		}
@@ -38,7 +38,7 @@ int GRAPHICS::processKeyPressValidation(const int _status, int& _counter, int& _
 	return 0;
 }
 
-int GRAPHICS::processKeyPressTraining(const int _status, int& _counter, int& _classification, const int _amountOfIndividualClassifications) {
+int GRAPHICS::processKeyPressTraining(const int _status, int& _counter, int& _classification, const int _amountOfIndividualSamples) {
 
 	if (_status == 1) { // ESC was pressed
 		return 1;
@@ -47,12 +47,12 @@ int GRAPHICS::processKeyPressTraining(const int _status, int& _counter, int& _cl
 		if (_counter > 0) { _counter--; }
 		else if (_classification > 0) {
 			_classification--;
-			_counter = _amountOfIndividualClassifications -1;
+			_counter = _amountOfIndividualSamples -1;
 		}
 	}
 	else {	// Continue to next individual
 		_counter++;
-		if (_counter == _amountOfIndividualClassifications) {	// Continue to next classifiction when _amountOfIndividualClassifications is reached
+		if (_counter == _amountOfIndividualSamples) {	// Continue to next classifiction when _amountOfIndividualClassifications is reached
 			_classification++;
 			_counter = 0;
 		}
@@ -100,9 +100,9 @@ Mat GRAPHICS::centerImage(const Mat& input, const Size& targetSize) {
 	// Center the digit
 	int dx = resized.cols / 2 - cx;
 	int dy = resized.rows / 2 - cy;
-	Mat translationMat = Mat::eye(2, 3, CV_32F);
-	translationMat.at<float>(0, 2) = dx;
-	translationMat.at<float>(1, 2) = dy;
+	Mat translationMat = Mat::eye(2, 3, CV_64F);
+	translationMat.at<double>(0, 2) = dx;
+	translationMat.at<double>(1, 2) = dy;
 
 	Mat centered;
 	warpAffine(resized, centered, translationMat, resized.size());
@@ -128,7 +128,7 @@ void GRAPHICS::drawTestImage(std::vector<std::vector<Neuron>>* _network) {
 		canvas.copyTo(roi);
 
 		// Text above drawing area
-		std::string infoText = _network->at(0).at(0).getNetworkName();
+		std::string infoText = NETWORKPROPERTIES::getNetworkName(_network);
 		putText(window, infoText, Point(20, 60), FONT_ITALIC, 0.8, Scalar(0), 2);
 
 		GRAPHICS::displaySidebarTextTest(window);
@@ -150,9 +150,9 @@ void GRAPHICS::drawTestImage(std::vector<std::vector<Neuron>>* _network) {
 
 			int dx = resized.cols / 2 - cx;
 			int dy = resized.rows / 2 - cy;
-			Mat translationMat = Mat::eye(2, 3, CV_32F);
-			translationMat.at<float>(0, 2) = dx;
-			translationMat.at<float>(1, 2) = dy;
+			Mat translationMat = Mat::eye(2, 3, CV_64F);
+			translationMat.at<double>(0, 2) = dx;
+			translationMat.at<double>(1, 2) = dy;
 
 			Mat centered;
 			warpAffine(resized, centered, translationMat, resized.size());
@@ -185,7 +185,7 @@ int GRAPHICS::drawValidationdata(std::vector<std::vector<Neuron>>* _network, con
 
 		// Text above drawing area
 		std::string infoText = _network->at(1).at(_classification).getClassificationName() + " " + std::to_string(_counter + 1) + "/" +
-		std::to_string((_network->at(0).at(0).getIndividualClassifications()*30)/100);
+		std::to_string((NETWORKPROPERTIES::getIndividualSamples(_network)*30)/100);
 
 		putText(window, infoText, Point(20, 60), FONT_ITALIC, 0.8, Scalar(0), 2);
 
@@ -212,6 +212,7 @@ int GRAPHICS::drawValidationdata(std::vector<std::vector<Neuron>>* _network, con
 		}
 		else if (key == 27) return 1;  // Exit drawing when ESC was pressed
 	}
+	return 0;
 }
 
 int GRAPHICS::drawTrainingdata(std::vector<std::vector<Neuron>>* _network, const int _counter, const int _classification) {
@@ -226,7 +227,7 @@ int GRAPHICS::drawTrainingdata(std::vector<std::vector<Neuron>>* _network, const
 		canvas.copyTo(roi);
 
 		// Text above drawing area
-		std::string infoText = _network->at(1).at(_classification).getClassificationName() + " " + std::to_string(_counter + 1) + "/" + std::to_string(_network->at(0).at(0).getIndividualClassifications());
+		std::string infoText = _network->at(1).at(_classification).getClassificationName() + " " + std::to_string(_counter + 1) + "/" + std::to_string(NETWORKPROPERTIES::getIndividualSamples(_network));
 		putText(window, infoText, Point(20, 60), FONT_ITALIC, 0.8, Scalar(0), 2);
 
 		GRAPHICS::displaySidebarText(window);
@@ -251,6 +252,7 @@ int GRAPHICS::drawTrainingdata(std::vector<std::vector<Neuron>>* _network, const
 		}
 		else if (key == 27) return 1;  // Exit drawing when ESC was pressed
 	}
+	return 0;
 }
 
 void GRAPHICS::displaySidebarTextTest(Mat& window) {

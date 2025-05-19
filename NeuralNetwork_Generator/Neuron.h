@@ -6,7 +6,7 @@
 
 class Neuron {
 private:
-	int individualClassifications = 0;	// Amount of how many individual images of a classification exist
+	int individualSamples = 0;	// Amount of how many individual samples of a classification exist
 	double inputValue = 0;
 	double outputValue = 0;
 	double biasWeight = 0;
@@ -23,7 +23,7 @@ private:
 	std::vector<double>weights;
 
 public:
-	int getIndividualClassifications() const;
+	int getIndividualSamples() const;
 	double getInputValue() const;
 	double getOutputValue() const;
 	double getBiasWeight() const;
@@ -38,7 +38,7 @@ public:
 	 std::string getNetworkName() const;
 	double getWeightAt(const int _position) const;
 
-	void setIndividualClassifications(const int _individualClassifications);
+	void setIndividualSamples(const int _individualSamples);
 	void setInputValue(const double _inputValue);
 	void setOutputValue(const double _outoutValue);
 	void setBiasWeight(const double _biasWeight);
@@ -50,7 +50,7 @@ public:
 	void setIsSaved(bool _isSaved);
 	void setHasValidationdata(bool _hasValidationdata);
 	void setClassificationName(const std::string _classificationName);
-	void setNetworkName(const std::string _classificationName);
+	void setNetworkName(const std::string _networknName);
 	void setWeightAt(const int _position, const double _value);
 	void addWeightAt(const int _position, const double _value, const double _momentumFactor);
 	void resizeWeightVector(const int _size);

@@ -4,6 +4,7 @@
 #include <opencv2/opencv.hpp>
 #include "Neuron.h"
 #include "Defines.h"
+#include "NetworkProperties.h"
 
 /*---------------------------------------*/
 /* Helping-procedures for error handling */

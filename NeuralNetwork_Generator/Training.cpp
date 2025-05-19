@@ -1,6 +1,6 @@
 ﻿#include "Training.h"
 
-void TRAINING::fitnessTest(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _grayValues, int digit, double& totalAccuracy, int& totalTests) {
+void TRAINING::fitnessTest(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues, int digit, double& totalAccuracy, int& totalTests) {
 
 	std::vector<double>percentVector;
 
@@ -91,12 +91,26 @@ void TRAINING::forwardPassTraining(std::vector<std::vector<Neuron>>* _network) {
 	}
 }
 
-void TRAINING::training(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _grayValues, const int _target, double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs) {
+void TRAINING::training(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues, const int _target, double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs) {
 
 	for (int i = 0; i < _network->at(0).size(); ++i) {
 		_network->at(0).at(i).setOutputValue(_grayValues->at(i));
 	}
-	
+
+	//// Init weights and bias weights once
+	//for (int j = 0; j < _network->at(1).size(); ++j) {
+	//	double biasInit = ((rand() % 100) / 100.0) - 0.5; // [-0.5, 0.5]
+	//	_network->at(1).at(j).setBiasWeight(biasInit);
+
+	//	for (int i = 0; i < _network->at(0).size(); ++i) {
+	//		if (_network->at(0).at(0).getNewWeight() == false) {
+	//			double w = ((rand() % 100) / 100.0) - 0.5; // [-0.5, 0.5]
+	//			_network->at(0).at(i).setWeightAt(j, w);
+	//			_network->at(0).at(i).setNewWeight(true);
+	//		}
+	//	}
+	//}
+	//
 	for (int j = 0; j < _network->at(1).size(); ++j) {
 		_network->at(1).at(j).setTargetOutputValue(0);
 	}
@@ -123,12 +137,12 @@ void TRAINING::processValidationManaul(std::vector<std::vector<Neuron>>* _networ
 
 	ERRORHANDLING::checkNetForError(10, _network);
 
-	std::vector<float>grayValues;
+	std::vector<double>grayValues;
 	double totalAccuracy = 0.0;
 	int totalTests = 0;
 	
 	std::cout << std::endl << "Validieren..." << std::endl;
-	for (int counter = 0; counter < (_network->at(0).at(0).getIndividualClassifications() * VALIDATION_SHARE) / 100; counter++) {
+	for (int counter = 0; counter < (NETWORKPROPERTIES::getIndividualSamples(_network) * VALIDATION_SHARE) / 100; counter++) {
 		for (int classification = 0; classification < _network->at(1).size(); classification++) {
 			FILEHANDLING::loadValidationIMG(_network, &grayValues, classification, counter, totalAccuracy, totalTests);
 			TRAINING::fitnessTest(_network, &grayValues, classification, totalAccuracy, totalTests);
@@ -142,10 +156,10 @@ void TRAINING::processValidationManaul(std::vector<std::vector<Neuron>>* _networ
 
 void TRAINING::processValidation(std::vector<std::vector<Neuron>>* _network, const int _counter, double& totalAccuracy, int& totalTests, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration) {
 
-	std::vector<float>grayValues;
+	std::vector<double>grayValues;
 
 	std::cout << std::endl << "Validieren...";
-	for (int counter = 0; counter < (_network->at(0).at(0).getIndividualClassifications() * VALIDATION_SHARE) / 100; counter++) {
+	for (int counter = 0; counter < (NETWORKPROPERTIES::getIndividualSamples(_network) * VALIDATION_SHARE) / 100; counter++) {
 		for (int classification = 0; classification < _network->at(1).size(); classification++) {
 			FILEHANDLING::loadValidationIMG(_network, &grayValues, classification, counter, totalAccuracy, totalTests);
 			TRAINING::fitnessTest(_network, &grayValues, classification, totalAccuracy, totalTests);
@@ -167,7 +181,7 @@ void TRAINING::processTraining(std::vector<std::vector<Neuron>>* _network, const
 	double totalAccuracy = 0.0;
 	int totalTests = 0;
 
-	std::vector<float>grayValues;
+	std::vector<double>grayValues;
 
 	// Variables for drawing the loss function
 	std::vector<cv::Point> lossPoints;
@@ -178,7 +192,7 @@ void TRAINING::processTraining(std::vector<std::vector<Neuron>>* _network, const
 
 	try {
 		// Load training images and validate
-		for (int counter = 0; counter < _network->at(0).at(0).getIndividualClassifications(); counter++) {
+		for (int counter = 0; counter < NETWORKPROPERTIES::getIndividualSamples(_network); counter++) {
 			auto start = std::chrono::high_resolution_clock::now();
 
 			std::cout << "Training..." << std::endl;
@@ -193,7 +207,7 @@ void TRAINING::processTraining(std::vector<std::vector<Neuron>>* _network, const
 
 			auto end = std::chrono::high_resolution_clock::now();
 			duration = end - start;
-			duration = duration * _network->at(0).at(0).getIndividualClassifications() / 60;
+			duration = duration * NETWORKPROPERTIES::getIndividualSamples(_network) / 60;
 		}
 	}
 	catch (const std::string& error) {
@@ -263,6 +277,6 @@ void TRAINING::setupTraining(std::vector<std::vector<Neuron>>* _network) {
 	}
 
 	NETWORKPROPERTIES::enableTrainedFlag(_network);
-	NETWORKPROPERTIES::disableSavdFlag(_network);
+	NETWORKPROPERTIES::disableSavedFlag(_network);
 }
 

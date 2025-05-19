@@ -23,8 +23,8 @@ namespace GRAPHICS {
 
 	void draw(int x, int y);
 	void erase(int x, int y);
-	int processKeyPressValidation(const int _status, int& _counter, int& _classification, const int _amountOfIndividualClassifications);
-	int processKeyPressTraining(const int _status, int& _counter, int& _classification, const int _amountOfIndividualClassifications);
+	int processKeyPressValidation(const int _status, int& _counter, int& _classification, const int _amountOfIndividualSamples);
+	int processKeyPressTraining(const int _status, int& _counter, int& _classification, const int _amountOfIndividualSamples);
 	void mouseHandler(int event, int x, int y, int flags, void*);
 	Mat centerImage(const Mat& input, const Size& targetSize);
 	void drawTestImage(std::vector<std::vector<Neuron>>* _network);
