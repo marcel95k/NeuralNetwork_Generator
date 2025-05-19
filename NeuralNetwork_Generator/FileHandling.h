@@ -13,7 +13,7 @@
 #include "Graphics.h"
 
 /*-----------------------------------------------------------*/
-/* Manages all network- and image-related fielhandling tasks */
+/* Manages all network- and image-related filehandling tasks */
 /*-----------------------------------------------------------*/
 
 /*Still left to implement:
