@@ -21,7 +21,7 @@ void FILEHANDLING::writeGrayscaleToFile(const std::string _mainFolder, std::vect
 	if (outFile.is_open()) {
 		for (int i = 0; i < _centered.rows; ++i) {
 			for (int j = 0; j < _centered.cols; ++j) {
-				float value = _centered.at<uchar>(i, j) / 255.0f;
+				double value = _centered.at<uchar>(i, j) / 255.0f;
 				outFile << value << std::endl;;
 			}
 		}
@@ -462,7 +462,7 @@ void FILEHANDLING::fillGrayValues(std::ifstream& _inFile, std::vector<double>* _
 	}
 }
 
-void FILEHANDLING::loadValidationIMG(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues, const int _classification, const int _counter, double& totalAccuracy, int& totalTests) {
+void FILEHANDLING::loadValidationIMG(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues, const int _classification, const int _counter) {
 
 	std::string filename = FILEHANDLING::getImageFilePath(VALIDATIONDATA, _network, _classification, _counter);
 	std::ifstream inFile(filename);
@@ -480,7 +480,7 @@ void FILEHANDLING::loadValidationIMG(std::vector<std::vector<Neuron>>* _network,
 	inFile.close();
 }
 
-void FILEHANDLING::loadTrainingIMG(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues, const int _classification, const int _counter, const double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs) {
+void FILEHANDLING::loadTrainingIMG(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues, const int _classification, const int _counter) {
 
 	std::string filename = FILEHANDLING::getImageFilePath(TRAININGDATA, _network, _classification, _counter);
 	std::ifstream inFile(filename);

@@ -30,10 +30,9 @@ static void initializeNet(std::vector<std::vector<Neuron>>* _network) {
 		for (int i = 0; i < _network->at(0).size(); ++i) {
 			double w = ((rand() % 100) / 100.0) - 0.5; // [-0.5, 0.5]
 			_network->at(0).at(i).setWeightAt(j, w);
-			_network->at(0).at(i).setNewWeight(true);
+			_network->at(0).at(i).setNewWeight(false);
 		}
 	}
-
 	NETWORKPROPERTIES::disableTrainedFlag(_network);
 }
 
@@ -50,7 +49,7 @@ static vector<vector<Neuron>> newNet() {
 
 	// Check if the network already exists in the "saved_networks.txt" file
 	if (FILEHANDLING::networkExisting(SAVED_NETWORKS, networkName)) {
-		cout << endl << "\033[31mNetztwerk existiert bereits!\033[0m" << endl; 
+		cout << endl << "\033[31mNetztwerk existiert bereits!\033[0m" << endl;
 		system("pause");
 		return network;
 	}
@@ -64,7 +63,7 @@ static vector<vector<Neuron>> newNet() {
 
 	int amountOfOutpus;
 	cout << endl << "Wieviele Ausgaben soll das Netz haben? (min. 2, max. 30)" << endl;
-	cout << endl << "Eingabe: "; 
+	cout << endl << "Eingabe: ";
 	cin >> amountOfOutpus;
 
 	ERRORHANDLING::checkUserInputForError();
@@ -80,24 +79,25 @@ static vector<vector<Neuron>> newNet() {
 		network.at(1).at(i).setClassificationName(classification);
 	}
 
-	NETWORKPROPERTIES::setNetworkName(&network, networkName);
+	// First Neuron of the first Layer will contain the Network name
+	network.at(0).at(0).setNetworkName(networkName);
 
 	initializeNet(&network);
 	NETWORKPROPERTIES::disableSavedFlag(&network);
-	
+
 	return network;
 }
 
 static void printNetworkInfo(vector<vector<Neuron>>* _network) {
 
 	if (_network->size() > 0) {
-		if (NETWORKPROPERTIES::getSavedFlag(_network) == true) {
+		if (_network->at(0).at(0).getIsSaved() == true) {
 			//cout << network.at(0).at(0).getNetworkName() << " - SAVED\t" << network.at(0).at(0).getAverageAccuracy() << "%" << endl << endl;
-			cout << NETWORKPROPERTIES::getNetworkName(_network) << " - SAVED" << endl << endl;
+			cout << _network->at(0).at(0).getNetworkName() << " - SAVED" << endl << endl;
 		}
-		else if (NETWORKPROPERTIES::getSavedFlag(_network) == false) {
+		else if (_network->at(0).at(0).getIsSaved() == false) {
 			//cout << network.at(0).at(0).getNetworkName() << " - NOT SAVED\t" << network.at(0).at(0).getAverageAccuracy() << "%" << endl << endl;
-			cout << NETWORKPROPERTIES::getNetworkName(_network) << " - NOT SAVED" << endl << endl;
+			cout << _network->at(0).at(0).getNetworkName() << " - NOT SAVED" << endl << endl;
 		}
 	}
 }
@@ -114,7 +114,7 @@ int main() {
 		system("cls");
 
 		printNetworkInfo(&network);
-		
+
 		cout << "(1) Neues Netz erstellen" << endl;
 		cout << "(2) Trainingsdaten erstellen" << endl;
 		cout << "(3) Netz speichern" << endl;
@@ -124,8 +124,8 @@ int main() {
 		cout << "(7) Netz auf alle Validierungsdaten testen" << endl;
 		cout << "(8) Netz neu initialisieren" << endl;
 		cout << "(9) Netz loeschen" << endl;
-		cout << endl <<"(0) Ende" << endl;
-		cout << endl << "Eingabe: "; 
+		cout << endl << "(0) Ende" << endl;
+		cout << endl << "Eingabe: ";
 		cin >> userInput;
 
 		if (cin.fail()) {
@@ -143,7 +143,7 @@ int main() {
 				cerr << error << endl;
 				system("pause");
 			}
-			
+
 			try {
 				system("cls");
 				network = newNet();
@@ -212,7 +212,7 @@ int main() {
 		else if (userInput == 7) {
 			system("cls");
 			try {
-				TRAINING::processValidationManaul(&network);
+				TRAINING::processValidationManual(&network);
 			}
 			catch (const string& error) {
 				cerr << error << endl;

@@ -1,3 +1,13 @@
 Left to implement:
 
 	- Changing classification names of outputs
+
+	/****************************/
+
+	TRAINING::processValidation added _epoch parameter
+	GRAPHICS::drawLoss added epoch parameter
+
+
+	in drawLoss() changed x += 20 to x+= 3 AND x -= 20 to x-= 3
+	in drawLoss() added epoch display text
+	moved epoch routine from training() to processTraining()

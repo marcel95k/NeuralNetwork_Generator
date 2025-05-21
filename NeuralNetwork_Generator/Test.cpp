@@ -15,7 +15,7 @@ void TEST::forwardPassTest(std::vector<std::vector<Neuron>>* _network, double& _
 	}
 }
 
-void TEST::test(std::vector<std::vector<Neuron>>* _network, std::vector<float>* _grayValues) {
+void TEST::test(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues) {
 
 	system("cls");
 	for (int i = 0; i < _network->at(0).size(); ++i) {
@@ -62,7 +62,7 @@ void TEST::setupTest(std::vector<std::vector<Neuron>>* _network) {
 	ERRORHANDLING::checkNetForError(5, _network);
 	checkIfTrained(_network);
 
-	std::vector<float>dummyValues;
+	std::vector<double>dummyValues;
 	dummyValues.resize(_network->at(0).size());
 	TEST::test(_network, &dummyValues);
 

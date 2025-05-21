@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.16.2 FATAL_ERROR)
+
+project (NeuralNetwork_Generator LANGUAGES CXX)
+
+add_executable (NeuralNetwork_Generator uTest.cpp)

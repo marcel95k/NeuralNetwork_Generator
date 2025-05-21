@@ -3,7 +3,7 @@
 #include "Neuron.h"
 
 /*-------------------------------------------------------------------------------*/
-/* The first neuron in the first layer of a network contains all of its metadata */
+/* The first neuron of the first layer of a network contains all of its metadata */
 /*-------------------------------------------------------------------------------*/
 
 /*Still left to implement:
@@ -21,7 +21,7 @@ namespace NETWORKPROPERTIES{
 	void enableValidationFlag(std::vector<std::vector<Neuron>>* _network); // Marking the network as having validationdata by changing the information in the first Neuron of the first Layer
 	void disableValidationFlag(std::vector<std::vector<Neuron>>* _network); // Marking the network as NOT having validationdata by changing the information in the first Neuron of the first Layer
 
-	void setNetworkName(std::vector<std::vector<Neuron>>* _network, const std::string _networkName);	// Sets the network name
+	void setNetworkName(std::vector<std::vector<Neuron>>* _network, const std::string _networkName);	// Sets the network name 
 	void setIndividualSamples(std::vector<std::vector<Neuron>>* _network, const int _amount);	// Sets the amount of individual samples per classification
 
 	bool getSavedFlag(std::vector<std::vector<Neuron>>* _network);	// Returns whether the network is saved or NOT

@@ -122,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\karlp\Documents\Visual Studio 2022\Libraries\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\marce\Documents\Visual Studio 2022\Libraries\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -130,7 +130,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\karlp\Documents\Visual Studio 2022\Libraries\opencv\build\x64\vc16\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\marce\Documents\Visual Studio 2022\Libraries\opencv\build\x64\vc16\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opencv_world470.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -139,7 +139,6 @@
     <ClCompile Include="FileHandling.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="MathFunctions.cpp" />
-    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="NetworkProperties.cpp" />
     <ClCompile Include="Neuron.cpp" />
     <ClCompile Include="source.cpp" />
@@ -152,7 +151,6 @@
     <ClInclude Include="FileHandling.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="MathFunctions.h" />
-    <ClInclude Include="Menu.h" />
     <ClInclude Include="NetworkProperties.h" />
     <ClInclude Include="Neuron.h" />
     <ClInclude Include="Test.h" />
@@ -160,9 +158,17 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Text.txt" />
+    <Text Include="Text1.txt" />
     <Text Include="Thoughts.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\gtest.1.7.0\build\native\gtest.targets" Condition="Exists('..\packages\gtest.1.7.0\build\native\gtest.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Verwenden Sie die Wiederherstellung von NuGet-Paketen, um die fehlenden Dateien herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\gtest.1.7.0\build\native\gtest.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\gtest.1.7.0\build\native\gtest.targets'))" />
+  </Target>
 </Project>

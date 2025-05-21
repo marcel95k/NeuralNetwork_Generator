@@ -116,7 +116,7 @@ void GRAPHICS::drawTestImage(std::vector<std::vector<Neuron>>* _network) {
 	cv::imshow("Balkendiagramm", image);
 	
 	cv::waitKey(1);
-	std::vector<float>grayValues;
+	std::vector<double>grayValues;
 	namedWindow("ZeichenfensterTest");
 	setMouseCallback("ZeichenfensterTest", GRAPHICS::mouseHandler);
 
@@ -315,7 +315,7 @@ void GRAPHICS::drawBarGraph(std::vector<Neuron>* outputNeurons, int width, int h
 	cv::waitKey(1);
 }
 
-void GRAPHICS::drawLoss(const double _accuracy, const int _counter, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration) {
+void GRAPHICS::drawLoss(const double _accuracy, const int _counter, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration, const int _epoch) {
 
 	cv::Mat lossGraph(200, 800, CV_8UC3, cv::Scalar(0, 0, 0));
 	const int graphWidth = 700;
@@ -338,8 +338,9 @@ void GRAPHICS::drawLoss(const double _accuracy, const int _counter, int& x, std:
 	cv::line(lossGraph, cv::Point(graphOffset, 180), cv::Point(graphOffset + graphWidth, 180), cv::Scalar(255, 255, 255), 2); // X-axis
 
 	// Add labels
-	cv::putText(lossGraph, "Genauigkeit (%)", cv::Point(10, 12), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
+	cv::putText(lossGraph, "Genauigkeit (%): " + std::to_string(_accuracy), cv::Point(10, 12), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
 	cv::putText(lossGraph, "Batch " + std::to_string(_counter + 1), cv::Point(700, 195), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
+	cv::putText(lossGraph, "Epoch " + std::to_string((_epoch + 1)), cv::Point(600, 195), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
 	cv::putText(lossGraph, estimatedDurationText, cv::Point(400, 12), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
 
 	// Draw Y-axis ticks
@@ -362,7 +363,7 @@ void GRAPHICS::drawLoss(const double _accuracy, const int _counter, int& x, std:
 	if (x >= graphWidth) {
 		// Shift all points left
 		for (auto& point : _lossPoints) {
-			point.x -= 20;
+			point.x -= 3;
 		}
 
 		// Remove points that move out of the visible area
@@ -382,7 +383,7 @@ void GRAPHICS::drawLoss(const double _accuracy, const int _counter, int& x, std:
 
 	// Increment X for the next point
 	if (x < graphWidth) {
-		x += 20;
+		x += 3;
 	}
 }
 

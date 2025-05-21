@@ -1,4 +1,4 @@
-﻿#include "Training.h"
+#include "Training.h"
 
 void TRAINING::fitnessTest(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues, int _classification, double& _totalAccuracy, int& _totalTests) {
 
@@ -30,7 +30,7 @@ void TRAINING::fitnessTest(std::vector<std::vector<Neuron>>* _network, std::vect
 			_totalAccuracy += *maxIt;
 #ifdef DEBUG_SHOW_FITNESSDETAILS_CORRECT
 			std::cout << "\033[32m"
-				<< std::setw(15) << _network->at(1).at(_classification).getClassificationName()
+				<< std::setw(15) << _network->at(1).at(digit).getClassificationName()
 				<< " erkannt als "
 				<< std::setw(15) << _network->at(1).at(index).getClassificationName()
 				<< " mit "
@@ -39,9 +39,9 @@ void TRAINING::fitnessTest(std::vector<std::vector<Neuron>>* _network, std::vect
 		}
 
 #ifdef DEBUG_SHOW_FITNESSDETAILS_WRONG
-		else if (_classification != index) {
+		else if (digit != index) {
 			std::cout << "\033[31m"
-				<< std::setw(15) << _network->at(1).at(_classification).getClassificationName()
+				<< std::setw(15) << _network->at(1).at(digit).getClassificationName()
 				<< " erkannt als "
 				<< std::setw(15) << _network->at(1).at(index).getClassificationName()
 				<< " mit "
@@ -71,13 +71,6 @@ void TRAINING::weightAdaption(std::vector<std::vector<Neuron>>* _network, std::v
 	}
 }
 
-void TRAINING::calculateMSE(std::vector<double>* _errors, double& totalError) {
-	for (double e : *_errors) {
-		totalError += e * e;
-	}
-	totalError /= _errors->size();
-}
-
 void TRAINING::calculateErrors(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _errors) {
 
 	for (int k = 0; k < _network->at(1).size(); ++k) {
@@ -98,32 +91,49 @@ void TRAINING::forwardPassTraining(std::vector<std::vector<Neuron>>* _network) {
 	}
 }
 
-void TRAINING::training(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues, const int _target, double _epsilon, const double _momentumFactor) {
+void TRAINING::training(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues, const int _target, double _epsilon, const double _epsilonDecay, const double _momentumFactor, const int _epochs) {
 
 	for (int i = 0; i < _network->at(0).size(); ++i) {
 		_network->at(0).at(i).setOutputValue(_grayValues->at(i));
 	}
 
+	//// Init weights and bias weights once
+	//for (int j = 0; j < _network->at(1).size(); ++j) {
+	//	double biasInit = ((rand() % 100) / 100.0) - 0.5; // [-0.5, 0.5]
+	//	_network->at(1).at(j).setBiasWeight(biasInit);
+
+	//	for (int i = 0; i < _network->at(0).size(); ++i) {
+	//		if (_network->at(0).at(0).getNewWeight() == false) {
+	//			double w = ((rand() % 100) / 100.0) - 0.5; // [-0.5, 0.5]
+	//			_network->at(0).at(i).setWeightAt(j, w);
+	//			_network->at(0).at(i).setNewWeight(true);
+	//		}
+	//	}
+	//}
+	//
 	for (int j = 0; j < _network->at(1).size(); ++j) {
 		_network->at(1).at(j).setTargetOutputValue(0);
 	}
 	_network->at(1).at(_target).setTargetOutputValue(1);
-
-	std::vector<double>errors(_network->at(1).size());
-
-	TRAINING::forwardPassTraining(_network);
-	TRAINING::calculateErrors(_network, &errors);
 	
-	double totalError = 0.0;
-	TRAINING::calculateMSE(&errors, totalError);
-	
-	if (totalError > 0.0005) {
+	for (int epoch = 0; epoch < _epochs; ++epoch) {
+
+		std::vector<double>errors(_network->at(1).size());
+
+		if (epoch % 50 == 0 && epoch > 0) {  // After 50 epochs, reduce the learning rate every 50 epochs
+			_epsilon *= _epsilonDecay;  // Reduce learning rate by epsilon decay
+		}
+
+		TRAINING::forwardPassTraining(_network);
+		TRAINING::calculateErrors(_network, &errors);
 		TRAINING::weightAdaption(_network, &errors, _epsilon, _momentumFactor);
 		TRAINING::biasAdaption(_network, &errors, _epsilon);
+
+		//errors.clear();
 	}
 }
 
-void TRAINING::processValidationManual(std::vector<std::vector<Neuron>>* _network) {
+void TRAINING::processValidationManaul(std::vector<std::vector<Neuron>>* _network) {
 
 	ERRORHANDLING::checkNetForError(10, _network);
 
@@ -144,7 +154,7 @@ void TRAINING::processValidationManual(std::vector<std::vector<Neuron>>* _networ
 	system("pause");
 }
 
-void TRAINING::processValidation(std::vector<std::vector<Neuron>>* _network, const int _counter, double& _totalAccuracy, int& _totalTests, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration, const int _epoch) {
+void TRAINING::processValidation(std::vector<std::vector<Neuron>>* _network, const int _counter, double& _totalAccuracy, int& _totalTests, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration) {
 
 	std::vector<double>grayValues;
 
@@ -177,35 +187,32 @@ void TRAINING::processTraining(std::vector<std::vector<Neuron>>* _network, doubl
 	std::vector<cv::Point> lossPoints;
 	int x = 10;
 
+	// Saves the duration of the training loop
 	std::chrono::duration<double> duration = std::chrono::seconds(0);
 
-	for (int epoch = 0; epoch < _epochs; ++epoch) {
-		auto start = std::chrono::high_resolution_clock::now();
-		if (epoch % 10 == 0 && epoch > 0) {  // After 10 epochs, reduce the learning rate every 10 epochs
-			_epsilon *= _epsilonDecay;  // Reduce learning rate by epsilon decay
-		}
-		double epochError = 0.0;
-		try {
-			for (int counter = 0; counter < NETWORKPROPERTIES::getIndividualSamples(_network); counter++) {
+	
+	try {
+		// Load training images and validate
+		for (int counter = 0; counter < NETWORKPROPERTIES::getIndividualSamples(_network); counter++) {
+			auto start = std::chrono::high_resolution_clock::now();
 
-				// Load training images and validate
-				std::cout << "Training..." << std::endl;
-				for (int classification = 0; classification < _network->at(1).size(); classification++) {
-					FILEHANDLING::loadTrainingIMG(_network, &grayValues, classification, counter);	
-					TRAINING::training(_network, &grayValues, classification, _epsilon, _momentumFactor);
-					grayValues.clear();
-				}
-				if (NETWORKPROPERTIES::getValidationFlag(_network) == true) {
-					TRAINING::processValidation(_network, counter, totalAccuracy, totalTests, x, lossPoints, duration, epoch);
-				}
+			std::cout << "Training..." << std::endl;
+			for (int classification = 0; classification < _network->at(1).size(); classification++) {
+				FILEHANDLING::loadTrainingIMG(_network, &grayValues, classification, counter);
+				TRAINING::training(_network, &grayValues, classification, _epsilon, _epsilonDecay, _momentumFactor, _epochs);
+				grayValues.clear();
 			}
+			if (NETWORKPROPERTIES::getValidationFlag(_network) == true) {
+				TRAINING::processValidation(_network, counter, totalAccuracy, totalTests, x, lossPoints, duration, epoch);
+			}
+
+			auto end = std::chrono::high_resolution_clock::now();
+			duration = end - start;
+			duration = duration * NETWORKPROPERTIES::getIndividualSamples(_network) / 60;
 		}
-		catch (const std::string& error) {
-			std::cerr << error << std::endl;
-		}
-		auto end = std::chrono::high_resolution_clock::now();
-		duration = end - start;
-		duration = duration *_epochs/60;
+	}
+	catch (const std::string& error) {
+		std::cerr << error << std::endl;
 	}
 
 	x = 0;
