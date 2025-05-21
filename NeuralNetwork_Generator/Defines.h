@@ -28,7 +28,7 @@
 
 // Drawing parameters
 
-	#define DRAWRADIUS_MAX			20		// 30
+	#define DRAWRADIUS_MAX			20		// 20
 	#define DRAWRADIUS_MIN			3		// 3
 
 

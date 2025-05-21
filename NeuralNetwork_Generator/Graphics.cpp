@@ -71,7 +71,7 @@ void GRAPHICS::mouseHandler(int event, int x, int y, int flags, void*) {
 
 	if (event == EVENT_MOUSEWHEEL) {	// Changing the DRAW_RADIUS
 		int direction = getMouseWheelDelta(flags);
-		DRAW_RADIUS += (direction > 0 ? 2 : -2);
+		DRAW_RADIUS += (direction > 0 ? 1 : -1);
 		DRAW_RADIUS = max(DRAWRADIUS_MIN, min(DRAW_RADIUS, DRAWRADIUS_MAX));
 	}
 
@@ -277,24 +277,58 @@ void GRAPHICS::displaySidebarText(Mat& window) {
 	cv::circle(window, Point(490, 215), DRAW_RADIUS, Scalar(0, 0, 255), FILLED);
 }
 
-void GRAPHICS::displayTextLoss(Mat& window, const double _accuracy, const int _counter, std::string _estimatedDurationText, const int _epoch, const double _epsilon) {
+void GRAPHICS::displayTextLoss(Mat& window, const double _accuracy, const int _counter, double _estimatedDuration, const int _epoch, const double _epsilon) {
+
+	std::ostringstream stream;
+	if (_estimatedDuration < 1) {
+		_estimatedDuration *= 60;
+		stream << std::round(_estimatedDuration) << " sec.";
+	}
+	else {
+		stream << std::round(_estimatedDuration) << " min.";
+	}
+	std::string estimatedDurationText = "Geschaetze Dauer: " + stream.str();
+
 
 	std::ostringstream oss;
 	oss << std::fixed << std::setprecision(2) << _accuracy;
 
 	cv::putText(window, "Durchschnittl. Genauigkeit: " + oss.str() + " %", cv::Point(10, 18), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
-	cv::putText(window, _estimatedDurationText, cv::Point(400, 18), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
+	cv::putText(window, estimatedDurationText, cv::Point(400, 18), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
 
 	cv::putText(window, "Batch: " + std::to_string(_counter + 1), cv::Point(680, 220), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
-	
+
 	cv::putText(window, "Epoche:", cv::Point(10, 220), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
 	cv::putText(window, std::to_string(_epoch + 1), cv::Point(100, 220), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
-	
+
 	cv::putText(window, "Lernrate:", cv::Point(10, 240), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
 	cv::putText(window, std::to_string(_epsilon), cv::Point(100, 240), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
 }
 
+void GRAPHICS::drawLossDiagramFrame(Mat& window, const int _graphWidth, const int _graphOffset) {
+
+	// Draw axes (y-Koordinaten + 10)
+	cv::line(window, cv::Point(_graphOffset, 30), cv::Point(_graphOffset, 190), cv::Scalar(255, 255, 255), 2); // Y-axis
+	cv::line(window, cv::Point(_graphOffset, 190), cv::Point(_graphOffset + _graphWidth, 190), cv::Scalar(255, 255, 255), 2); // X-axis
+
+	// Draw Y-axis ticks (yPos + 10)
+	for (int y = 0; y <= 100; y += 20) {
+		int yPos = 180 - y * 1.6;
+		yPos += 10;
+		cv::putText(window, std::to_string(y), cv::Point(10, yPos + 5), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
+		cv::line(window, cv::Point(45, yPos), cv::Point(55, yPos), cv::Scalar(255, 255, 255), 2);
+	}
+
+	// Draw y-axis lines (yPos + 10)
+	for (int y = 0; y <= 100; y += 10) {
+		int yPos = 180 - y * 1.6;
+		yPos += 10;
+		cv::line(window, cv::Point(45, yPos), cv::Point(750, yPos), cv::Scalar(100, 100, 100), 1);
+	}
+}
+
 void GRAPHICS::drawBarGraph(std::vector<Neuron>* outputNeurons, int width, int height) {
+
 	cv::Mat image(height, width, CV_8UC3, cv::Scalar(255, 255, 255)); // White backgroud
 
 	int numBars = outputNeurons->size();
@@ -340,36 +374,9 @@ void GRAPHICS::drawLoss(const double _accuracy, const int _counter, int& x, std:
 
 	// Format the estimated duration
 	double estimatedDuration = _duration.count();
-	std::ostringstream stream;
-	if (estimatedDuration < 1) {
-		estimatedDuration *= 60;
-		stream << std::round(estimatedDuration) << " sec.";
-	}
-	else {
-		stream << std::round(estimatedDuration) << " min.";
-	}
-	std::string estimatedDurationText = "Geschaetze Dauer: " + stream.str();
-
-	// Draw axes (y-Koordinaten + 10)
-	cv::line(lossGraph, cv::Point(graphOffset, 30), cv::Point(graphOffset, 190), cv::Scalar(255, 255, 255), 2); // Y-axis
-	cv::line(lossGraph, cv::Point(graphOffset, 190), cv::Point(graphOffset + graphWidth, 190), cv::Scalar(255, 255, 255), 2); // X-axis
-
-	displayTextLoss(lossGraph, _accuracy, _counter, estimatedDurationText, _epoch, _epsilon);
-
-	// Draw Y-axis ticks (yPos + 10)
-	for (int y = 0; y <= 100; y += 20) {
-		int yPos = 180 - y * 1.6;
-		yPos += 10;
-		cv::putText(lossGraph, std::to_string(y), cv::Point(10, yPos + 5), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
-		cv::line(lossGraph, cv::Point(45, yPos), cv::Point(55, yPos), cv::Scalar(255, 255, 255), 2);
-	}
-
-	// Draw y-axis lines (yPos + 10)
-	for (int y = 0; y <= 100; y += 10) {
-		int yPos = 180 - y * 1.6;
-		yPos += 10;
-		cv::line(lossGraph, cv::Point(45, yPos), cv::Point(750, yPos), cv::Scalar(100, 100, 100), 1);
-	}
+	
+	GRAPHICS::drawLossDiagramFrame(lossGraph, graphWidth, graphOffset);
+	GRAPHICS::displayTextLoss(lossGraph, _accuracy, _counter, estimatedDuration, _epoch, _epsilon);
 
 	// Add new point (y-Koordinate + 10)
 	_lossPoints.push_back(cv::Point(graphOffset + x, 190 - static_cast<int>(_accuracy * 1.6)));  // 180 + 10 = 190

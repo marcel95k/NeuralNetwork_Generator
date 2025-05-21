@@ -32,8 +32,8 @@ namespace GRAPHICS {
 	int drawTrainingdata(std::vector<std::vector<Neuron>>* _network, const  int _counter, const int _classification);
 	void displaySidebarTextTest(Mat& window);
 	void displaySidebarText(Mat& window);
-	void displayTextLoss(Mat& window, const double _accuracy, const int _counter, std::string _estimatedDurationText, const int _epoch, const double _epsilon);
+	void displayTextLoss(Mat& window, const double _accuracy, const int _counter, double _estimatedDuration, const int _epoch, const double _epsilon);
+	void drawLossDiagramFrame(Mat& window, const int _graphWidth, const int _graphOffset);
 	void drawBarGraph(std::vector<Neuron>* outputNeurons, int width = 600, int height = 400);
 	void drawLoss(const double _accuracy, const int _counter, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration, const int _epoch, const double _epsilon);
-	void drawLossT(const double _accuracy, int& x, std::vector<cv::Point>* _lossPoints);
 }

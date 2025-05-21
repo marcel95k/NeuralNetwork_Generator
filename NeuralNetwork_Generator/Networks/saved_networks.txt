@@ -10,3 +10,4 @@ abc_klein
 netz
 Baum
 digits
+Zahl
