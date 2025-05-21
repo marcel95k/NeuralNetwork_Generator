@@ -144,11 +144,11 @@ void TRAINING::processValidationManual(std::vector<std::vector<Neuron>>* _networ
 	system("pause");
 }
 
-void TRAINING::processValidation(std::vector<std::vector<Neuron>>* _network, const int _counter, double& _totalAccuracy, int& _totalTests, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration, const int _epoch) {
+void TRAINING::processValidation(std::vector<std::vector<Neuron>>* _network, const int _counter, double& _totalAccuracy, int& _totalTests, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration, const int _epoch, const double _epsilon) {
 
 	std::vector<double>grayValues;
 
-	std::cout << std::endl << "Validieren..." << std::endl;;
+//	std::cout << std::endl << "Validieren..." << std::endl;;
 	for (int counter = 0; counter < (NETWORKPROPERTIES::getIndividualSamples(_network) * VALIDATION_SHARE) / 100; counter++) {
 		for (int classification = 0; classification < _network->at(1).size(); classification++) {
 			FILEHANDLING::loadValidationIMG(_network, &grayValues, classification, counter);
@@ -158,8 +158,8 @@ void TRAINING::processValidation(std::vector<std::vector<Neuron>>* _network, con
 	}
 	if (_totalTests > 0) {
 		double averageAccuracy = _totalAccuracy / _totalTests;
-		std::cout << "Durchschnittliche Erkennungsgenauigkeit: " << averageAccuracy << "%" << std::endl << std::endl;
-		GRAPHICS::drawLoss(averageAccuracy, _counter, x, _lossPoints, _duration, _epoch);
+	//	std::cout << "Durchschnittliche Erkennungsgenauigkeit: " << averageAccuracy << "%" << std::endl << std::endl;
+		GRAPHICS::drawLoss(averageAccuracy, _counter, x, _lossPoints, _duration, _epoch, _epsilon);
 
 		// First Neuron of the first Layer will contain the information about the average accuracy
 		_network->at(0).at(0).setAverageAccuracy(averageAccuracy);
@@ -180,6 +180,7 @@ void TRAINING::processTraining(std::vector<std::vector<Neuron>>* _network, doubl
 	std::chrono::duration<double> duration = std::chrono::seconds(0);
 
 	for (int epoch = 0; epoch < _epochs; ++epoch) {
+	//	std::cout << "\033[32mTraining Epoch\033[0m " << epoch << std::endl;
 		auto start = std::chrono::high_resolution_clock::now();
 		if (epoch % 10 == 0 && epoch > 0) {  // After 10 epochs, reduce the learning rate every 10 epochs
 			_epsilon *= _epsilonDecay;  // Reduce learning rate by epsilon decay
@@ -187,16 +188,14 @@ void TRAINING::processTraining(std::vector<std::vector<Neuron>>* _network, doubl
 		double epochError = 0.0;
 		try {
 			for (int counter = 0; counter < NETWORKPROPERTIES::getIndividualSamples(_network); counter++) {
-
 				// Load training images and validate
-				std::cout << "Training..." << std::endl;
 				for (int classification = 0; classification < _network->at(1).size(); classification++) {
 					FILEHANDLING::loadTrainingIMG(_network, &grayValues, classification, counter);	
 					TRAINING::training(_network, &grayValues, classification, _epsilon, _momentumFactor);
 					grayValues.clear();
 				}
 				if (NETWORKPROPERTIES::getValidationFlag(_network) == true) {
-					TRAINING::processValidation(_network, counter, totalAccuracy, totalTests, x, lossPoints, duration, epoch);
+					TRAINING::processValidation(_network, counter, totalAccuracy, totalTests, x, lossPoints, duration, epoch, _epsilon);
 				}
 			}
 		}
