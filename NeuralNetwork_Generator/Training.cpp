@@ -205,6 +205,9 @@ void TRAINING::processTraining(std::vector<std::vector<Neuron>>* _network, doubl
 		auto end = std::chrono::high_resolution_clock::now();
 		duration = end - start;
 		duration = duration *_epochs/60;
+
+		totalAccuracy = 0.0;
+		totalTests = 0;
 	}
 
 	x = 0;
