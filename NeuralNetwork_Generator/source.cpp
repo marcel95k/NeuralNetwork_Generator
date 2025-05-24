@@ -14,6 +14,7 @@
 
 using namespace std;
 
+extern int gaa = 0;
 static void initializeNet(std::vector<std::vector<Neuron>>* _network) {
 
 	ERRORHANDLING::checkNetForError(9, _network);

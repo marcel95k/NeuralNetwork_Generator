@@ -11,3 +11,4 @@ netz
 Baum
 digits
 Zahl
+Ball_nicht
