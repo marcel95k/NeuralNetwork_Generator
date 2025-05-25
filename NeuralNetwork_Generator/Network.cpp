@@ -9,6 +9,9 @@ void Network::addLayer(const Layer _layer) {
 }
 
 void Network::connectLayers() {
+
+    assert(getNetworkSize() > 0);   // Network size has to be > 0
+
     for (int i = 0; i < getNetworkSize() - 1; ++i) {
         for (int t = 0; t < atLayer(i).getLayerSize(); ++t) {
             atLayer(i).atNeuron(t).resizeWeightVector(atLayer(i + 1).getLayerSize());
@@ -17,6 +20,8 @@ void Network::connectLayers() {
 }
 
 void Network::randomize() {
+
+    assert(getNetworkSize() > 0);   // Network size has to be > 0
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -69,7 +74,10 @@ const Layer& Network::atLayer(const int _index) const {
     return network.at(_index);
 }
 
+
 std::vector<double> Network::forwardPass() {
+
+    assert(getNetworkSize() > 0);   // Network size has to be > 0
 
     for (int l = 1; l < getNetworkSize(); ++l) {
         Layer& prevLayer = network[l - 1];
@@ -100,6 +108,8 @@ std::vector<double> Network::forwardPass() {
 }
 
 void Network::backpropagation(const std::vector<double>& _expected, double _learningRate) {
+
+    assert(getNetworkSize() > 0);   // Network size has to be > 0
 
     std::vector<std::vector<double>> deltas(getNetworkSize());
 
@@ -165,10 +175,10 @@ void Network::updateWeights(const std::vector<std::vector<double>>& _deltas, dou
 
 
 
-void Network::saveToFile(const std::string& filename) const {
+void Network::saveToFile(const std::string& _filename) const {
 
-    std::ofstream out(filename, std::ios::binary);
-    if (!out) throw std::runtime_error("Fehler beim Öffnen der Datei.");
+    std::ofstream out(_filename, std::ios::binary);
+    if (!out) throw NNG_Exception("Fehler beim Oeffnen der Datei: " + _filename);
 
     int numLayers = getNetworkSize();
     out.write(reinterpret_cast<const char*>(&numLayers), sizeof(int));
@@ -207,10 +217,10 @@ void Network::saveToFile(const std::string& filename) const {
     out.close();
 }
 
-void Network::loadFromFile(const std::string& filename) {
+void Network::loadFromFile(const std::string& _filename) {
 
-    std::ifstream in(filename, std::ios::binary);
-    if (!in) throw std::runtime_error("Fehler beim Laden der Datei.");
+    std::ifstream in(_filename, std::ios::binary);
+    if (!in) throw std::runtime_error("Fehler beim Laden der Datei: " + _filename);
 
     network.clear();
 

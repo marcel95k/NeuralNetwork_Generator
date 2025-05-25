@@ -14,6 +14,8 @@
 #include "ErrorHandling.h"
 #include "Graphics.h"
 
+#include "Network.h"
+
 /*-----------------------------------------------------------*/
 /* Manages all network- and image-related filehandling tasks */
 /*-----------------------------------------------------------*/
@@ -33,7 +35,9 @@ namespace FILEHANDLING {
 	//void writeGrayscaleToFile(const std::string _mainFolder, std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, cv::Mat _centered);	// Writes the grayscale values into a .txt file
 
 	//int createValidationdataLoop(std::vector<std::vector<Neuron>>* _network, const int _amountOfIndividualSamples);
-	//void createNewValdiationFolders(std::vector<std::vector<Neuron>>* _network);			// Creates validationdata folders for a created network - called from createValidationdataSetup()
+	void createNewValidationdataFolder(const Network& _network);			// Creates validationdata folders for a created network - called from createValidationdataSetup()
+	void createNewTrainingdataFolder(const Network& _network);			// Creates validationdata folders for a created network - called from createValidationdataSetup()
+	void createNewNetworkFolder(const Network& _network);			// Creates validationdata folders for a created network - called from createValidationdataSetup()
 	//void createValidationdataSetup(std::vector<std::vector<Neuron>>* _network);				// Setup for creating new validationdata
 
 	//int createTrainingdataLoop(std::vector<std::vector<Neuron>>* _network, const int _amountOfIndividualSamples);

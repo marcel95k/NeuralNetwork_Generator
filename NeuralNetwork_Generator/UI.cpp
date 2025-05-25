@@ -1,5 +1,19 @@
 #include "UI.h"
 
+// PROCESSING
+int UI::PROCESSING::processUserInputINT() {
+
+	int userInput = -1;
+	std::cin >> userInput;
+
+	if (std::cin.fail()) {
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		throw NNG_Exception("Ungueltige Eingabe!");
+	}
+	return userInput;
+}
+
 int UI::PROCESSING::processUserInputOnMenuOptions(const int _menuSize) {
 
 	int userInput = -1;
@@ -35,6 +49,7 @@ MenuState UI::PROCESSING::menuLoop(const std::vector<std::string>& _menuList, co
 	}
 }
 
+// DISPLAY
 void UI::DISPLAY::displayMenuOptions(const std::vector<std::string> _menuList) {
 
 	system("cls");
@@ -44,6 +59,69 @@ void UI::DISPLAY::displayMenuOptions(const std::vector<std::string> _menuList) {
 	std::cout << std::endl << "Eingabe: ";
 }
 
+// QUERY
+std::string UI::QUERY::userSetNetworkName() {
+
+	std::string tempNetworkName;
+	std::cout << "Speichern als: ";
+	std::cin >> tempNetworkName;
+	return tempNetworkName;
+}
+
+int UI::QUERY::userSetAmountOfHiddenLayers() {
+
+	int tempAmountOfHiddenLayers = -1;
+	std::cout << "Anzahl verteckter Schichten: ";
+	try {
+		tempAmountOfHiddenLayers = UI::PROCESSING::processUserInputINT();
+	}
+	catch (const NNG_Exception& exception) {
+		std::cerr << std::endl << exception.what() << std::endl;
+		system("pause");
+	}
+	
+	return tempAmountOfHiddenLayers;
+}
+
+int UI::QUERY::userSetAmountOfHiddenNeurons(const int _layerIndex) {
+
+	int tempAmountOfHiddenNeurons = -1;
+	std::cout << "Anzahl Neuronen in Hidden Layer " << _layerIndex + 1 << ": ";
+	try {
+		tempAmountOfHiddenNeurons = UI::PROCESSING::processUserInputINT();
+	}
+	catch (const NNG_Exception& exception) {
+		std::cerr << std::endl << exception.what() << std::endl;
+		system("pause");
+	}
+
+	return tempAmountOfHiddenNeurons;
+}
+
+int UI::QUERY::userSetAmountOfOutputNeurons() {
+
+	int tempAmountOfOutputNeurons = -1;
+	std::cout << "Anzahl Neuronen in Output Layer: ";
+	try {
+		tempAmountOfOutputNeurons = UI::PROCESSING::processUserInputINT();
+	}
+	catch (const NNG_Exception& exception) {
+		std::cerr << std::endl << exception.what() << std::endl;
+		system("pause");
+	}
+
+	return tempAmountOfOutputNeurons;
+}
+
+std::string UI::QUERY::userSetOutputLabels(const int _layerIndex) {
+
+	std::string tempLabel;
+	std::cout << "Klassifikation von Output " << _layerIndex + 1 << ": ";
+	std::cin >> tempLabel;
+	return tempLabel;
+}
+
+// MENU
 MenuState UI::MENU::mainMenu(Network& _network) {;
 
 	std::vector<std::string> menuList = {
@@ -68,26 +146,36 @@ MenuState UI::MENU::mainMenu(Network& _network) {;
 MenuState UI::MENU::newNetMenu(Network& _network) {
 	
 	system("cls");
-	int amountOfHiddenLayers;
-	std::cout << "Anzahl verteckter Schichten: ";
-	std::cin >> amountOfHiddenLayers;
+	int amountOfHiddenLayers = 0;
 
-	std::cout << std::endl;
-	std::vector<int>topology;
-	for (int i = 0; i < amountOfHiddenLayers; i++) {
-		int hiddenLayerSize;
-		std::cout << "Anzahl Neuronen in Hidden Layer " << i + 1 << ": ";
-		std::cin >> hiddenLayerSize;
-		topology.push_back(hiddenLayerSize);
+	if (amountOfHiddenLayers = UI::QUERY::userSetAmountOfHiddenLayers() == -1) {
+		return MenuState::MAIN;
 	}
 
 	std::cout << std::endl;
-	int outputLayerSize;
-	std::cout  << "Anzahl Neuronen in Output Layer: ";
-	std::cin >> outputLayerSize;
-	topology.push_back(outputLayerSize);
+	std::vector<int>topology;
+	try {
+		for (int i = 0; i < amountOfHiddenLayers; i++) {
+			topology.push_back(UI::QUERY::userSetAmountOfHiddenNeurons(i));
+		}
+	}
+	catch (const NNG_Exception& exception) {
+		std::cerr << std::endl << exception.what() << std::endl;
+		system("pause");
+		return MenuState::MAIN;
+	}
+	
+	std::cout << std::endl;
+	try {
+		topology.push_back(UI::QUERY::userSetAmountOfOutputNeurons());
+	}
+	catch (const NNG_Exception& exception) {
+		std::cerr << std::endl << exception.what() << std::endl;
+		system("pause");
+		return MenuState::MAIN;
+	}
 
-	_network = NETWORKHANDLER::newNet(amountOfHiddenLayers, topology);
+	_network = NETWORKHANDLER::NEWNET::newNet(amountOfHiddenLayers, topology);
 
 	return MenuState::MAIN;
 }
@@ -118,17 +206,13 @@ MenuState UI::MENU::saveMenu(Network& _network) {
 	}
 	
 	system("cls");
-
 	FILEHANDLING::displaySavedNetworks();
 
-	std::string networkName;
-	std::cout << "Speichern als: ";
-	std::cin >> networkName;
-
+	std::string networkName = UI::QUERY::userSetNetworkName();
 	_network.setNetworkName(networkName);
 
 	try {
-		NETWORKHANDLER::networkSaver(_network);
+		NETWORKHANDLER::DATAMANAGEMENT::networkSaver(_network);
 	}
 	catch (const NNG_Exception& exception) {
 		std::cerr << std::endl << exception.what() << std::endl;
@@ -137,6 +221,7 @@ MenuState UI::MENU::saveMenu(Network& _network) {
 	
 	return MenuState::MAIN;
 }
+
 MenuState UI::MENU::loadMenu(Network& _network) {
 	std::cout << "Bin in " << __func__ << std::endl;
 	return MenuState::MAIN;

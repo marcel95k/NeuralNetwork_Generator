@@ -1,21 +1,18 @@
 #include "NetworkHandler.h"
 
-void NETWORKHANDLER::setOutputLabels(Network& _network) {
+void NETWORKHANDLER::NEWNET::setOutputLabels(Network& _network) {
 
 	std::cout << std::endl;
 	int outputLayer = _network.getNetworkSize() - 1;
 	std::vector<std::string>outputLabels;
 	for (int i = 0; i < _network.atLayer(outputLayer).getLayerSize(); i++) {
-		std::string label;
-		std::cout << "Klassifikation von Output " << i + 1 << ": ";
-		std::cin >> label;
-		outputLabels.push_back(label);
+		outputLabels.push_back(UI::QUERY::userSetOutputLabels(i));
 	}
 
 	_network.setOutputLabels(outputLabels);
 }
 
-void NETWORKHANDLER::fillLayers(Network& _network, const std::vector<int> _topology) {
+void NETWORKHANDLER::NEWNET::fillLayers(Network& _network, const std::vector<int> _topology) {
 
 	// Input Layer size will always be 400
 	for (int i = 0; i < 400; i++) {
@@ -31,7 +28,7 @@ void NETWORKHANDLER::fillLayers(Network& _network, const std::vector<int> _topol
 	}
 }
 
-Network NETWORKHANDLER::newNet(const int _amountOfHiddenLayers, const std::vector<int> _topology) {
+Network NETWORKHANDLER::NEWNET::newNet(const int _amountOfHiddenLayers, const std::vector<int> _topology) {
 
 	Network tempNetwork;
 	int netWorkTotalSize = _amountOfHiddenLayers + 2;	// Add 2 because of Input Layer and Output Layer
@@ -41,8 +38,8 @@ Network NETWORKHANDLER::newNet(const int _amountOfHiddenLayers, const std::vecto
 		tempNetwork.addLayer(layer);
 	}
 
-	NETWORKHANDLER::fillLayers(tempNetwork, _topology);
-	NETWORKHANDLER::setOutputLabels(tempNetwork);
+	NETWORKHANDLER::NEWNET::fillLayers(tempNetwork, _topology);
+	NETWORKHANDLER::NEWNET::setOutputLabels(tempNetwork);
 
 	tempNetwork.connectLayers();
 	tempNetwork.randomize();
@@ -51,10 +48,16 @@ Network NETWORKHANDLER::newNet(const int _amountOfHiddenLayers, const std::vecto
 }
 
 
-void NETWORKHANDLER::networkSaver(Network& _network) {
+void NETWORKHANDLER::DATAMANAGEMENT::networkSaver(Network& _network) {
 
 	if (FILEHANDLING::networkExisting(SAVED_NETWORKS, _network.getNetworkName())) {
 		_network.setNetworkName("");
 		throw NNG_Exception("Netzwerk existiert bereits!");
 	}
+
+	FILEHANDLING::createNewNetworkFolder(_network);
+	FILEHANDLING::createNewTrainingdataFolder(_network);
+	FILEHANDLING::createNewValidationdataFolder(_network);
+
+	_network.saveToFile("Networks/" + _network.getNetworkName() + "/" + _network.getNetworkName() + ".nng");
 }

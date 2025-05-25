@@ -35,12 +35,22 @@ enum class MenuState {
 namespace UI {
 
 	namespace PROCESSING {
+
+		int processUserInputINT();
 		int processUserInputOnMenuOptions(const int _menuSize);
 		MenuState menuLoop(const std::vector<std::string>& _menuList, const std::map<int, MenuState>& _menuActions);
 	}
 
 	namespace DISPLAY {
 		void displayMenuOptions(const std::vector<std::string> _menuList);
+	}
+
+	namespace QUERY {
+		std::string userSetNetworkName();
+		int userSetAmountOfHiddenLayers();
+		int userSetAmountOfHiddenNeurons(const int _layerIndex);
+		int userSetAmountOfOutputNeurons();
+		std::string userSetOutputLabels(const int _layerIndex);
 	}
 
 	namespace MENU {

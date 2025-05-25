@@ -4,6 +4,9 @@
 #include <string>
 #include <fstream>
 #include <random>
+#include <assert.h>
+
+#include "ExceptionHandling.h"
 
 #include "Layer.h"
 
@@ -37,8 +40,8 @@ public:
 	void propagateErrorsBackward(std::vector<std::vector<double>>& _deltas);
 	void updateWeights(const std::vector<std::vector<double>>& _deltas, double _learningRate);
 
-	void saveToFile(const std::string& filename) const;
-	void loadFromFile(const std::string& filename);
+	void saveToFile(const std::string& _filename) const;
+	void loadFromFile(const std::string& _filename);
 
 };
 

@@ -50,18 +50,26 @@ bool FILEHANDLING::networkExisting(const std::string& _filename, const std::stri
 //}
 //
 //
-//void FILEHANDLING::createNewValdiationFolders(std::vector<std::vector<Neuron>>* _network) {
-//
-//	// Create the main folder and name it after the name of the network.
-//	std::string mainFolder = VALIDATIONDATA + NETWORKPROPERTIES::getNetworkName(_network);
-//	fs::create_directories(mainFolder);
-//
-//	// Create the folders for each classification
-//	for (int i = 0; i < _network->at(1).size(); i++) {
-//		std::string classificationFolder = mainFolder + "/" + _network->at(1).at(i).getClassificationName();
-//		fs::create_directories(classificationFolder);
-//	}
-//}
+void FILEHANDLING::createNewValidationdataFolder(const Network& _network) {
+
+	// Create the main folder and name it after the name of the network.
+	std::string validationdataFolderName = "Networks/" + _network.getNetworkName() + "/Validationdata";
+	fs::create_directories(validationdataFolderName);
+}
+
+void FILEHANDLING::createNewTrainingdataFolder(const Network& _network) {
+
+	// Create the main folder and name it after the name of the network.
+	std::string trainingdataFolderName = "Networks/" + _network.getNetworkName() + "/Trainingdata";
+	fs::create_directories(trainingdataFolderName);
+}
+
+void FILEHANDLING::createNewNetworkFolder(const Network& _network) {
+
+	// Create the main folder and name it after the name of the network.
+	std::string mainFolder = "Networks/" + _network.getNetworkName();
+	fs::create_directories(mainFolder);
+}
 //
 //void FILEHANDLING::createValidationdataSetup(std::vector<std::vector<Neuron>>* _network) {
 //	
