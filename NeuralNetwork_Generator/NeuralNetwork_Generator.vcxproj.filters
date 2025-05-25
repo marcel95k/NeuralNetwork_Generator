@@ -21,9 +21,6 @@
     <ClCompile Include="source.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="Neuron.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="ErrorHandling.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -42,14 +39,29 @@
     <ClCompile Include="Graphics.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="NetworkProperties.cpp">
+    <ClCompile Include="UI.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="ExceptionHandling.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Neuron.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Layer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Network.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Controller.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkHandler.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Neuron.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="MathFunctions.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
@@ -71,7 +83,25 @@
     <ClInclude Include="Graphics.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="NetworkProperties.h">
+    <ClInclude Include="UI.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="ExceptionHandling.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Neuron.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Layer.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Network.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Controller.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkHandler.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
