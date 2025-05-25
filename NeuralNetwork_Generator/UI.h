@@ -48,9 +48,9 @@ namespace UI {
 	namespace QUERY {
 		std::string userSetNetworkName();
 		int userSetAmountOfHiddenLayers();
-		int userSetAmountOfHiddenNeurons(const int _layerIndex);
+		std::vector<int> userSetAmountOfHiddenNeurons(const int _amountOfHiddenLayers);
 		int userSetAmountOfOutputNeurons();
-		std::string userSetOutputLabels(const int _layerIndex);
+		void userSetOutputLabels(Network& _network);
 	}
 
 	namespace MENU {

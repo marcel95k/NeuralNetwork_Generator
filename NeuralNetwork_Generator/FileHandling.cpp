@@ -269,7 +269,18 @@ void FILEHANDLING::displaySavedNetworks() {
 //	if (!savedNetworks) {
 //		throw ERRORHANDLING::error(3);
 //	}
-//
+
+void FILEHANDLING::addNetworkToSavedNetworksList(const Network& _network) {
+
+	std::ofstream savedNetworks(SAVED_NETWORKS, std::ios::app);
+	
+	if (!savedNetworks) {
+		throw NNG_Exception("Datei nicht gefunden! save");
+	}
+
+	savedNetworks << _network.getNetworkName() << std::endl;
+	savedNetworks.close();
+}
 //	// Check if the network already exists in the "saved_networks.txt" file and write it if not
 //	if (!networkExisting(SAVED_NETWORKS, NETWORKPROPERTIES::getNetworkName(_network))) {
 //		savedNetworks << NETWORKPROPERTIES::getNetworkName(_network) << std::endl;

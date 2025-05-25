@@ -47,6 +47,7 @@ namespace FILEHANDLING {
 	//void saveNeuronLayer(const std::vector<Neuron>& _layer, const std::string& _filename);	// Save a layer of a network - called from saveNet()
 	//std::vector<Neuron> loadNeuronLayer(const std::string& _filename);						// Load a layer of a network - called from loadNet()
 	void displaySavedNetworks();															// Display the list of all saved networks
+	void addNetworkToSavedNetworksList(const Network& _network);
 	//int checkIfSaved(std::vector<std::vector<Neuron>>* _network);							// Check if a network is existing and not saved yet
 	//void saveNet(std::vector<std::vector<Neuron>>* _network);								// Save a network - called from setupSave()
 	//void setupSave(std::vector<std::vector<Neuron>>* _network);								// Setup for saving a network 

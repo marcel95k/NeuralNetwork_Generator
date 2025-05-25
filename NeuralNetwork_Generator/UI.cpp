@@ -9,6 +9,7 @@ int UI::PROCESSING::processUserInputINT() {
 	if (std::cin.fail()) {
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		//return -1;
 		throw NNG_Exception("Ungueltige Eingabe!");
 	}
 	return userInput;
@@ -78,47 +79,64 @@ int UI::QUERY::userSetAmountOfHiddenLayers() {
 	catch (const NNG_Exception& exception) {
 		std::cerr << std::endl << exception.what() << std::endl;
 		system("pause");
+		return -1;
 	}
-	
+
 	return tempAmountOfHiddenLayers;
 }
 
-int UI::QUERY::userSetAmountOfHiddenNeurons(const int _layerIndex) {
+std::vector<int> UI::QUERY::userSetAmountOfHiddenNeurons(const int _amountOfHiddenLayers) {
 
+	std::vector<int>tempTopology;
 	int tempAmountOfHiddenNeurons = -1;
-	std::cout << "Anzahl Neuronen in Hidden Layer " << _layerIndex + 1 << ": ";
-	try {
-		tempAmountOfHiddenNeurons = UI::PROCESSING::processUserInputINT();
-	}
-	catch (const NNG_Exception& exception) {
-		std::cerr << std::endl << exception.what() << std::endl;
-		system("pause");
+
+	std::cout << std::endl;
+	for (int i = 0; i < _amountOfHiddenLayers; i++) {
+		std::cout << "Anzahl Neuronen in Hidden Layer " << i + 1 << ": ";
+		try {
+			tempAmountOfHiddenNeurons = UI::PROCESSING::processUserInputINT();
+			tempTopology.push_back(tempAmountOfHiddenNeurons);
+		}
+		catch (const NNG_Exception& exception) {
+			tempTopology.clear();
+			std::cerr << std::endl << exception.what() << std::endl;
+			system("pause");
+			return tempTopology;
+		}
 	}
 
-	return tempAmountOfHiddenNeurons;
+	return tempTopology;
 }
 
 int UI::QUERY::userSetAmountOfOutputNeurons() {
 
 	int tempAmountOfOutputNeurons = -1;
-	std::cout << "Anzahl Neuronen in Output Layer: ";
+	std::cout << std::endl << "Anzahl Neuronen in Output Layer: ";
 	try {
 		tempAmountOfOutputNeurons = UI::PROCESSING::processUserInputINT();
 	}
 	catch (const NNG_Exception& exception) {
 		std::cerr << std::endl << exception.what() << std::endl;
 		system("pause");
+		return -1;
 	}
 
 	return tempAmountOfOutputNeurons;
 }
 
-std::string UI::QUERY::userSetOutputLabels(const int _layerIndex) {
+void UI::QUERY::userSetOutputLabels(Network& _network) {
 
-	std::string tempLabel;
-	std::cout << "Klassifikation von Output " << _layerIndex + 1 << ": ";
-	std::cin >> tempLabel;
-	return tempLabel;
+	std::cout << std::endl;
+	int outputLayer = _network.getNetworkSize() - 1;
+	std::vector<std::string>outputLabels;
+	for (int i = 0; i < _network.atLayer(outputLayer).getLayerSize(); i++) {
+		std::string tempOutputLabel;
+		std::cout << "Klassifikation von Output " << i + 1 << ": ";
+		std::cin >> tempOutputLabel;
+		outputLabels.push_back(tempOutputLabel);
+	}
+
+	_network.setOutputLabels(outputLabels);
 }
 
 // MENU
@@ -145,37 +163,32 @@ MenuState UI::MENU::mainMenu(Network& _network) {;
 
 MenuState UI::MENU::newNetMenu(Network& _network) {
 	
-	system("cls");
-	int amountOfHiddenLayers = 0;
-
-	if (amountOfHiddenLayers = UI::QUERY::userSetAmountOfHiddenLayers() == -1) {
+	system("cls");	
+	int amountOfHiddenLayers = UI::QUERY::userSetAmountOfHiddenLayers();
+	if (amountOfHiddenLayers == -1) {
 		return MenuState::MAIN;
 	}
 
-	std::cout << std::endl;
-	std::vector<int>topology;
+	std::vector<int>topology = UI::QUERY::userSetAmountOfHiddenNeurons(amountOfHiddenLayers);
+	if (topology.size() == 0) {
+		return MenuState::MAIN;
+	}
+
+	int amountOfOutputNeurons = UI::QUERY::userSetAmountOfOutputNeurons();
+	if (amountOfOutputNeurons == -1) {
+		return MenuState::MAIN;
+	}
+	topology.push_back(amountOfOutputNeurons);
+
 	try {
-		for (int i = 0; i < amountOfHiddenLayers; i++) {
-			topology.push_back(UI::QUERY::userSetAmountOfHiddenNeurons(i));
-		}
+		_network = NETWORKHANDLER::NEWNET::buildNewNet(amountOfHiddenLayers, topology);
 	}
 	catch (const NNG_Exception& exception) {
 		std::cerr << std::endl << exception.what() << std::endl;
 		system("pause");
 		return MenuState::MAIN;
 	}
-	
-	std::cout << std::endl;
-	try {
-		topology.push_back(UI::QUERY::userSetAmountOfOutputNeurons());
-	}
-	catch (const NNG_Exception& exception) {
-		std::cerr << std::endl << exception.what() << std::endl;
-		system("pause");
-		return MenuState::MAIN;
-	}
-
-	_network = NETWORKHANDLER::NEWNET::newNet(amountOfHiddenLayers, topology);
+	UI::QUERY::userSetOutputLabels(_network);
 
 	return MenuState::MAIN;
 }
