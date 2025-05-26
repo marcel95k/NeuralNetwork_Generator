@@ -59,7 +59,7 @@ void NETWORKHANDLER::DATAMANAGEMENT::saveNewNetworkAs(Network& _network) {
 	_network.saveToFile("Networks/" + _network.getNetworkName() + "/" + _network.getNetworkName() + ".nng");
 }
 
-Network NETWORKHANDLER::DATAMANAGEMENT::loadNetwork(const std::string _networkName) {
+void NETWORKHANDLER::DATAMANAGEMENT::loadNetwork(Network& _network, const std::string _networkName) {
 
 	Network tempNetwork;
 
@@ -68,5 +68,6 @@ Network NETWORKHANDLER::DATAMANAGEMENT::loadNetwork(const std::string _networkNa
 	}
 
 	tempNetwork.loadFromFile("Networks/" + _networkName + "/" + _networkName + ".nng");
-	return tempNetwork;
+
+	std::cout << tempNetwork.getNetworkSize() << std::endl; system("pause");
 }

@@ -55,6 +55,9 @@ void UI::DISPLAY::displayMenuOptions(const std::vector<std::string> _menuList, c
 
 	system("cls");
 	std::cout << _network.getNetworkName() << std::endl << std::endl;
+	for (int i = 0; i < _network.getNetworkSize(); i++) {
+		std::cout << "Layer " << i << ": " << _network.atLayer(i).getLayerSize() << std::endl;
+	}
 	for (int menuIndex = 0; menuIndex < _menuList.size(); menuIndex++) {
 		std::cout << _menuList[menuIndex] << std::endl;
 	}
@@ -200,6 +203,7 @@ MenuState UI::MENU::newNetMenu(Network& _network) {
 	UI::QUERY::userSetOutputLabels(_network);
 
 	_network.setModifiedStatus(true);
+	_network.setNetworkName("Unbenanntes Netz");
 
 	return MenuState::MAIN;
 }
@@ -240,20 +244,23 @@ MenuState UI::MENU::saveMenu(Network& _network) {
 
 MenuState UI::MENU::loadMenu(Network& _network) {
 
-	system("cls");
-	FILEHANDLING::displaySavedNetworks();
+	if (_network.getModifiedStatus() == true) {
+		std::vector<std::string> menuList = {
+		"(1) Zuerst speichern",
+		"(2) Fortfahren zum Laden",
+		"(0) Zurueck"
+		};
 
-	std::string networkName = UI::QUERY::userSetNetworkNameLoad();
+		std::map<int, MenuState> menuActions = {
+		{1, MenuState::SAVE},
+		{2, MenuState::SUB_LOAD},
+		{0, MenuState::MAIN}
+		};
 
-	try {
-		_network = NETWORKHANDLER::DATAMANAGEMENT::loadNetwork(networkName);
+		return UI::PROCESSING::menuLoop(menuList, menuActions, _network);
 	}
-	catch (const NNG_Exception& exception) {
-		std::cerr << std::endl << exception.what() << std::endl;
-		system("pause");
-	}
-	
-	return MenuState::MAIN;
+
+	return MenuState::SUB_LOAD;
 }
 
 MenuState UI::MENU::trainingMenu(Network& _network) {
@@ -348,18 +355,18 @@ MenuState UI::MENU::SAVE::SUBSaveNetworkAs(Network& _network) {
 
 MenuState UI::MENU::LOAD::SUBLoadNetwork(Network& _network) {
 
-	std::vector<std::string> menuList = {
-	"(1) Zuerst speichern",
-	"(2) Fortfahren zum Laden",
-	"(0) Zurueck"
-	};
+	system("cls");
+	FILEHANDLING::displaySavedNetworks();
 
-	std::map<int, MenuState> menuActions = {
-	{1, MenuState::SAVE},
-	{2, MenuState::LOAD},
-	{0, MenuState::MAIN}
-	};
+	std::string networkName = UI::QUERY::userSetNetworkNameLoad();
 
-	return UI::PROCESSING::menuLoop(menuList, menuActions, _network);
+	try {
+		NETWORKHANDLER::DATAMANAGEMENT::loadNetwork(_network, networkName);
+	}
+	catch (const NNG_Exception& exception) {
+		std::cerr << std::endl << exception.what() << std::endl;
+		system("pause");
+	}
 
+	return MenuState::MAIN;
 }

@@ -32,7 +32,6 @@ enum class MenuState {
 	SUB_SAVE,
 	SUB_SAVE_AS,
 	SUB_LOAD,
-	
 };
 
 namespace UI {

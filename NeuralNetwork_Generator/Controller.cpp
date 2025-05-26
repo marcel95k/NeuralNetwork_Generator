@@ -50,7 +50,7 @@ void Controller::run() {
             current = UI::MENU::SAVE::SUBSaveNetworkAs(network);
             break;
         case MenuState::SUB_LOAD:
-            current = UI::MENU::SAVE::SUBSaveNetworkAs(network);
+            current = UI::MENU::LOAD::SUBLoadNetwork(network);
             break;
 
         default:
