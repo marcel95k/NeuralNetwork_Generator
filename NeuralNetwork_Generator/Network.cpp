@@ -213,6 +213,8 @@ void Network::saveToFile(const std::string& _filename) const {
         out.write(reinterpret_cast<const char*>(&length), sizeof(int));
         out.write(label.c_str(), length);
     }
+    out.write(reinterpret_cast<const char*>(&isSaved), sizeof(isSaved));
+    out.write(reinterpret_cast<const char*>(&isModified), sizeof(isModified));
 
     out.close();
 }
@@ -270,9 +272,29 @@ void Network::loadFromFile(const std::string& _filename) {
         in.read(&label[0], length);
         outputLabels[i] = label;
     }
+    in.read(reinterpret_cast<char*>(&isSaved), sizeof(isSaved));
+    in.read(reinterpret_cast<char*>(&isModified), sizeof(isModified));
 
     in.close();
 }
+
+
+void Network::setSavedStatus(bool _isSaved) {
+    isSaved = _isSaved;
+}
+
+bool Network::getSavedStatus() {
+    return isSaved;
+}
+
+void Network::setModifiedStatus(bool _isModified) {
+    isModified = _isModified;
+}
+
+bool Network::getModifiedStatus() {
+    return isModified;
+}
+
 
 
 

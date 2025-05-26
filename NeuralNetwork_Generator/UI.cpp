@@ -32,10 +32,10 @@ int UI::PROCESSING::processUserInputOnMenuOptions(const int _menuSize) {
 	return userInput;
 }
 
-MenuState UI::PROCESSING::menuLoop(const std::vector<std::string>& _menuList, const std::map<int, MenuState>& _menuActions) {
+MenuState UI::PROCESSING::menuLoop(const std::vector<std::string>& _menuList, const std::map<int, MenuState>& _menuActions, const Network& _network) {
 
 	while (true) {
-		UI::DISPLAY::displayMenuOptions(_menuList);
+		UI::DISPLAY::displayMenuOptions(_menuList, _network);
 
 		try {
 			int chosenOption = UI::PROCESSING::processUserInputOnMenuOptions(_menuList.size());
@@ -51,9 +51,10 @@ MenuState UI::PROCESSING::menuLoop(const std::vector<std::string>& _menuList, co
 }
 
 // DISPLAY
-void UI::DISPLAY::displayMenuOptions(const std::vector<std::string> _menuList) {
+void UI::DISPLAY::displayMenuOptions(const std::vector<std::string> _menuList, const Network& _network) {
 
 	system("cls");
+	std::cout << _network.getNetworkName() << std::endl << std::endl;
 	for (int menuIndex = 0; menuIndex < _menuList.size(); menuIndex++) {
 		std::cout << _menuList[menuIndex] << std::endl;
 	}
@@ -61,10 +62,18 @@ void UI::DISPLAY::displayMenuOptions(const std::vector<std::string> _menuList) {
 }
 
 // QUERY
-std::string UI::QUERY::userSetNetworkName() {
+std::string UI::QUERY::userSetNetworkNameSave() {
 
 	std::string tempNetworkName;
 	std::cout << "Speichern als: ";
+	std::cin >> tempNetworkName;
+	return tempNetworkName;
+}
+
+std::string UI::QUERY::userSetNetworkNameLoad() {
+
+	std::string tempNetworkName;
+	std::cout << "Laden: ";
 	std::cin >> tempNetworkName;
 	return tempNetworkName;
 }
@@ -158,7 +167,7 @@ MenuState UI::MENU::mainMenu(Network& _network) {;
 		{9, MenuState::DELETE}, {0, MenuState::EXIT}
 	};
 
-	return UI::PROCESSING::menuLoop(menuList, menuActions);
+	return UI::PROCESSING::menuLoop(menuList, menuActions, _network);
 }
 
 MenuState UI::MENU::newNetMenu(Network& _network) {
@@ -190,6 +199,8 @@ MenuState UI::MENU::newNetMenu(Network& _network) {
 	}
 	UI::QUERY::userSetOutputLabels(_network);
 
+	_network.setModifiedStatus(true);
+
 	return MenuState::MAIN;
 }
 
@@ -207,36 +218,41 @@ MenuState UI::MENU::createTrainingdataMenu(Network& _network) {
 	{0, MenuState::MAIN}
 	};
 
-	return UI::PROCESSING::menuLoop(menuList, menuActions);
+	return UI::PROCESSING::menuLoop(menuList, menuActions, _network);
 }
 
 MenuState UI::MENU::saveMenu(Network& _network) {
 
-	if (_network.getNetworkSize() == 0) {
-		std::cout << std::endl << "Netz leer! Speichern fehlgeschlagen!" << std::endl;
-		system("pause");
-		return MenuState::MAIN;
-	}
-	
+	std::vector<std::string> menuList = {
+	"(1) Speichern",
+	"(2) Speichern als",
+	"(0) Zurueck"
+	};
+
+	std::map<int, MenuState> menuActions = {
+	{1, MenuState::SUB_SAVE},
+	{2, MenuState::SUB_SAVE_AS},
+	{0, MenuState::MAIN}
+	};
+
+	return UI::PROCESSING::menuLoop(menuList, menuActions, _network);
+}
+
+MenuState UI::MENU::loadMenu(Network& _network) {
+
 	system("cls");
 	FILEHANDLING::displaySavedNetworks();
 
-	std::string networkName = UI::QUERY::userSetNetworkName();
-	_network.setNetworkName(networkName);
+	std::string networkName = UI::QUERY::userSetNetworkNameLoad();
 
 	try {
-		NETWORKHANDLER::DATAMANAGEMENT::networkSaver(_network);
+		_network = NETWORKHANDLER::DATAMANAGEMENT::loadNetwork(networkName);
 	}
 	catch (const NNG_Exception& exception) {
 		std::cerr << std::endl << exception.what() << std::endl;
 		system("pause");
 	}
 	
-	return MenuState::MAIN;
-}
-
-MenuState UI::MENU::loadMenu(Network& _network) {
-	std::cout << "Bin in " << __func__ << std::endl;
 	return MenuState::MAIN;
 }
 
@@ -270,6 +286,8 @@ MenuState UI::MENU::exitMenu(Network& _network) {
 	return MenuState::MAIN;
 }
 
+// SUB MENUS
+
 MenuState UI::MENU::CREATETRAININGDATA::SUBcreateTrainingdataMenu(Network& _network) {
 	std::cout << "Bin in " << __func__ << std::endl;
 	return MenuState::MAIN;
@@ -278,4 +296,70 @@ MenuState UI::MENU::CREATETRAININGDATA::SUBcreateTrainingdataMenu(Network& _netw
 MenuState UI::MENU::CREATETRAININGDATA::SUBcreateValidationdataMenu(Network& _network) {
 	std::cout << "Bin in " << __func__ << std::endl;
 	return MenuState::MAIN;
+}
+
+MenuState UI::MENU::SAVE::SUBSaveNetwork(Network& _network) {
+
+	if (_network.getNetworkSize() == 0) {
+		std::cout << std::endl << "Netz leer! Speichern fehlgeschlagen!" << std::endl;
+		system("pause");
+		return MenuState::MAIN;
+	}
+
+	if (_network.getSavedStatus() == false) {
+		return MenuState::SUB_SAVE_AS;
+	}
+
+	try {
+		NETWORKHANDLER::DATAMANAGEMENT::saveNewNetwork(_network);
+	}
+	catch (const NNG_Exception& exception) {
+		std::cerr << std::endl << exception.what() << std::endl;
+		system("pause");
+	}
+
+	return MenuState::MAIN;
+}
+
+MenuState UI::MENU::SAVE::SUBSaveNetworkAs(Network& _network) {
+
+	if (_network.getNetworkSize() == 0) {
+		std::cout << std::endl << "Netz leer! Speichern fehlgeschlagen!" << std::endl;
+		system("pause");
+		return MenuState::MAIN;
+	}
+
+	system("cls");
+	FILEHANDLING::displaySavedNetworks();
+
+	std::string networkName = UI::QUERY::userSetNetworkNameSave();
+	_network.setNetworkName(networkName);
+
+	try {
+		NETWORKHANDLER::DATAMANAGEMENT::saveNewNetworkAs(_network);
+	}
+	catch (const NNG_Exception& exception) {
+		std::cerr << std::endl << exception.what() << std::endl;
+		system("pause");
+	}
+
+	return MenuState::MAIN;
+}
+
+MenuState UI::MENU::LOAD::SUBLoadNetwork(Network& _network) {
+
+	std::vector<std::string> menuList = {
+	"(1) Zuerst speichern",
+	"(2) Fortfahren zum Laden",
+	"(0) Zurueck"
+	};
+
+	std::map<int, MenuState> menuActions = {
+	{1, MenuState::SAVE},
+	{2, MenuState::LOAD},
+	{0, MenuState::MAIN}
+	};
+
+	return UI::PROCESSING::menuLoop(menuList, menuActions, _network);
+
 }

@@ -19,6 +19,8 @@ namespace NETWORKHANDLER {
 	}
 
 	namespace DATAMANAGEMENT {
-		void networkSaver(Network& _network);
+		void saveNewNetwork(Network& _network);
+		void saveNewNetworkAs(Network& _network);
+		Network loadNetwork(const std::string _networkName);
 	}
 }

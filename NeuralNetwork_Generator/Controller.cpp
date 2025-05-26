@@ -43,6 +43,15 @@ void Controller::run() {
         case MenuState::SUB_CREATE_VALIDATIONDATA:
             current = UI::MENU::CREATETRAININGDATA::SUBcreateValidationdataMenu(network);
             break;
+        case MenuState::SUB_SAVE:
+            current = UI::MENU::SAVE::SUBSaveNetwork(network);
+            break;
+        case MenuState::SUB_SAVE_AS:
+            current = UI::MENU::SAVE::SUBSaveNetworkAs(network);
+            break;
+        case MenuState::SUB_LOAD:
+            current = UI::MENU::SAVE::SUBSaveNetworkAs(network);
+            break;
 
         default:
             current = MenuState::EXIT;

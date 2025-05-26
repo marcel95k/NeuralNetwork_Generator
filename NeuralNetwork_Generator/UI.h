@@ -29,6 +29,9 @@ enum class MenuState {
 
 	SUB_CREATE_TRAININGDATA,
 	SUB_CREATE_VALIDATIONDATA,
+	SUB_SAVE,
+	SUB_SAVE_AS,
+	SUB_LOAD,
 	
 };
 
@@ -38,15 +41,16 @@ namespace UI {
 
 		int processUserInputINT();
 		int processUserInputOnMenuOptions(const int _menuSize);
-		MenuState menuLoop(const std::vector<std::string>& _menuList, const std::map<int, MenuState>& _menuActions);
+		MenuState menuLoop(const std::vector<std::string>& _menuList, const std::map<int, MenuState>& _menuActions, const Network& _network);
 	}
 
 	namespace DISPLAY {
-		void displayMenuOptions(const std::vector<std::string> _menuList);
+		void displayMenuOptions(const std::vector<std::string> _menuList, const Network& _network);
 	}
 
 	namespace QUERY {
-		std::string userSetNetworkName();
+		std::string userSetNetworkNameSave();
+		std::string userSetNetworkNameLoad();
 		int userSetAmountOfHiddenLayers();
 		std::vector<int> userSetAmountOfHiddenNeurons(const int _amountOfHiddenLayers);
 		int userSetAmountOfOutputNeurons();
@@ -69,6 +73,13 @@ namespace UI {
 		namespace CREATETRAININGDATA {
 			MenuState SUBcreateTrainingdataMenu(Network& _network);
 			MenuState SUBcreateValidationdataMenu(Network& _network);
+		}
+		namespace SAVE {
+			MenuState SUBSaveNetwork(Network& _network);
+			MenuState SUBSaveNetworkAs(Network& _network);
+		}
+		namespace LOAD {
+			MenuState SUBLoadNetwork(Network& _network);
 		}
 	}
 }

@@ -16,6 +16,8 @@ private:
 	std::vector<Layer>network;
 	std::string networkName = "";
 	std::vector<std::string> outputLabels;
+	bool isSaved = false;
+	bool isModified = false;
 
 public:
 	void resizeNetwork(const int _size);
@@ -42,6 +44,12 @@ public:
 
 	void saveToFile(const std::string& _filename) const;
 	void loadFromFile(const std::string& _filename);
+
+	void setSavedStatus(bool _isSaved);
+	bool getSavedStatus();
+
+	void setModifiedStatus(bool _isModified);
+	bool getModifiedStatus();
 
 };
 

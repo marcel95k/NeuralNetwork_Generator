@@ -36,7 +36,14 @@ Network NETWORKHANDLER::NEWNET::buildNewNet(const int _amountOfHiddenLayers, con
 }
 
 
-void NETWORKHANDLER::DATAMANAGEMENT::networkSaver(Network& _network) {
+void NETWORKHANDLER::DATAMANAGEMENT::saveNewNetwork(Network& _network) {
+
+	_network.setModifiedStatus(false);
+	_network.setSavedStatus(true);
+	_network.saveToFile("Networks/" + _network.getNetworkName() + "/" + _network.getNetworkName() + ".nng");
+}
+
+void NETWORKHANDLER::DATAMANAGEMENT::saveNewNetworkAs(Network& _network) {
 
 	if (FILEHANDLING::networkExisting(SAVED_NETWORKS, _network.getNetworkName())) {
 		throw NNG_Exception("Netzwerk existiert bereits!");
@@ -47,5 +54,19 @@ void NETWORKHANDLER::DATAMANAGEMENT::networkSaver(Network& _network) {
 	FILEHANDLING::createNewValidationdataFolder(_network);
 	FILEHANDLING::addNetworkToSavedNetworksList(_network);
 
+	_network.setModifiedStatus(false);
+	_network.setSavedStatus(true);
 	_network.saveToFile("Networks/" + _network.getNetworkName() + "/" + _network.getNetworkName() + ".nng");
+}
+
+Network NETWORKHANDLER::DATAMANAGEMENT::loadNetwork(const std::string _networkName) {
+
+	Network tempNetwork;
+
+	if (FILEHANDLING::networkExisting(SAVED_NETWORKS, _networkName) == false) {
+		throw NNG_Exception("Netzwerk nicht gefunden!");
+	}
+
+	tempNetwork.loadFromFile("Networks/" + _networkName + "/" + _networkName + ".nng");
+	return tempNetwork;
 }
