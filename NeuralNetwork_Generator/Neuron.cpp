@@ -16,7 +16,9 @@ void Neuron::setWeightAt(const int _index, const double _value) {
 	weights[_index] = _value;
 }
 
-void Neuron::addWeightAt(const int _index, const double _value) {
+void Neuron::addWeightAt(const int _index, const double _value, const double _momentumFactor) {
+	momentum += _value;
+	momentum *= _momentumFactor;
 	weights[_index] += _value;
 }
 

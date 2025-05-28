@@ -25,6 +25,10 @@
 	#define DEFAULT_MOMENTUMFACTOR	0.9		// 0.9
 	#define DEFAULT_EPOCHS			100		// 100
 
+	#define MAX_LEARNINGRATE		0.9		// 0.9
+	#define MAX_EPSILON_DECAY		1		// 1
+	#define MAX_MOMENTUMFACTOR		0.9		// 0.9
+
 
 // Drawing parameters
 

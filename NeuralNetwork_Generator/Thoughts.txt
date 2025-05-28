@@ -143,7 +143,7 @@ void onMouse(int event, int x, int y, int, void* userdata) {
 					exit(0);
 				}
 				else if (buttons[i].label == "Netz testen") {
-					system("cls");
+					clearScreen();
 					try {
 						TEST::setupTest(network);
 					}
@@ -153,7 +153,7 @@ void onMouse(int event, int x, int y, int, void* userdata) {
 					}
 				}
 				else if (buttons[i].label == "Netz laden") {
-					system("cls");
+					clearScreen();
 					try {
 						FILEHANDLING::setupLoad(network);
 					}
@@ -204,7 +204,7 @@ int main() {
 	int userInput;
 
 	while (true) {
-		system("cls");
+		clearScreen();
 
 		printNetworkInfo(&network);
 		
@@ -228,7 +228,7 @@ int main() {
 		}
 
 		if (userInput == 1) {
-			system("cls");
+			clearScreen();
 			try {
 				FILEHANDLING::checkIfSaved(&network);
 			}
@@ -238,7 +238,7 @@ int main() {
 			}
 			
 			try {
-				system("cls");
+				clearScreen();
 				network = newNet();
 			}
 			catch (const string& error) {
@@ -248,10 +248,10 @@ int main() {
 		}
 
 		else if (userInput == 2) {
-			system("cls");
+			clearScreen();
 			try {
 				FILEHANDLING::createTrainingdataSetup(&network);
-				system("cls");
+				clearScreen();
 			}
 			catch (const string& error) {
 				cerr << error << endl;
@@ -270,7 +270,7 @@ int main() {
 		}
 
 		else if (userInput == 4) {
-			system("cls");
+			clearScreen();
 			try {
 				FILEHANDLING::setupLoad(&network);
 			}
@@ -281,7 +281,7 @@ int main() {
 		}
 
 		else if (userInput == 5) {
-			system("cls");
+			clearScreen();
 			try {
 				TRAINING::setupTraining(&network);
 			}
@@ -292,7 +292,7 @@ int main() {
 		}
 
 		else if (userInput == 6) {
-			system("cls");
+			clearScreen();
 			try {
 				TEST::setupTest(&network);
 			}
@@ -303,7 +303,7 @@ int main() {
 		}
 
 		else if (userInput == 7) {
-			system("cls");
+			clearScreen();
 			try {
 				TRAINING::processValidationManaul(&network);
 			}
@@ -314,7 +314,7 @@ int main() {
 		}
 
 		else if (userInput == 8) {
-			system("cls");
+			clearScreen();
 			string userInput_s;
 
 			cout << endl << "Netz sicher neu initialisieren?(J/N)";
@@ -332,7 +332,7 @@ int main() {
 		}
 
 		else if (userInput == 9) {
-			system("cls");
+			clearScreen();
 			try {
 				FILEHANDLING::setupDelete(&network);
 			}
@@ -343,7 +343,7 @@ int main() {
 		}
 
 		else if (userInput == 0) {
-			system("cls");
+			clearScreen();
 			try {
 				if (FILEHANDLING::setupExit(&network) == 0) {
 					return 0;

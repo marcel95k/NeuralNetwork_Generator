@@ -14,10 +14,11 @@ class Network {
 
 private:
 	std::vector<Layer>network;
-	std::string networkName = "";
+	std::string networkName = "Unbenanntes Netz";
 	std::vector<std::string> outputLabels;
 	bool isSaved = false;
 	bool isModified = false;
+	int individualSampleSize = 60;
 
 public:
 	void resizeNetwork(const int _size);
@@ -35,6 +36,8 @@ public:
 	Layer& atLayer(const int _index);
 	const Layer& atLayer(const int _index) const;
 
+	void fillInputLayer(const std::vector<double>_inputValues);
+
 	std::vector<double>forwardPass();
 	void backpropagation(const std::vector<double>& _expected, double _learningRate);
 
@@ -45,11 +48,13 @@ public:
 	void saveToFile(const std::string& _filename) const;
 	void loadFromFile(const std::string& _filename);
 
-	void setSavedStatus(bool _isSaved);
-	bool getSavedStatus();
+	void setSavedStatus(const bool _isSaved);
+	bool getSavedStatus() const;
 
-	void setModifiedStatus(bool _isModified);
-	bool getModifiedStatus();
+	void setModifiedStatus(const bool _isModified);
+	bool getModifiedStatus() const;
 
+	void setIndividualSampleSize(const int _individualSampleSize);
+	int getIndividualSampleSize();
 };
 
