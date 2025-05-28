@@ -410,6 +410,7 @@ MenuState UI::MENU::trainingMenu(Network& _network) {
 }
 
 MenuState UI::MENU::testMenu(Network& _network) {
+
 	GRAPHICS::drawBarGraph(_network);
 	GRAPHICS::drawTestImage(_network);
 	std::cout << "Bin in " << __func__ << std::endl;

@@ -162,12 +162,8 @@ void GRAPHICS::drawTestImage(Network& _network) {
 					grayValues.push_back(centered.at<uchar>(i, j) / 255.0f);
 				}
 			}
-			for (int o = 0; o < grayValues.size(); o++) {
-				std::cout << "gr: " << grayValues[o] << std::endl;
-			}
-			std::cout << "graysfilled " << std::endl;
+
 			_network.fillInputLayer(grayValues);
-			std::cout << "netFILLED " << std::endl;
 
 			std::vector<double>output = _network.forwardPass();
 			for (int o = 0; o < output.size(); o++) {
@@ -336,14 +332,14 @@ void GRAPHICS::displaySidebarTextTest(Mat& window) {
 //	}
 //}
 //
-void GRAPHICS::(const Network& _network, int width, int height) {
+void GRAPHICS::drawBarGraph(const Network& _network) {
 
-	cv::Mat image(height, width, CV_8UC3, cv::Scalar(255, 255, 255)); // White backgroud
+	cv::Mat image(400, 600, CV_8UC3, cv::Scalar(255, 255, 255)); // White backgroud
 	Layer outputLayer = _network.atLayer(_network.getNetworkSize() - 1);
 	int numBars = outputLayer.getLayerSize();
-	int barWidth = width / (numBars * 2);  // Space for distance
+	int barWidth = 600 / (numBars * 2);  // Space for distance
 	int spacing = barWidth; // Distance between bars
-	int xOffset = (width - (barWidth * numBars + spacing * (numBars - 1))) / 2;
+	int xOffset = (600 - (barWidth * numBars + spacing * (numBars - 1))) / 2;
 
 	// Find index of the highest value
 	int maxIndex = 0;
@@ -359,18 +355,18 @@ void GRAPHICS::(const Network& _network, int width, int height) {
 
 	// Draw bars
 	for (int i = 0; i < numBars; ++i) {
-		Neuron n = outputLayer.atNeuron(i);
+		Neuron& n = outputLayer.atNeuron(i);
 		double val = n.getOutputValue();
-		int barHeight = static_cast<int>((val / maxVal) * (height - 100));  // Space for labels
+		int barHeight = static_cast<int>((val / maxVal) * (400 - 100));  // Space for labels
 		int x = xOffset + i * (barWidth + spacing);
-		int y = height - barHeight - 40;
+		int y = 400 - barHeight - 40;
 
 		cv::Scalar color = (i == maxIndex) ? cv::Scalar(0, 255, 0) : cv::Scalar(0, 0, 255); // Green or red
-		cv::rectangle(image, cv::Point(x, y), cv::Point(x + barWidth, height - 40), color, cv::FILLED);
+		cv::rectangle(image, cv::Point(x, y), cv::Point(x + barWidth, 400 - 40), color, cv::FILLED);
 
 		// Write classificationName() below
 		std::string label = _network.getOutputLabelAt(i);
-		cv::putText(image, label, cv::Point(x, height - 15), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 0), 1);
+		cv::putText(image, label, cv::Point(x, 400 - 15), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 0), 1);
 	}
 
 	cv::imshow("Balkendiagramm", image);

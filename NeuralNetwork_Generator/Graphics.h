@@ -35,6 +35,6 @@ namespace GRAPHICS {
 //	void displaySidebarText(Mat& window);
 //	void displayTextLoss(Mat& window, const double _accuracy, const int _counter, double _estimatedDuration, const int _epoch, const double _epsilon);
 //	void drawLossDiagramFrame(Mat& window, const int _graphWidth, const int _graphOffset);
-	void drawBarGraph(const Network& _network, int width = 600, int height = 400);
+	void drawBarGraph(const Network& _network);
 //	void drawLoss(const double _accuracy, const int _counter, int& x, std::vector<cv::Point>& _lossPoints, std::chrono::duration<double> _duration, const int _epoch, const double _epsilon);
 }

@@ -37,7 +37,7 @@ void Trainer::setExpectedOutputs(std::vector<double>& _expectedOutputs, const in
 
 void Trainer::trainNetwork(Network& _network) {
 
-	Layer outputLayer = _network.atLayer(_network.getNetworkSize() - 1);
+	Layer& outputLayer = _network.atLayer(_network.getNetworkSize() - 1);
 
 
 	auto total_start = std::chrono::high_resolution_clock::now();

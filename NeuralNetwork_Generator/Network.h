@@ -18,7 +18,7 @@ private:
 	std::vector<std::string> outputLabels;
 	bool isSaved = false;
 	bool isModified = false;
-	int individualSampleSize = 60;
+	int individualSampleSize = 40;
 
 public:
 	void resizeNetwork(const int _size);
