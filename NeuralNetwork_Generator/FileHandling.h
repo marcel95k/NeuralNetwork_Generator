@@ -47,7 +47,7 @@ namespace FILEHANDLING {
 	//void saveNeuronLayer(const std::vector<Neuron>& _layer, const std::string& _filename);	// Save a layer of a network - called from saveNet()
 	//std::vector<Neuron> loadNeuronLayer(const std::string& _filename);						// Load a layer of a network - called from loadNet()
 	void displaySavedNetworks();															// Display the list of all saved networks
-	void addNetworkToSavedNetworksList(const Network& _network);
+	void addNetworkToList(const Network& _network);
 	//int checkIfSaved(std::vector<std::vector<Neuron>>* _network);							// Check if a network is existing and not saved yet
 	//void saveNet(std::vector<std::vector<Neuron>>* _network);								// Save a network - called from setupSave()
 	//void setupSave(std::vector<std::vector<Neuron>>* _network);								// Setup for saving a network 
@@ -56,14 +56,14 @@ namespace FILEHANDLING {
 
 	//void deleteValidationFolders(std::vector<std::vector<Neuron>>* _network);				// Delete the network related Validationfolders
 	//void deleteTrainingFolders(std::vector<std::vector<Neuron>>* _network);					// Delete the network related Trainingfolders
-	//void deleteFolders(std::vector<std::vector<Neuron>>* _network);							// Delete all of the network related folders
-	//void deleteNet(std::vector<std::vector<Neuron>>* _network);								// Delete a network - called from setupDelete()
+	void removeNetworkFromList(Network& _network);							// Delete all of the network related folders
+	void deleteFolders(Network& _network);							// Delete all of the network related folders
 	//void setupDelete(std::vector<std::vector<Neuron>>* _network);							// Setup for deleting a network 
 
 	//int setupExit(std::vector<std::vector<Neuron>>* _network);								// Setup exiting the program
-	//std::string getImageFilePath(const std::string _mainFolder, std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter);
+	std::string getImageFilePath(const std::string _mainFolder, const Network& _network, const int _classification, const int _sampleCounter);
 
-	//void fillGrayValues(std::ifstream& _inFile, std::vector<double>* _grayValues);
+	void fillGrayValues(std::ifstream& _inFile, std::vector<double>& _inputValues);
 	//void loadValidationIMG(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues, const int _classification, const int _counter);	// Load the validation image 
-	//void loadTrainingIMG(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues, const int _classification, const int _counter);	// Load the training image
+	void loadTrainingIMG(const Network& _network, std::vector<double>& _inputValues, const int _classification, const int _sampleCounter);	// Load the training image
 }
