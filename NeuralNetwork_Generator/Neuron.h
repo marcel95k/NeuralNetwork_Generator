@@ -6,8 +6,9 @@
 class Neuron {
 
 private:
-	double outputValue;
+	double outputValue = 0;
 	double bias;
+	double momentum = 0;
 	std::vector<double>weights;
 
 public:
@@ -15,7 +16,7 @@ public:
 	void setBias(const double _value);
 	void resizeWeightVector(const int _size);
 	void setWeightAt(const int _index, const double _value);
-	void addWeightAt(const int _index, const double _value);
+	void addWeightAt(const int _index, const double _value, const double _momentumFactor);
 
 	double getOutputValue() const;
 	double getBias() const;

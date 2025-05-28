@@ -27,16 +27,19 @@ void Controller::run() {
         case MenuState::TEST:
             current = UI::MENU::testMenu(network);
             break;
-        case MenuState::VALIDATE:
-            current = UI::MENU::validationCheckMenu(network);
-            break;
         case MenuState::INITIALIZE:
             current = UI::MENU::initializeMenu(network);
+            break;
+        case MenuState::SHOW_NETWORKINFO:
+            current = UI::MENU::showNetworkInfoMenu(network);
             break;
         case MenuState::DELETE:
             current = UI::MENU::deleteMenu(network);
             break;
 
+        case MenuState::SUB_NEWNET:
+            current = UI::MENU::NEWNET::SUBNewNetMenu(network);
+            break;
         case MenuState::SUB_CREATE_TRAININGDATA:
             current = UI::MENU::CREATETRAININGDATA::SUBcreateTrainingdataMenu(network);
             break;
@@ -44,15 +47,29 @@ void Controller::run() {
             current = UI::MENU::CREATETRAININGDATA::SUBcreateValidationdataMenu(network);
             break;
         case MenuState::SUB_SAVE:
-            current = UI::MENU::SAVE::SUBSaveNetwork(network);
+            current = UI::MENU::SAVE::SUBSaveNetworkMenu(network);
             break;
         case MenuState::SUB_SAVE_AS:
-            current = UI::MENU::SAVE::SUBSaveNetworkAs(network);
+            current = UI::MENU::SAVE::SUBSaveNetworkAsMenu(network);
             break;
         case MenuState::SUB_LOAD:
-            current = UI::MENU::LOAD::SUBLoadNetwork(network);
+            current = UI::MENU::LOAD::SUBLoadNetworkMenu(network);
             break;
-
+        case MenuState::SUB_TRAIN_DEFAULT:
+            current = UI::MENU::TRAIN::SUBDefaultTrainingMenu(network);
+            break;
+        case MenuState::SUB_TRAIN_CUSTOM:
+            current = UI::MENU::TRAIN::SUBCustomTrainingMenu(network);
+            break;
+        case MenuState::SUB_TEST:
+            current = UI::MENU::TEST::SUBTestMenu(network);
+            break;
+        case MenuState::SUB_INITIALIZE:
+            current = UI::MENU::INITIALIZE::SUBInitializeMenu(network);
+            break;
+        case MenuState::SUB_DELETE:
+            current = UI::MENU::DELETE::SUBDeleteMenu(network);
+            break;
         default:
             current = MenuState::EXIT;
         }

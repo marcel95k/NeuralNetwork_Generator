@@ -75,6 +75,16 @@ const Layer& Network::atLayer(const int _index) const {
 }
 
 
+void Network::fillInputLayer(const std::vector<double> _inputValues) {
+
+    Layer& inputLayer = atLayer(0);
+    for (int n = 0; n < inputLayer.getLayerSize(); n++) {
+        Neuron& currentNeuron = inputLayer.atNeuron(n);
+        currentNeuron.setOutputValue(currentNeuron.sigmoid(_inputValues[n]));
+    }
+}
+
+
 std::vector<double> Network::forwardPass() {
 
     assert(getNetworkSize() > 0);   // Network size has to be > 0
@@ -163,9 +173,8 @@ void Network::updateWeights(const std::vector<std::vector<double>>& _deltas, dou
 
             for (int i = 0; i < current.getLayerSize(); ++i) {
                 Neuron& sourceNeuron = current.atNeuron(i);
-                double change = -_learningRate * delta * sourceNeuron.getOutputValue();
-                double oldWeight = sourceNeuron.getWeightAt(j);
-                sourceNeuron.setWeightAt(j, oldWeight + change);
+                double deltaWeight = -_learningRate * delta * sourceNeuron.getOutputValue();
+                sourceNeuron.addWeightAt(j, deltaWeight, 0.9);  // <== Get the momentumFactor from Trainer here
             }
 
             targetNeuron.setBias(targetNeuron.getBias() - _learningRate * delta);
@@ -215,6 +224,7 @@ void Network::saveToFile(const std::string& _filename) const {
     }
     out.write(reinterpret_cast<const char*>(&isSaved), sizeof(isSaved));
     out.write(reinterpret_cast<const char*>(&isModified), sizeof(isModified));
+    out.write(reinterpret_cast<const char*>(&individualSampleSize), sizeof(individualSampleSize));
 
     out.close();
 }
@@ -228,7 +238,6 @@ void Network::loadFromFile(const std::string& _filename) {
 
     int numLayers;
     in.read(reinterpret_cast<char*>(&numLayers), sizeof(int));
-    network.resize(numLayers);
 
     for (int l = 0; l < numLayers; ++l) {
         int numNeurons;
@@ -253,7 +262,6 @@ void Network::loadFromFile(const std::string& _filename) {
 
             layer.addNeuron(neuron);
         }
-
         addLayer(layer);
     }
 
@@ -274,25 +282,34 @@ void Network::loadFromFile(const std::string& _filename) {
     }
     in.read(reinterpret_cast<char*>(&isSaved), sizeof(isSaved));
     in.read(reinterpret_cast<char*>(&isModified), sizeof(isModified));
+    in.read(reinterpret_cast<char*>(&individualSampleSize), sizeof(individualSampleSize));
 
     in.close();
 }
 
 
-void Network::setSavedStatus(bool _isSaved) {
+void Network::setSavedStatus(const bool _isSaved) {
     isSaved = _isSaved;
 }
 
-bool Network::getSavedStatus() {
+bool Network::getSavedStatus() const {
     return isSaved;
 }
 
-void Network::setModifiedStatus(bool _isModified) {
+void Network::setModifiedStatus(const bool _isModified) {
     isModified = _isModified;
 }
 
-bool Network::getModifiedStatus() {
+bool Network::getModifiedStatus() const {
     return isModified;
+}
+
+void Network::setIndividualSampleSize(const int _individualSampleSize) {
+    individualSampleSize = _individualSampleSize;
+}
+
+int Network::getIndividualSampleSize() {
+    return individualSampleSize;
 }
 
 

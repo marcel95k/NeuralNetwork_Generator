@@ -1,10 +1,12 @@
 #include "NetworkHandler.h"
 
-
+// NEWNET
 void NETWORKHANDLER::NEWNET::fillLayers(Network& _network, const std::vector<int> _topology) {
 
+	assert(_network.getNetworkSize() > 0);   // Network size has to be > 0
+
 	// Input Layer size will always be 400
-	for (int i = 0; i < 400; i++) {
+	for (int i = 0; i < INPUTSIZE; i++) {
 		Neuron neuron;
 		_network.atLayer(0).addNeuron(neuron);
 	}
@@ -35,7 +37,7 @@ Network NETWORKHANDLER::NEWNET::buildNewNet(const int _amountOfHiddenLayers, con
 	return tempNetwork;
 }
 
-
+// DATA MANAGEMENT
 void NETWORKHANDLER::DATAMANAGEMENT::saveNewNetwork(Network& _network) {
 
 	_network.setModifiedStatus(false);
@@ -45,29 +47,31 @@ void NETWORKHANDLER::DATAMANAGEMENT::saveNewNetwork(Network& _network) {
 
 void NETWORKHANDLER::DATAMANAGEMENT::saveNewNetworkAs(Network& _network) {
 
-	if (FILEHANDLING::networkExisting(SAVED_NETWORKS, _network.getNetworkName())) {
+	if (FILEHANDLING::networkExisting(SAVED_NETWORKS, _network.getNetworkName()) == true) {
 		throw NNG_Exception("Netzwerk existiert bereits!");
 	}
 
 	FILEHANDLING::createNewNetworkFolder(_network);
 	FILEHANDLING::createNewTrainingdataFolder(_network);
 	FILEHANDLING::createNewValidationdataFolder(_network);
-	FILEHANDLING::addNetworkToSavedNetworksList(_network);
+	FILEHANDLING::addNetworkToList(_network);
 
 	_network.setModifiedStatus(false);
-	_network.setSavedStatus(true);
 	_network.saveToFile("Networks/" + _network.getNetworkName() + "/" + _network.getNetworkName() + ".nng");
 }
 
 void NETWORKHANDLER::DATAMANAGEMENT::loadNetwork(Network& _network, const std::string _networkName) {
 
-	Network tempNetwork;
-
 	if (FILEHANDLING::networkExisting(SAVED_NETWORKS, _networkName) == false) {
 		throw NNG_Exception("Netzwerk nicht gefunden!");
 	}
+	_network.loadFromFile("Networks/" + _networkName + "/" + _networkName + ".nng");
+}
 
-	tempNetwork.loadFromFile("Networks/" + _networkName + "/" + _networkName + ".nng");
+void NETWORKHANDLER::DATAMANAGEMENT::deleteNetwork(Network& _network) {
 
-	std::cout << tempNetwork.getNetworkSize() << std::endl; system("pause");
+	FILEHANDLING::removeNetworkFromList(_network);
+	FILEHANDLING::deleteFolders(_network);
+	_network.resizeNetwork(0);
+	_network.setNetworkName("Unbenanntes Netz");
 }

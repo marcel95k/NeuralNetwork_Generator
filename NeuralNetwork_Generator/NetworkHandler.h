@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <random>
+#include <assert.h>
 
 #include "Defines.h"
 #include "UI.h"
@@ -22,5 +23,6 @@ namespace NETWORKHANDLER {
 		void saveNewNetwork(Network& _network);
 		void saveNewNetworkAs(Network& _network);
 		void loadNetwork(Network& _network, const std::string _networkName);
+		void deleteNetwork(Network& _network);
 	}
 }

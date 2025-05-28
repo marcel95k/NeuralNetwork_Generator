@@ -1,6 +1,5 @@
 #include "FileHandling.h"
 
-namespace fs = std::filesystem;
 
 
 bool FILEHANDLING::networkExisting(const std::string& _filename, const std::string& _networkName) {
@@ -159,13 +158,13 @@ void FILEHANDLING::createNewNetworkFolder(const Network& _network) {
 //	//// First Neuron of the first Layer will contain the information about how many individual entities of a classification exist --> AGAIN if createTrainingdataLoop resets it
 //	//_network->at(0).at(0).setIndividualClassifications(amountOfIndividualClassifications);
 //	
-//	system("cls");
+//	clearScreen();
 //	try {
 //		FILEHANDLING::createValidationdataSetup(_network);
 //	}
 //	catch (const std::string& error) {
 //		std::cerr << error << std::endl;
-//		system("pause");
+//		awaitAnyKey();
 //	}
 //	NETWORKPROPERTIES::disableSavedFlag(_network);
 //}
@@ -234,7 +233,7 @@ void FILEHANDLING::displaySavedNetworks() {
 //				}
 //				catch (const std::string& error) {
 //					std::cerr << error << std::endl;
-//					system("pause");
+//					awaitAnyKey();
 //					return 1;
 //				}
 //				return 0;
@@ -260,7 +259,7 @@ void FILEHANDLING::displaySavedNetworks() {
 //		}
 //		catch (const std::string& error) {
 //			std::cerr << error << std::endl;
-//			system("pause");
+//			awaitAnyKey();
 //		}
 //	}
 //
@@ -270,12 +269,12 @@ void FILEHANDLING::displaySavedNetworks() {
 //		throw ERRORHANDLING::error(3);
 //	}
 
-void FILEHANDLING::addNetworkToSavedNetworksList(const Network& _network) {
+void FILEHANDLING::addNetworkToList(const Network& _network) {
 
 	std::ofstream savedNetworks(SAVED_NETWORKS, std::ios::app);
 	
 	if (!savedNetworks) {
-		throw NNG_Exception("Datei nicht gefunden! save");
+		throw NNG_Exception("Datei nicht gefunden: " SAVED_NETWORKS);
 	}
 
 	savedNetworks << _network.getNetworkName() << std::endl;
@@ -296,13 +295,13 @@ void FILEHANDLING::addNetworkToSavedNetworksList(const Network& _network) {
 //	}
 //	catch (const std::string& error) {
 //		std::cerr << error << std::endl;
-//		system("pause");
+//		awaitAnyKey();
 //	}
 //}
 //
 //void FILEHANDLING::loadNet(std::vector<std::vector<Neuron>>* _network) {
 //
-//	system("cls");
+//	clearScreen();
 //
 //	std::vector<Neuron>inputLayer;
 //	std::vector<Neuron>outputLayer;
@@ -314,7 +313,7 @@ void FILEHANDLING::addNetworkToSavedNetworksList(const Network& _network) {
 //	}
 //	catch (const std::string& error) {
 //		std::cerr << error << std::endl;
-//		system("pause");
+//		awaitAnyKey();
 //	}
 //
 //	std::cout << std::endl << "Laden: ";
@@ -336,7 +335,7 @@ void FILEHANDLING::addNetworkToSavedNetworksList(const Network& _network) {
 //	catch (const std::string& error)
 //	{
 //		std::cerr << error << std::endl;
-//		system("pause");
+//		awaitAnyKey();
 //	}
 //}
 //
@@ -349,7 +348,7 @@ void FILEHANDLING::addNetworkToSavedNetworksList(const Network& _network) {
 //	}
 //	catch (const std::string& error) {
 //		std::cerr << error << std::endl;
-//		system("pause");
+//		awaitAnyKey();
 //	}
 //}
 //
@@ -369,61 +368,58 @@ void FILEHANDLING::addNetworkToSavedNetworksList(const Network& _network) {
 //	std::uintmax_t amountTraining = std::filesystem::remove_all(folderNameTraining, ecTraining);
 //}
 //
-//void FILEHANDLING::deleteFolders(std::vector<std::vector<Neuron>>* _network) {
-//
-//	std::string folderNameTraining = TRAININGDATA + NETWORKPROPERTIES::getNetworkName(_network);
-//
-//	std::error_code ecTraining;
-//	std::uintmax_t amountTraining = std::filesystem::remove_all(folderNameTraining, ecTraining);
-//
-//	std::string folderNameValidation = VALIDATIONDATA + NETWORKPROPERTIES::getNetworkName(_network);
-//
-//	std::error_code ecValidation;
-//	std::uintmax_t amountValidation = std::filesystem::remove_all(folderNameValidation, ecValidation);
-//}
-//
-//void FILEHANDLING::deleteNet(std::vector<std::vector<Neuron>>* _network) {
-//	
-//	for (int i = 0; i < _network->size(); i++) {
-//		std::string filenameDAT = NETWORKS + NETWORKPROPERTIES::getNetworkName(_network) + "_" + std::to_string(i) + ".dat";
-//		std::remove(filenameDAT.c_str());
-//	}
-//
-//	std::string filenameTXT = SAVED_NETWORKS;
-//	std::ifstream infile(filenameTXT);
-//	std::ofstream tempFile("temp.txt");
-//	std::string line;
-//
-//	if (!infile || !tempFile) {
-//		throw ERRORHANDLING::error(3);
-//	}
-//
-//	while (std::getline(infile, line)) {
-//		if (line != NETWORKPROPERTIES::getNetworkName(_network)) {
-//			tempFile << line << '\n';
-//		}
-//	}
-//
-//	infile.close();
-//	tempFile.close();
-//
-//	if (std::remove(filenameTXT.c_str()) != 0) {
-//		throw ERRORHANDLING::error(3);
-//	}
-//	if (std::rename("temp.txt", filenameTXT.c_str()) != 0) {
-//		throw ERRORHANDLING::error(3);
-//	}
-//
-//	FILEHANDLING::deleteFolders(_network);
-//
-//	_network->resize(0);
-//}
+void FILEHANDLING::removeNetworkFromList(Network& _network) {
+
+	std::string filenameTXT = SAVED_NETWORKS;
+	std::ifstream infile(filenameTXT);
+	std::ofstream tempFile("temp.txt");
+	std::string line;
+
+	if (!infile || !tempFile) {
+		throw NNG_Exception("Datei nicht gefunden!");
+	}
+
+	if (FILEHANDLING::networkExisting(SAVED_NETWORKS, _network.getNetworkName()) == false) {
+		infile.close();
+		tempFile.close();
+		throw NNG_Exception("Netzwerk nicht in "  + filenameTXT + " gefunden!");
+	}
+
+	while (std::getline(infile, line)) {
+		if (line != _network.getNetworkName()) {
+			tempFile << line << '\n';
+		}
+	}
+
+	infile.close();
+	tempFile.close();
+
+	if (std::remove(filenameTXT.c_str()) != 0) {
+		throw NNG_Exception("Netzwerk nicht gefunden!");
+	}
+	if (std::rename("temp.txt", filenameTXT.c_str()) != 0) {
+		throw NNG_Exception("Netzwerk nicht gefunden!");
+	}
+}
+
+void FILEHANDLING::deleteFolders(Network& _network) {
+
+	std::string folderName = NETWORKS + _network.getNetworkName();
+	std::error_code ec;
+
+	std::uintmax_t amountDeleted = std::filesystem::remove_all(folderName, ec);
+
+	if (ec) {
+		throw NNG_Exception("Fehler beim Loeschen des Ordners: " + ec.message());
+	}
+}
+
 //
 //void FILEHANDLING::setupDelete(std::vector<std::vector<Neuron>>* _network) {
 //
 //	ERRORHANDLING::checkNetForError(6, _network);
 //
-//	system("cls");
+//	clearScreen();
 //	std::string userInput_s;
 //	std::cout << std::endl << "Netz sicher loeschen?(J/N)";
 //	std::cout << std::endl << "Eingabe: ";
@@ -435,7 +431,7 @@ void FILEHANDLING::addNetworkToSavedNetworksList(const Network& _network) {
 //		}
 //		catch (const std::string& error) {
 //			std::cerr << error << std::endl;
-//			system("pause");
+//			awaitAnyKey();
 //		}
 //	}
 //}
@@ -460,27 +456,27 @@ void FILEHANDLING::addNetworkToSavedNetworksList(const Network& _network) {
 //	return 1;
 //}
 //
-//std::string FILEHANDLING::getImageFilePath(const std::string _mainFolder, std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter) {
-//
-//	return _mainFolder +
-//		NETWORKPROPERTIES::getNetworkName(_network) + "/" +
-//		_network->at(1).at(_classification).getClassificationName() + "/" +
-//		_network->at(1).at(_classification).getClassificationName() + "_" +
-//		std::to_string(_counter) + ".txt";
-//}
-//
-//void FILEHANDLING::fillGrayValues(std::ifstream& _inFile, std::vector<double>* _grayValues) {
-//
-//	std::string line;
-//	while (getline(_inFile, line)) {
-//		std::stringstream ss(line);
-//		double val;
-//		while (ss >> val) {
-//			_grayValues->push_back(val);
-//		}
-//	}
-//}
-//
+std::string FILEHANDLING::getImageFilePath(const std::string _mainFolder, const Network& _network, const int _classification, const int _sampleCounter) {
+
+	return _mainFolder +
+		_network.getNetworkName() + "/" + TRAININGDATA + "/" +
+		_network.getOutputLabelAt(_classification) + "/" +
+		_network.getOutputLabelAt(_classification) + "_" + 
+		std::to_string(_sampleCounter) + ".txt";
+}
+
+void FILEHANDLING::fillGrayValues(std::ifstream& _inFile, std::vector<double>& _inputValues) {
+
+	std::string line;
+	while (getline(_inFile, line)) {
+		std::stringstream ss(line);
+		double val;
+		while (ss >> val) {
+			_inputValues.push_back(val);
+		}
+	}
+}
+
 //void FILEHANDLING::loadValidationIMG(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues, const int _classification, const int _counter) {
 //
 //	std::string filename = FILEHANDLING::getImageFilePath(VALIDATIONDATA, _network, _classification, _counter);
@@ -499,23 +495,23 @@ void FILEHANDLING::addNetworkToSavedNetworksList(const Network& _network) {
 //	inFile.close();
 //}
 //
-//void FILEHANDLING::loadTrainingIMG(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues, const int _classification, const int _counter) {
-//
-//	std::string filename = FILEHANDLING::getImageFilePath(TRAININGDATA, _network, _classification, _counter);
-//	std::ifstream inFile(filename);
-//
-//	if (!inFile.is_open()) {
-//		throw ERRORHANDLING::error(3);
-//	}
-//
-//	FILEHANDLING::fillGrayValues(inFile, _grayValues);
-//
-//#ifdef DEBUG_SHOW_TRAININGFILENAME
-//	std::cout << "Training " << filename << std::endl;
-//#endif // DEBUG_SHOW_TRAININGFILENAME
-//
-//	inFile.close();
-//}
+void FILEHANDLING::loadTrainingIMG(const Network& _network, std::vector<double>& _inputValues, const int _classification, const int _sampleCounter) {
+
+	std::string filename = FILEHANDLING::getImageFilePath(NETWORKS, _network, _classification, _sampleCounter);
+	std::ifstream inFile(filename);
+
+	if (!inFile.is_open()) {
+		throw NNG_Exception("Datei nicht gefunden: " + filename);
+	}
+
+	FILEHANDLING::fillGrayValues(inFile, _inputValues);
+
+#ifdef DEBUG_SHOW_TRAININGFILENAME
+	std::cout << "Training " << filename << std::endl;
+#endif // DEBUG_SHOW_TRAININGFILENAME
+
+	inFile.close();
+}
 //
 //
 //

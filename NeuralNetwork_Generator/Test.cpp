@@ -17,7 +17,7 @@
 //
 //void TEST::test(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues) {
 //
-//	system("cls");
+//	clearScreen();
 //	for (int i = 0; i < _network->at(0).size(); ++i) {
 //		_network->at(0).at(i).setOutputValue(_grayValues->at(i));
 //	}
