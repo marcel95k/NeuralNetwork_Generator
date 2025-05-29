@@ -162,13 +162,13 @@ void GRAPHICS::drawTestImage(Network& _network) {
 					grayValues.push_back(centered.at<uchar>(i, j) / 255.0f);
 				}
 			}
-
 			_network.fillInputLayer(grayValues);
-
 			std::vector<double>output = _network.forwardPass();
+			TEST::printSortedClassification(_network.getOutputLabels(), output);
+			/*Layer& outputLayer = _network.atLayer(_network.getNetworkSize() - 1);
 			for (int o = 0; o < output.size(); o++) {
-				std::cout << _network.getOutputLabelAt(o) << ": " << output[o] << std::endl;
-			}
+				std::cout << _network.getOutputLabelAt(o) << ": " << outputLayer.atNeuron(o).getOutputValue() << std::endl;
+			}*/
 			grayValues.clear();
 		}
 		else if (key == 27) break; // ESC to exit

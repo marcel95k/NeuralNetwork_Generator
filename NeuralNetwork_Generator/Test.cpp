@@ -1,4 +1,30 @@
-//#include "Test.h"
+#include "Test.h"
+
+void TEST::printSortedClassification(const std::vector<std::string>& labels, const std::vector<double>& outputs) {
+	if (labels.size() != outputs.size()) {
+		std::cerr << "Fehler: Labels und Outputs sind unterschiedlich groß!" << std::endl;
+		return;
+	}
+
+	// Paare aus (Label, Wert)
+	std::vector<std::pair<std::string, double>> labeledOutputs;
+	for (size_t i = 0; i < labels.size(); ++i) {
+		labeledOutputs.emplace_back(labels[i], outputs[i]);
+	}
+
+	// Sortieren nach Output-Wert absteigend
+	std::sort(labeledOutputs.begin(), labeledOutputs.end(),
+		[](const auto& a, const auto& b) {
+			return a.second > b.second;
+		});
+
+	// Ausgabe
+	std::cout << "=== Klassifikation ===" << std::endl;
+	for (const auto& entry : labeledOutputs) {
+		std::cout << entry.first << ": " << entry.second << std::endl;
+	}
+	std::cout << "======================\n" << std::endl;
+}
 //
 //void TEST::forwardPassTest(std::vector<std::vector<Neuron>>* _network, double& _totalSum) {
 //

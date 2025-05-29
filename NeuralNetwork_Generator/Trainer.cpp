@@ -67,7 +67,7 @@ void Trainer::trainNetwork(Network& _network) {
 					setExpectedOutputs(expectedOutputs, classification);
 
 					std::vector<double>output = _network.forwardPass();
-					_network.backpropagation(expectedOutputs, epsilon);
+					_network.backpropagation(expectedOutputs, epsilon, momentumFactor);
 				}
 				/*if (NETWORKPROPERTIES::getValidationFlag(_network) == true) {
 					TRAINING::processValidation(_network, counter, totalAccuracy, totalTests, x, lossPoints, duration, epoch, _epsilon);

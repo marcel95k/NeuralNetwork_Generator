@@ -117,7 +117,7 @@ std::vector<double> Network::forwardPass() {
     return newOutputs;
 }
 
-void Network::backpropagation(const std::vector<double>& _expected, double _learningRate) {
+void Network::backpropagation(const std::vector<double>& _expected, const double _learningRate, const double _momentumFactor) {
 
     assert(getNetworkSize() > 0);   // Network size has to be > 0
 
@@ -125,7 +125,7 @@ void Network::backpropagation(const std::vector<double>& _expected, double _lear
 
     calculateOutputLayerError(deltas, _expected);
     propagateErrorsBackward(deltas);
-    updateWeights(deltas, _learningRate);
+    updateWeights(deltas, _learningRate, _momentumFactor);
 }
 
 void Network::calculateOutputLayerError(std::vector<std::vector<double>>& _deltas, const std::vector<double>& _expected) {
@@ -161,7 +161,7 @@ void Network::propagateErrorsBackward(std::vector<std::vector<double>>& _deltas)
     }
 }
 
-void Network::updateWeights(const std::vector<std::vector<double>>& _deltas, double _learningRate) {
+void Network::updateWeights(const std::vector<std::vector<double>>& _deltas, const double _learningRate, const double _momentumFactor) {
 
     for (int l = 0; l < getNetworkSize() - 1; ++l) {
         Layer& current = atLayer(l);
@@ -174,14 +174,13 @@ void Network::updateWeights(const std::vector<std::vector<double>>& _deltas, dou
             for (int i = 0; i < current.getLayerSize(); ++i) {
                 Neuron& sourceNeuron = current.atNeuron(i);
                 double deltaWeight = -_learningRate * delta * sourceNeuron.getOutputValue();
-                sourceNeuron.addWeightAt(j, deltaWeight, 0.9);  // <== Get the momentumFactor from Trainer here
+                sourceNeuron.addWeightAt(j, deltaWeight, _momentumFactor);
             }
 
             targetNeuron.setBias(targetNeuron.getBias() - _learningRate * delta);
         }
     }
 }
-
 
 
 void Network::saveToFile(const std::string& _filename) const {
@@ -308,7 +307,7 @@ void Network::setIndividualSampleSize(const int _individualSampleSize) {
     individualSampleSize = _individualSampleSize;
 }
 
-int Network::getIndividualSampleSize() {
+int Network::getIndividualSampleSize() const {
     return individualSampleSize;
 }
 

@@ -1,5 +1,278 @@
 #include "UI.h"
 
+std::string currentInput;
+bool inputConfirmed = false;
+bool inputActive = false;
+cv::Rect inputBoxRect(50, 100, 200, 40);
+
+void onTextboxMouse(int event, int x, int y, int, void*) {
+	if (event == cv::EVENT_LBUTTONDOWN) {
+		inputActive = inputBoxRect.contains(cv::Point(x, y));
+	}
+}
+
+int promptUserForInteger_OpenCV(const std::string& question) {
+	currentInput = "";
+	inputConfirmed = false;
+	inputActive = false;
+
+	cv::Mat inputWindow(200, 400, CV_8UC3, cv::Scalar(230, 230, 230));
+	cv::namedWindow("Eingabe");
+	cv::setMouseCallback("Eingabe", onTextboxMouse);
+
+	while (!inputConfirmed) {
+		cv::Mat display = inputWindow.clone();
+
+		// Frage anzeigen
+		cv::putText(display, question, cv::Point(50, 50),
+			cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 0, 0), 1);
+
+		// Eingabefeld
+		cv::Scalar boxColor = inputActive ? cv::Scalar(0, 0, 255) : cv::Scalar(100, 100, 100);
+		cv::rectangle(display, inputBoxRect, boxColor, -1);
+		cv::putText(display, currentInput, cv::Point(inputBoxRect.x + 5, inputBoxRect.y + 30),
+			cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(255, 255, 255), 1);
+
+		cv::moveWindow("Eingabe", 700, 400);
+		cv::imshow("Eingabe", display);
+		int key = cv::waitKey(30);
+
+		if (inputActive && key != -1) {
+			if (key == 13 || key == 10) {  // Enter
+				inputConfirmed = true;
+			}
+			else if (key == 8 && !currentInput.empty()) {  // Backspace
+				currentInput.pop_back();
+			}
+			else if (key >= '0' && key <= '9') {
+				currentInput += static_cast<char>(key);
+			}
+		}
+	}
+
+	cv::destroyWindow("Eingabe");
+	return std::stoi(currentInput);
+}
+
+std::vector<Button> BUTTONS::mainMenuButtons = {
+	{{50, 50, 300, 40}, "Neues Netz erstellen", MenuState::NEWNET},
+	{{50, 100, 300, 40}, "Trainingsdaten erstellen", MenuState::CREATE_TRAININGDATA},
+	{{50, 150, 300, 40}, "Netz speichern", MenuState::SAVE},
+	{{50, 200, 300, 40}, "Netz laden", MenuState::LOAD},
+	{{50, 250, 300, 40}, "Netz trainieren", MenuState::TRAINING},
+	{{50, 300, 300, 40}, "Netz testen", MenuState::TEST},
+	{{50, 350, 300, 40}, "Initialisieren", MenuState::INITIALIZE},
+	{{50, 400, 300, 40}, "Netz Info anzeigen", MenuState::SHOW_NETWORKINFO},
+	{{50, 450, 300, 40}, "Netz loeschen", MenuState::DELETE},
+	{{50, 500, 300, 40}, "Beenden", MenuState::EXIT}
+};
+
+std::vector<Button> BUTTONS::createTrainingdataMenuButtons = {
+	{{50, 50, 300, 40}, "Trainingsdaten erstellen", MenuState::SUB_CREATE_TRAININGDATA},
+	{{50, 100, 300,	40}, "Validierungsdaten erstellen", MenuState::SUB_CREATE_VALIDATIONDATA},
+	{{50, 150, 300,	40}, "Zurueck", MenuState::MAIN},
+};
+
+std::vector<Button> BUTTONS::saveMenuButtons = {
+	{{50, 50, 300, 40}, "Speichern", MenuState::SUB_SAVE},
+	{{50, 100, 300,	40}, "Speichern als...", MenuState::SUB_SAVE_AS},
+	{{50, 150, 300,	40}, "Zurueck", MenuState::MAIN},
+};
+
+std::vector<Button> BUTTONS::initializeMenuButtons = {
+	{{50, 50, 300, 40}, "Abbrechen", MenuState::MAIN},
+	{{50, 100, 300,	40}, "Weiter (Initialisieren)", MenuState::SUB_INITIALIZE},
+};
+
+std::vector<Button> BUTTONS::notificationMenuButtons = {
+	{{50, 100, 300,	40}, "OK", MenuState::MAIN},
+};
+
+MenuState selectedAction = MenuState::MAIN;
+
+std::vector<Button> *BUTTONS::activeButtons = nullptr;
+
+// UI
+void UI::onMouse(int event, int x, int y, int, void*) {
+
+	if (event != cv::EVENT_LBUTTONDOWN || BUTTONS::activeButtons == nullptr) { return; }
+
+	cv::Point clickPoint(x, y);
+	for (const auto& btn : *BUTTONS::activeButtons) {
+		if (btn.rect.contains(clickPoint)) {
+			selectedAction = btn.action;
+			break;
+		}
+	}
+}
+
+MenuState UI::displayMainMenuOpenCV(Network& _network) {
+
+	selectedAction = MenuState::MAIN;
+	BUTTONS::activeButtons = &BUTTONS::mainMenuButtons;
+
+	cv::Mat menuImg(600, 400, CV_8UC3, cv::Scalar(240, 240, 240));
+
+	for (const auto& btn : BUTTONS::mainMenuButtons) {
+		cv::rectangle(menuImg, btn.rect, cv::Scalar(70, 70, 70), -1);
+		cv::putText(menuImg, btn.label,
+			cv::Point(btn.rect.x + 10, btn.rect.y + 30),
+			cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 1);
+	}
+
+	
+
+	cv::namedWindow("Menü");
+	cv::moveWindow("Menü", 700, 100);
+	cv::setMouseCallback("Menü", onMouse);
+
+	while (selectedAction == MenuState::MAIN) {
+		cv::imshow("Menü", menuImg);
+		if (cv::waitKey(30) == 27)  // ESC zum Beenden
+			break;
+	}
+
+	cv::destroyWindow("Menü");
+	return selectedAction;
+}
+
+MenuState UI::displayCreateTrainingdataMenuOpenCV(Network& _network) {
+
+	selectedAction = MenuState::CREATE_TRAININGDATA;
+	BUTTONS::activeButtons = &BUTTONS::createTrainingdataMenuButtons;
+
+	cv::Mat createTrainingdataMenuImg(250, 400, CV_8UC3, cv::Scalar(240, 240, 240));
+
+	for (const auto& btn : BUTTONS::createTrainingdataMenuButtons) {
+		cv::rectangle(createTrainingdataMenuImg, btn.rect, cv::Scalar(70, 70, 70), -1);
+		cv::putText(createTrainingdataMenuImg, btn.label,
+			cv::Point(btn.rect.x + 10, btn.rect.y + 30),
+			cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 1);
+	}
+
+	cv::namedWindow("Trainingsdaten");
+	cv::moveWindow("Trainingsdaten", 700, 100);
+	cv::setMouseCallback("Trainingsdaten", onMouse);
+
+	while (selectedAction == MenuState::CREATE_TRAININGDATA) {
+		cv::imshow("Trainingsdaten", createTrainingdataMenuImg);
+		if (cv::waitKey(30) == 27)  // ESC zum Beenden
+			break;
+	}
+
+	cv::destroyWindow("Trainingsdaten");
+	return selectedAction;
+}
+
+MenuState UI::displaySaveMenuOpenCV(Network& _network) {
+
+	try {
+		ERRORHANDLING::FLAGCHECK::checkNetBeforeSaving(_network);
+	}
+	catch (const NNG_Exception& exception) {
+		std::cerr << std::endl << exception.what() << std::endl;
+		std::string msg = exception.what();
+		displayNotificationOpenCV(msg);
+		//awaitAnyKey();
+		return MenuState::MAIN;
+	}
+
+	selectedAction = MenuState::SAVE;
+	BUTTONS::activeButtons = &BUTTONS::saveMenuButtons;
+
+	cv::Mat saveMenuImg(250, 400, CV_8UC3, cv::Scalar(240, 240, 240));
+
+	for (const auto& btn : BUTTONS::saveMenuButtons) {
+		cv::rectangle(saveMenuImg, btn.rect, cv::Scalar(70, 70, 70), -1);
+		cv::putText(saveMenuImg, btn.label,
+			cv::Point(btn.rect.x + 10, btn.rect.y + 30),
+			cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 1);
+	}
+
+	cv::namedWindow("Speichern");
+	cv::moveWindow("Speichern", 700, 100);
+	cv::setMouseCallback("Speichern", onMouse);
+
+	while (selectedAction == MenuState::SAVE) {
+		cv::imshow("Speichern", saveMenuImg);
+		if (cv::waitKey(30) == 27)  // ESC zum Beenden
+			break;
+	}
+
+	cv::destroyWindow("Speichern");
+	return selectedAction;
+}
+
+MenuState UI::displayInitializeMenuOpenCV(Network& _network) {
+
+	try {
+		ERRORHANDLING::FLAGCHECK::checkNetBeforeInitializing(_network);
+	}
+	catch (const NNG_Exception& exception) {
+		std::cerr << std::endl << exception.what() << std::endl;
+		std::string msg = exception.what();
+		displayNotificationOpenCV(msg);
+		//awaitAnyKey();
+		return MenuState::MAIN;
+	}
+
+	selectedAction = MenuState::INITIALIZE;
+	BUTTONS::activeButtons = &BUTTONS::initializeMenuButtons;
+
+	cv::Mat initializeMenuImg(250, 400, CV_8UC3, cv::Scalar(240, 240, 240));
+
+	for (const auto& btn : BUTTONS::initializeMenuButtons) {
+		cv::rectangle(initializeMenuImg, btn.rect, cv::Scalar(70, 70, 70), -1);
+		cv::putText(initializeMenuImg, btn.label,
+			cv::Point(btn.rect.x + 10, btn.rect.y + 30),
+			cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 1);
+	}
+
+	cv::namedWindow("Netz initialisieren");
+	cv::moveWindow("Netz initialisieren", 700, 100);
+	cv::setMouseCallback("Netz initialisieren", onMouse);
+
+	while (selectedAction == MenuState::INITIALIZE) {
+		cv::imshow("Netz initialisieren", initializeMenuImg);
+		if (cv::waitKey(30) == 27)  // ESC zum Beenden
+			break;
+	}
+
+	cv::destroyWindow("Netz initialisieren");
+	return selectedAction;
+}
+
+MenuState UI::displayNotificationOpenCV(const std::string& _message) {
+
+	selectedAction = MenuState::ERROR;
+	BUTTONS::activeButtons = &BUTTONS::notificationMenuButtons;
+
+	cv::Mat errorDisplay(200, 400, CV_8UC3, cv::Scalar(240, 240, 240));
+
+	for (const auto& btn : BUTTONS::notificationMenuButtons) {
+		cv::rectangle(errorDisplay, btn.rect, cv::Scalar(70, 70, 70), -1);
+		cv::putText(errorDisplay, btn.label,
+		cv::Point(btn.rect.x + 10, btn.rect.y + 30),
+		cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 1);
+	}
+
+	cv::putText(errorDisplay, _message, cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 0), 2);
+
+	cv::namedWindow("Meldung");
+	cv::moveWindow("Meldung", 700, 400);
+	cv::setMouseCallback("Meldung", onMouse);
+
+	while (selectedAction == MenuState::ERROR) {
+		cv::imshow("Meldung", errorDisplay);
+		if (cv::waitKey(30) == 27)  // ESC zum Beenden
+			break;
+	}
+
+	cv::destroyWindow("Meldung");
+	return selectedAction;
+
+}
+
 // PROCESSING
 int UI::PROCESSING::processUserInputINT() {
 
@@ -73,7 +346,7 @@ MenuState UI::PROCESSING::menuLoop(const std::vector<std::string>& _menuList, co
 }
 
 // DISPLAY
-void UI::DISPLAY::displayMenuOptions(const std::vector<std::string> _menuList, const Network& _network) {
+void UI::DISPLAY::displayMenuOptions(const std::vector<std::string>& _menuList, const Network& _network) {
 
 	clearScreen();
 	std::cout << _network.getNetworkName() << std::endl << std::endl;
@@ -107,6 +380,7 @@ void UI::DISPLAY::displayNetworkInfo(const Network& _network) {
 		std::cout << "Klassifikation von Output " << i + 1 << ": " << outputLabels[i] << std::endl;
 	}
 	std::cout << std::endl;
+	std::cout << "Individual Samplesize: " << _network.getIndividualSampleSize();
 	awaitAnyKey();
 }
 
@@ -136,7 +410,9 @@ int UI::QUERY::userSetAmountOfHiddenLayers() {
 	}
 	catch (const NNG_Exception& exception) {
 		std::cerr << std::endl << exception.what() << std::endl;
-		awaitAnyKey();
+		std::string msg = exception.what();
+		displayNotificationOpenCV(msg);
+		//awaitAnyKey();
 		return -1;
 	}
 
@@ -205,14 +481,17 @@ double UI::QUERY::userSetLearningrate(const double _max) {
 		tempLearningrate = UI::PROCESSING::processUserInputDOUBLE();
 	}
 	catch (const NNG_Exception& exception) {
-		std::cerr << std::endl << exception.what() << std::endl;
-		awaitAnyKey();
-		return -1;
+		throw NNG_Exception(exception);
 	}
 
 	if (tempLearningrate > _max) {
 		tempLearningrate = -1;
 		throw NNG_Exception("Lernrate zu hoch!");
+	}
+
+	else if (tempLearningrate <= 0) {
+		tempLearningrate = -1;
+		throw NNG_Exception("Lernrate zu niedrig!");
 	}
 
 	return tempLearningrate;
@@ -226,9 +505,7 @@ double UI::QUERY::userSetEpsilonDecay(const double _max) {
 		tempEpsilonDecay = UI::PROCESSING::processUserInputDOUBLE();
 	}
 	catch (const NNG_Exception& exception) {
-		std::cerr << std::endl << exception.what() << std::endl;
-		awaitAnyKey();
-		return -1;
+		throw NNG_Exception(exception);
 	}
 
 	if (tempEpsilonDecay > _max) {
@@ -247,9 +524,7 @@ double UI::QUERY::userSetMomentumFactor(const double _max) {
 		tempMomentumFactor = UI::PROCESSING::processUserInputDOUBLE();
 	}
 	catch (const NNG_Exception& exception) {
-		std::cerr << std::endl << exception.what() << std::endl;
-		awaitAnyKey();
-		return -1;
+		throw NNG_Exception(exception);
 	}
 
 	if (tempMomentumFactor > _max) {
@@ -268,9 +543,7 @@ int UI::QUERY::userSetEpochs() {
 		tempEpochs = UI::PROCESSING::processUserInputINT();
 	}
 	catch (const NNG_Exception& exception) {
-		std::cerr << std::endl << exception.what() << std::endl;
-		awaitAnyKey();
-		return -1;
+		throw NNG_Exception(exception);
 	}
 
 	return tempEpochs;
@@ -424,7 +697,9 @@ MenuState UI::MENU::initializeMenu(const Network& _network) {
 	}
 	catch (const NNG_Exception& exception) {
 		std::cerr << std::endl << exception.what() << std::endl;
-		awaitAnyKey();
+		std::string msg = exception.what();
+		displayNotificationOpenCV(msg);
+		//awaitAnyKey();
 		return MenuState::MAIN;
 	}
 
@@ -448,7 +723,9 @@ MenuState UI::MENU::showNetworkInfoMenu(const Network& _network){
 	}
 	catch (const NNG_Exception& exception) {
 		std::cerr << std::endl << exception.what() << std::endl;
-		awaitAnyKey();
+		std::string msg = exception.what();
+		displayNotificationOpenCV(msg);
+		//awaitAnyKey();
 		return MenuState::MAIN;
 	}
 
@@ -462,7 +739,7 @@ MenuState UI::MENU::deleteMenu(const Network& _network) {
 	}
 	catch (const NNG_Exception& exception) {
 		std::cerr << std::endl << exception.what() << std::endl;
-		_getch();
+		awaitAnyKey();
 		return MenuState::MAIN;
 	}
 
@@ -486,9 +763,9 @@ MenuState UI::MENU::exitMenu(Network& _network) {
 
 // SUB MENUS
 MenuState UI::MENU::NEWNET::SUBNewNetMenu(Network& _network) {
-
+	int amountOfHiddenLayers = promptUserForInteger_OpenCV("Wie viele versteckte Schichten?");
 	clearScreen();
-	int amountOfHiddenLayers = UI::QUERY::userSetAmountOfHiddenLayers();
+	///int amountOfHiddenLayers = UI::QUERY::userSetAmountOfHiddenLayers();
 	if (amountOfHiddenLayers == -1) {
 		return MenuState::MAIN;
 	}
@@ -531,12 +808,6 @@ MenuState UI::MENU::CREATETRAININGDATA::SUBcreateValidationdataMenu(Network& _ne
 
 MenuState UI::MENU::SAVE::SUBSaveNetworkMenu(Network& _network) {
 
-	if (_network.getNetworkSize() == 0) {
-		std::cout << std::endl << "Netz leer! Speichern fehlgeschlagen!" << std::endl;
-		awaitAnyKey();
-		return MenuState::MAIN;
-	}
-
 	if (_network.getSavedStatus() == false) {
 		return MenuState::SUB_SAVE_AS;
 	}
@@ -553,12 +824,6 @@ MenuState UI::MENU::SAVE::SUBSaveNetworkMenu(Network& _network) {
 }
 
 MenuState UI::MENU::SAVE::SUBSaveNetworkAsMenu(Network& _network) {
-
-	if (_network.getNetworkSize() == 0) {
-		std::cout << std::endl << "Netz leer! Speichern fehlgeschlagen!" << std::endl;
-		awaitAnyKey();
-		return MenuState::MAIN;
-	}
 
 	clearScreen();
 	FILEHANDLING::displaySavedNetworks();
@@ -615,10 +880,14 @@ MenuState UI::MENU::TRAIN::SUBCustomTrainingMenu(Network& _network) {
 	double learningRate;
 	double epsilonDecay;
 	double momentumFactor;
+	int epochs;
 
 	clearScreen();
 	try {
 		learningRate = UI::QUERY::userSetLearningrate(MAX_LEARNINGRATE);
+		epsilonDecay = UI::QUERY::userSetEpsilonDecay(MAX_EPSILON_DECAY);
+		momentumFactor = UI::QUERY::userSetMomentumFactor(MAX_MOMENTUMFACTOR);
+		epochs = UI::QUERY::userSetEpochs();
 	}
 	catch (const NNG_Exception& exception) {
 		std::cerr << std::endl << exception.what() << std::endl;
@@ -629,7 +898,7 @@ MenuState UI::MENU::TRAIN::SUBCustomTrainingMenu(Network& _network) {
 		return MenuState::MAIN;
 	}
 
-	try {
+	/*try {
 		epsilonDecay = UI::QUERY::userSetEpsilonDecay(MAX_EPSILON_DECAY);
 	}
 	catch (const NNG_Exception& exception) {
@@ -653,11 +922,20 @@ MenuState UI::MENU::TRAIN::SUBCustomTrainingMenu(Network& _network) {
 		return MenuState::MAIN;
 	}
 
-	int epochs = UI::QUERY::userSetEpochs();
+	int epochs = UI::QUERY::userSetEpochs();*/
 
 	Trainer trainer(learningRate, epsilonDecay, momentumFactor, epochs);
 
-	trainer.trainNetwork(_network);
+	try {
+		trainer.trainNetwork(_network);
+	}
+	catch (const NNG_Exception& exception) {
+		std::cerr << std::endl << exception.what() << std::endl;
+		awaitAnyKey();
+		return MenuState::MAIN;
+	}
+
+	return MenuState::MAIN;
 }
 
 MenuState UI::MENU::TEST::SUBTestMenu(Network& _network) {
@@ -667,10 +945,8 @@ MenuState UI::MENU::TEST::SUBTestMenu(Network& _network) {
 MenuState UI::MENU::INITIALIZE::SUBInitializeMenu(Network& _network) {
 
 	_network.randomize();
-
-	std::cout << std::endl << "Netzwerk neu initialisiert!" << std::endl;
-	awaitAnyKey();
-
+	std::string info = "Netzwerk neu initialisiert!";
+	displayNotificationOpenCV(info);
 	return MenuState::MAIN;
 }
 

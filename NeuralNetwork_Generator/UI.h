@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <functional>
+#include <opencv2/opencv.hpp>
 
 #include "Utility.h"
 #include "Graphics.h"
@@ -15,8 +16,7 @@
 #include "Trainer.h"
 #include "Network.h"
 
-
-enum class MenuState {
+enum class  MenuState {
 
 	MAIN,
 	NEWNET,
@@ -41,10 +41,47 @@ enum class MenuState {
 	SUB_TEST,
 	SUB_INITIALIZE,
 	SUB_DELETE,
+
+	ERROR,
 };
+
+inline bool operator<(MenuState lhs, MenuState rhs) {
+	return static_cast<int>(lhs) < static_cast<int>(rhs);
+}
+
+/*==========================================================================================*/
+
+struct Button {
+	cv::Rect rect;
+	std::string label;
+	MenuState action;
+};
+
+namespace BUTTONS {
+
+	extern std::vector<Button> mainMenuButtons;
+	extern std::vector<Button> createTrainingdataMenuButtons;
+	extern std::vector<Button> saveMenuButtons;
+	extern std::vector<Button> initializeMenuButtons;
+
+	extern std::vector<Button> notificationMenuButtons;
+
+	extern MenuState selectedAction;
+	extern std::vector<Button>* activeButtons;
+}
+
+/*==========================================================================================*/
 
 namespace UI {
 
+	void onMouse(int event, int x, int y, int, void*);
+	MenuState displayMainMenuOpenCV(Network& _network);
+	MenuState displayCreateTrainingdataMenuOpenCV(Network& _network);
+	MenuState displaySaveMenuOpenCV(Network& _network);
+	MenuState displayInitializeMenuOpenCV(Network& _network);
+
+	MenuState displayNotificationOpenCV(const std::string& _message); // <== TODO: Text formatting, not centered yet
+	 
 	namespace PROCESSING {
 
 		int processUserInputINT();
@@ -54,7 +91,7 @@ namespace UI {
 	}
 
 	namespace DISPLAY {
-		void displayMenuOptions(const std::vector<std::string> _menuList, const Network& _network);
+		void displayMenuOptions(const std::vector<std::string>& _menuList, const Network& _network);
 		void displayNetworkInfo(const Network& _network);
 	}
 

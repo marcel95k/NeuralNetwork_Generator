@@ -39,11 +39,11 @@ public:
 	void fillInputLayer(const std::vector<double>_inputValues);
 
 	std::vector<double>forwardPass();
-	void backpropagation(const std::vector<double>& _expected, double _learningRate);
+	void backpropagation(const std::vector<double>& _expected, const double _learningRate, const double _momentumFactor);
 
 	void calculateOutputLayerError(std::vector<std::vector<double>>& _deltas, const std::vector<double>& _expected);
 	void propagateErrorsBackward(std::vector<std::vector<double>>& _deltas);
-	void updateWeights(const std::vector<std::vector<double>>& _deltas, double _learningRate);
+	void updateWeights(const std::vector<std::vector<double>>& _deltas, const double _learningRate, const double _momentumFactor);
 
 	void saveToFile(const std::string& _filename) const;
 	void loadFromFile(const std::string& _filename);
@@ -55,6 +55,6 @@ public:
 	bool getModifiedStatus() const;
 
 	void setIndividualSampleSize(const int _individualSampleSize);
-	int getIndividualSampleSize();
+	int getIndividualSampleSize() const;
 };
 

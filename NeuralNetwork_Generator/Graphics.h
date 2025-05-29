@@ -6,7 +6,7 @@
 //#include <sstream>
 #include <opencv2/opencv.hpp>
 //
-//#include "Test.h"
+#include "Test.h"
 #include "Defines.h"
 #include "Network.h"
 //

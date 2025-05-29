@@ -1,4 +1,4 @@
-#include "Controller.h"
+    #include "Controller.h"
 
 void Controller::run() {
 
@@ -6,17 +6,26 @@ void Controller::run() {
 
     while (current != MenuState::EXIT) {
         switch (current) {
+
+        case MenuState::ERROR:
+             //current = UI::MENU::mainMenu(network);
+            current = UI::displayNotificationOpenCV(message);
+            break;
+
         case MenuState::MAIN:
-            current = UI::MENU::mainMenu(network);
+           //current = UI::MENU::mainMenu(network);
+            current = UI::displayMainMenuOpenCV(network);
             break;
         case MenuState::NEWNET:
             current = UI::MENU::newNetMenu(network);
             break;
         case MenuState::CREATE_TRAININGDATA:
-            current = UI::MENU::createTrainingdataMenu(network);
+            //current = UI::MENU::createTrainingdataMenu(network);
+            current = UI::displayCreateTrainingdataMenuOpenCV(network);
             break;
         case MenuState::SAVE:
-            current = UI::MENU::saveMenu(network);
+            //current = UI::MENU::saveMenu(network);
+           current = UI::displaySaveMenuOpenCV(network);
             break;
         case MenuState::LOAD:
             current = UI::MENU::loadMenu(network);
@@ -28,7 +37,8 @@ void Controller::run() {
             current = UI::MENU::testMenu(network);
             break;
         case MenuState::INITIALIZE:
-            current = UI::MENU::initializeMenu(network);
+            current = UI::displayInitializeMenuOpenCV(network);
+           // current = UI::MENU::initializeMenu(network);
             break;
         case MenuState::SHOW_NETWORKINFO:
             current = UI::MENU::showNetworkInfoMenu(network);
@@ -77,3 +87,4 @@ void Controller::run() {
 }
 
 Network& Controller::getNetwork() { return network; }
+std::string& Controller::getMessage() { return message; }
