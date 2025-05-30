@@ -49,8 +49,6 @@ inline bool operator<(MenuState lhs, MenuState rhs) {
 	return static_cast<int>(lhs) < static_cast<int>(rhs);
 }
 
-/*==========================================================================================*/
-
 struct Button {
 	cv::Rect rect;
 	std::string label;
@@ -70,17 +68,15 @@ namespace BUTTONS {
 	extern std::vector<Button>* activeButtons;
 }
 
-/*==========================================================================================*/
-
 namespace UI {
 
 	void onMouse(int event, int x, int y, int, void*);
-	MenuState displayMainMenuOpenCV(Network& _network);
-	MenuState displayCreateTrainingdataMenuOpenCV(Network& _network);
-	MenuState displaySaveMenuOpenCV(Network& _network);
-	MenuState displayInitializeMenuOpenCV(Network& _network);
+	void onTextboxMouse(int event, int x, int y, int, void*);
 
-	MenuState displayNotificationOpenCV(const std::string& _message); // <== TODO: Text formatting, not centered yet
+	namespace MISC {
+
+		void makeTextboxBlink(const int& _framkecounter, bool& _blinkstate, cv::Scalar& _boxColor);
+	}
 	 
 	namespace PROCESSING {
 
@@ -90,12 +86,10 @@ namespace UI {
 		MenuState menuLoop(const std::vector<std::string>& _menuList, const std::map<int, MenuState>& _menuActions, const Network& _network);
 	}
 
-	namespace DISPLAY {
-		void displayMenuOptions(const std::vector<std::string>& _menuList, const Network& _network);
-		void displayNetworkInfo(const Network& _network);
-	}
-
 	namespace QUERY {
+
+		int promptUserForInteger_OpenCV(const std::string& _question);
+		std::string promptUserForString_OpenCV(const std::string& _question);
 		std::string userSetNetworkNameSave();
 		std::string userSetNetworkNameLoad();
 		int userSetAmountOfHiddenLayers();
@@ -108,54 +102,46 @@ namespace UI {
 		int userSetEpochs();
 	}
 
-	namespace MENU {
-		MenuState mainMenu(const Network& _network);
-		MenuState newNetMenu(const Network& _network);
-		MenuState createTrainingdataMenu(Network& _network);
-		MenuState saveMenu(const Network& _network);
-		MenuState loadMenu(const Network& _network);
-		MenuState trainingMenu(Network& _network);
-		MenuState testMenu(Network& _network);
-		MenuState initializeMenu(const Network& _network);
-		MenuState showNetworkInfoMenu(const Network& _network);
-		MenuState deleteMenu(const Network& _network);
-		MenuState exitMenu(Network& _network);
+	namespace DISPLAY {
 
-		namespace NEWNET {
-			MenuState SUBNewNetMenu(Network& _network);
+		void displayPromptInWindow(cv::Mat& _display, const std::string& _question);
+		void displayMenuOptions(const std::vector<std::string>& _menuList, const Network& _network);
+		void displayNetworkInfo(const Network& _network);
+		MenuState displayNotificationOpenCV(const std::string& _message); // <== TODO: Text formatting, not centered yet
+
+		namespace MENU {
+
+			MenuState displayMainMenuOpenCV(Network& _network);
+			MenuState displayCreateTrainingdataMenuOpenCV(Network& _network);
+			MenuState displaySaveMenuOpenCV(Network& _network);
+			MenuState displayInitializeMenuOpenCV(Network& _network);
+
+			MenuState mainMenu(const Network& _network);
+			MenuState newNetMenu(const Network& _network);
+			MenuState createTrainingdataMenu(Network& _network);
+			MenuState saveMenu(const Network& _network);
+			MenuState loadMenu(const Network& _network);
+			MenuState trainingMenu(Network& _network);
+			MenuState testMenu(Network& _network);
+			MenuState initializeMenu(const Network& _network);
+			MenuState showNetworkInfoMenu(const Network& _network);
+			MenuState deleteMenu(const Network& _network);
+			MenuState exitMenu(Network& _network);
 		}
 
-		namespace CREATETRAININGDATA {
+		namespace SUBMENU {
+
+			MenuState SUBNewNetMenu(Network& _network);
 			MenuState SUBcreateTrainingdataMenu(Network& _network);
 			MenuState SUBcreateValidationdataMenu(Network& _network);
-		}
-
-		namespace SAVE {
 			MenuState SUBSaveNetworkMenu(Network& _network);
 			MenuState SUBSaveNetworkAsMenu(Network& _network);
-		}
-
-		namespace LOAD {
 			MenuState SUBLoadNetworkMenu(Network& _network);
-		}
-
-		namespace TRAIN {
 			MenuState SUBDefaultTrainingMenu(Network& _network);
 			MenuState SUBCustomTrainingMenu(Network& _network);
-		}
-
-		namespace TEST {
 			MenuState SUBTestMenu(Network& _network);
-		}
-
-		namespace INITIALIZE {
 			MenuState SUBInitializeMenu(Network& _network);
-		}
-
-		namespace DELETE {
 			MenuState SUBDeleteMenu(Network& _network);
 		}
-
-
 	}
 }

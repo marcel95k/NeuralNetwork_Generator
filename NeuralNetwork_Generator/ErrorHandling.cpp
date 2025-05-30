@@ -1,5 +1,18 @@
 #include "ErrorHandling.h"
 
+void ERRORHANDLING::FLAGCHECK::checkNetBeforeCreatingTrainingdata(const Network& _network) {
+
+	if (_network.getNetworkSize() <= 0) {
+		throw NNG_Exception("Netz leer! Trainingsdaten erstellen fehlgeschlagen!");
+	}
+
+	for (int i = 0; i < _network.getNetworkSize(); i++) {
+		if (_network.atLayer(i).getLayerSize() <= 0) {
+			throw NNG_Exception("Unvollständige Schichten! Training fehlgeschlagen!");
+		}
+	}
+}
+
 void ERRORHANDLING::FLAGCHECK::checkNetBeforeTraining(const Network& _network) {
 
 	if (_network.getNetworkSize() <= 0) {
@@ -9,6 +22,19 @@ void ERRORHANDLING::FLAGCHECK::checkNetBeforeTraining(const Network& _network) {
 	for (int i = 0; i < _network.getNetworkSize(); i++) {
 		if (_network.atLayer(i).getLayerSize() <= 0) {
 			throw NNG_Exception("Unvollständige Schichten! Training fehlgeschlagen!");
+		}
+	}
+}
+
+void ERRORHANDLING::FLAGCHECK::checkNetBeforeTesting(const Network& _network) {
+
+	if (_network.getNetworkSize() <= 0) {
+		throw NNG_Exception("Netz leer! Testen fehlgeschlagen!");
+	}
+
+	for (int i = 0; i < _network.getNetworkSize(); i++) {
+		if (_network.atLayer(i).getLayerSize() <= 0) {
+			throw NNG_Exception("Unvollständige Schichten! Testen fehlgeschlagen!");
 		}
 	}
 }

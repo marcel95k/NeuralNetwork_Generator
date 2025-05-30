@@ -9,76 +9,76 @@ void Controller::run() {
 
         case MenuState::ERROR:
              //current = UI::MENU::mainMenu(network);
-            current = UI::displayNotificationOpenCV(message);
+            current = UI::DISPLAY::displayNotificationOpenCV(message);
             break;
 
         case MenuState::MAIN:
            //current = UI::MENU::mainMenu(network);
-            current = UI::displayMainMenuOpenCV(network);
+            current = UI::DISPLAY::MENU::displayMainMenuOpenCV(network);
             break;
         case MenuState::NEWNET:
-            current = UI::MENU::newNetMenu(network);
+            current = UI::DISPLAY::MENU::newNetMenu(network);
             break;
         case MenuState::CREATE_TRAININGDATA:
             //current = UI::MENU::createTrainingdataMenu(network);
-            current = UI::displayCreateTrainingdataMenuOpenCV(network);
+            current = UI::DISPLAY::MENU::displayCreateTrainingdataMenuOpenCV(network);
             break;
         case MenuState::SAVE:
             //current = UI::MENU::saveMenu(network);
-           current = UI::displaySaveMenuOpenCV(network);
+           current = UI::DISPLAY::MENU::displaySaveMenuOpenCV(network);
             break;
         case MenuState::LOAD:
-            current = UI::MENU::loadMenu(network);
+            current = UI::DISPLAY::MENU::loadMenu(network);
             break;
         case MenuState::TRAINING:
-            current = UI::MENU::trainingMenu(network);
+            current = UI::DISPLAY::MENU::trainingMenu(network);
             break;
         case MenuState::TEST:
-            current = UI::MENU::testMenu(network);
+            current = UI::DISPLAY::MENU::testMenu(network);
             break;
         case MenuState::INITIALIZE:
-            current = UI::displayInitializeMenuOpenCV(network);
+            current = UI::DISPLAY::MENU::displayInitializeMenuOpenCV(network);
            // current = UI::MENU::initializeMenu(network);
             break;
         case MenuState::SHOW_NETWORKINFO:
-            current = UI::MENU::showNetworkInfoMenu(network);
+            current = UI::DISPLAY::MENU::showNetworkInfoMenu(network);
             break;
         case MenuState::DELETE:
-            current = UI::MENU::deleteMenu(network);
+            current = UI::DISPLAY::MENU::deleteMenu(network);
             break;
 
         case MenuState::SUB_NEWNET:
-            current = UI::MENU::NEWNET::SUBNewNetMenu(network);
+            current = UI::DISPLAY::SUBMENU::SUBNewNetMenu(network);
             break;
         case MenuState::SUB_CREATE_TRAININGDATA:
-            current = UI::MENU::CREATETRAININGDATA::SUBcreateTrainingdataMenu(network);
+            current = UI::DISPLAY::SUBMENU::SUBcreateTrainingdataMenu(network);
             break;
         case MenuState::SUB_CREATE_VALIDATIONDATA:
-            current = UI::MENU::CREATETRAININGDATA::SUBcreateValidationdataMenu(network);
+            current = UI::DISPLAY::SUBMENU::SUBcreateValidationdataMenu(network);
             break;
         case MenuState::SUB_SAVE:
-            current = UI::MENU::SAVE::SUBSaveNetworkMenu(network);
+            current = UI::DISPLAY::SUBMENU::SUBSaveNetworkMenu(network);
             break;
         case MenuState::SUB_SAVE_AS:
-            current = UI::MENU::SAVE::SUBSaveNetworkAsMenu(network);
+            current = UI::DISPLAY::SUBMENU::SUBSaveNetworkAsMenu(network);
             break;
         case MenuState::SUB_LOAD:
-            current = UI::MENU::LOAD::SUBLoadNetworkMenu(network);
+            current = UI::DISPLAY::SUBMENU::SUBLoadNetworkMenu(network);
             break;
         case MenuState::SUB_TRAIN_DEFAULT:
-            current = UI::MENU::TRAIN::SUBDefaultTrainingMenu(network);
+            current = UI::DISPLAY::SUBMENU::SUBDefaultTrainingMenu(network);
             break;
         case MenuState::SUB_TRAIN_CUSTOM:
-            current = UI::MENU::TRAIN::SUBCustomTrainingMenu(network);
+            current = UI::DISPLAY::SUBMENU::SUBCustomTrainingMenu(network);
             break;
         case MenuState::SUB_TEST:
-            current = UI::MENU::TEST::SUBTestMenu(network);
+            current = UI::DISPLAY::SUBMENU::SUBTestMenu(network);
             break;
         case MenuState::SUB_INITIALIZE:
-            current = UI::MENU::INITIALIZE::SUBInitializeMenu(network);
+            current = UI::DISPLAY::SUBMENU::SUBInitializeMenu(network);
             break;
         case MenuState::SUB_DELETE:
-            current = UI::MENU::DELETE::SUBDeleteMenu(network);
+            current = UI::DISPLAY::SUBMENU::SUBDeleteMenu(network);
             break;
         default:
             current = MenuState::EXIT;

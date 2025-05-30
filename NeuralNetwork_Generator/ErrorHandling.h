@@ -8,7 +8,9 @@
 namespace ERRORHANDLING {
 
 	namespace FLAGCHECK {
+		void checkNetBeforeCreatingTrainingdata(const Network& _network);
 		void checkNetBeforeTraining(const Network& _network);
+		void checkNetBeforeTesting(const Network& _network);
 		void checkNetBeforeSaving(const Network& _network);
 		void checkNetBeforeDeleting(const Network& _network);
 		void checkNetBeforeInitializing(const Network& _network);
