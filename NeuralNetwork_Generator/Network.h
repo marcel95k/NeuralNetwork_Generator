@@ -16,9 +16,9 @@ private:
 	std::vector<Layer>network;
 	std::string networkName = "Unbenanntes Netz";
 	std::vector<std::string> outputLabels;
-	bool isSaved = false;
+	bool isSaved = true;
 	bool isModified = false;
-	int individualSampleSize = 40;
+	int individualSampleSize = 80;
 
 public:
 	void resizeNetwork(const int _size);

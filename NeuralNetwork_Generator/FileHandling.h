@@ -13,6 +13,7 @@
 #include "Training.h"
 #include "ErrorHandling.h"
 #include "Graphics.h"
+#include "UI.h"
 
 #include "Network.h"
 
@@ -31,7 +32,7 @@ namespace fs = std::filesystem;
 namespace FILEHANDLING {
 
 	bool networkExisting(const std::string& _filename, const std::string& _networkName);	// Checks if a network with the same name is already existing
-
+	bool isEmptySpace(const std::string& _line);
 	//void writeGrayscaleToFile(const std::string _mainFolder, std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, cv::Mat _centered);	// Writes the grayscale values into a .txt file
 
 	//int createValidationdataLoop(std::vector<std::vector<Neuron>>* _network, const int _amountOfIndividualSamples);
@@ -46,6 +47,8 @@ namespace FILEHANDLING {
 
 	//void saveNeuronLayer(const std::vector<Neuron>& _layer, const std::string& _filename);	// Save a layer of a network - called from saveNet()
 	//std::vector<Neuron> loadNeuronLayer(const std::string& _filename);						// Load a layer of a network - called from loadNet()
+	void removeEmptySpacesfromNetworkList();
+	std::vector<std::string>getNetworkList();
 	void displaySavedNetworks();															// Display the list of all saved networks
 	void addNetworkToList(const Network& _network);
 	//int checkIfSaved(std::vector<std::vector<Neuron>>* _network);							// Check if a network is existing and not saved yet

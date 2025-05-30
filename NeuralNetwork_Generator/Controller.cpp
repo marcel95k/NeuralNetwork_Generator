@@ -17,7 +17,8 @@ void Controller::run() {
             current = UI::DISPLAY::MENU::displayMainMenuOpenCV(network);
             break;
         case MenuState::NEWNET:
-            current = UI::DISPLAY::MENU::newNetMenu(network);
+          //  current = UI::DISPLAY::MENU::newNetMenu(network);
+            current = UI::DISPLAY::MENU::displayNewNetMenuOpenCV(network);
             break;
         case MenuState::CREATE_TRAININGDATA:
             //current = UI::MENU::createTrainingdataMenu(network);
@@ -44,7 +45,8 @@ void Controller::run() {
             current = UI::DISPLAY::MENU::showNetworkInfoMenu(network);
             break;
         case MenuState::DELETE:
-            current = UI::DISPLAY::MENU::deleteMenu(network);
+           // current = UI::DISPLAY::MENU::deleteMenu(network);
+            current = UI::DISPLAY::MENU::displayDeleteMenuOpenCV(network);
             break;
 
         case MenuState::SUB_NEWNET:

@@ -12,6 +12,10 @@ void Network::connectLayers() {
 
     assert(getNetworkSize() > 0);   // Network size has to be > 0
 
+    if (getNetworkSize() == 0) {
+        throw NNG_Exception("Netz leer! Fehler beim Schichten verbinden!");
+    }
+
     for (int i = 0; i < getNetworkSize() - 1; ++i) {
         for (int t = 0; t < atLayer(i).getLayerSize(); ++t) {
             atLayer(i).atNeuron(t).resizeWeightVector(atLayer(i + 1).getLayerSize());
@@ -22,6 +26,10 @@ void Network::connectLayers() {
 void Network::randomize() {
 
     assert(getNetworkSize() > 0);   // Network size has to be > 0
+
+    if (getNetworkSize() == 0) {
+        throw NNG_Exception("Netz leer! Fehler beim Gewichte initialisieren!");
+    }
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -89,6 +97,10 @@ std::vector<double> Network::forwardPass() {
 
     assert(getNetworkSize() > 0);   // Network size has to be > 0
 
+    if (getNetworkSize() == 0) {
+        throw NNG_Exception("Netz leer! Fehler beim Forward Pass!");
+    }
+
     for (int l = 1; l < getNetworkSize(); ++l) {
         Layer& prevLayer = network[l - 1];
         Layer& currentLayer = network[l];
@@ -120,6 +132,10 @@ std::vector<double> Network::forwardPass() {
 void Network::backpropagation(const std::vector<double>& _expected, const double _learningRate, const double _momentumFactor) {
 
     assert(getNetworkSize() > 0);   // Network size has to be > 0
+
+    if (getNetworkSize() == 0) {
+        throw NNG_Exception("Netz leer! Fehler bei Backpropagation!");
+    }
 
     std::vector<std::vector<double>> deltas(getNetworkSize());
 
@@ -231,7 +247,7 @@ void Network::saveToFile(const std::string& _filename) const {
 void Network::loadFromFile(const std::string& _filename) {
 
     std::ifstream in(_filename, std::ios::binary);
-    if (!in) throw std::runtime_error("Fehler beim Laden der Datei: " + _filename);
+    if (!in) throw NNG_Exception("Fehler beim Laden der Datei: " + _filename);
 
     network.clear();
 

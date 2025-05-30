@@ -1,56 +1,56 @@
 ﻿//#include "Training.h"
 //
-//void TRAINING::fitnessTest(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues, int _classification, double& _totalAccuracy, int& _totalTests) {
-//
-//	std::vector<double>percentVector;
-//
-//	for (int i = 0; i < _network->at(0).size(); ++i) {
-//		_network->at(0).at(i).setOutputValue(_grayValues->at(i));
-//	}
-//
-//	double totalSum = 0.0; 	// Calculate total sum of outputs (only once, after calculating all outputs)
-//	TEST::forwardPassTest(_network, totalSum);
-//
-//	// Calculate percentages of outputs and fill the percentVector
-//	for (int j = 0; j < _network->at(1).size(); ++j) {
-//		// Percentage of the current output in relation to the total amount
-//		double percentage = (_network->at(1).at(j).getOutputValue() / totalSum) * 100;
-//		percentVector.push_back(percentage);
-//	}
-//
-//	// Find highest element
-//	auto maxIt = max_element(percentVector.begin(), percentVector.end());
-//
-//	// Update accuracy statistics
-//	if (maxIt != percentVector.end()) {
-//		int index = distance(percentVector.begin(), maxIt);
-//		_totalTests++;
-//
-//		if (_classification == index) {
-//			_totalAccuracy += *maxIt;
-//#ifdef DEBUG_SHOW_FITNESSDETAILS_CORRECT
-//			std::cout << "\033[32m"
-//				<< std::setw(15) << _network->at(1).at(_classification).getClassificationName()
-//				<< " erkannt als "
-//				<< std::setw(15) << _network->at(1).at(index).getClassificationName()
-//				<< " mit "
-//				<< std::setw(6) << *maxIt << "%\033[0m" << std::endl;
-//#endif // DEBUG_SHOW_FITNESSDETAILS_CORRECT
-//		}
-//
-//#ifdef DEBUG_SHOW_FITNESSDETAILS_WRONG
-//		else if (_classification != index) {
-//			std::cout << "\033[31m"
-//				<< std::setw(15) << _network->at(1).at(_classification).getClassificationName()
-//				<< " erkannt als "
-//				<< std::setw(15) << _network->at(1).at(index).getClassificationName()
-//				<< " mit "
-//				<< std::setw(6) << *maxIt << "%\033[0m" << std::endl;
-//		}
-//#endif // DEBUG_SHOW_FITNESSDETAILS_WRONG
-//
-//	}
-//}
+void TRAINING::fitnessTest(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _grayValues, int _classification, double& _totalAccuracy, int& _totalTests) {
+
+	std::vector<double>percentVector;
+
+	for (int i = 0; i < _network->at(0).size(); ++i) {
+		_network->at(0).at(i).setOutputValue(_grayValues->at(i));
+	}
+
+	double totalSum = 0.0; 	// Calculate total sum of outputs (only once, after calculating all outputs)
+	TEST::forwardPassTest(_network, totalSum);
+
+	// Calculate percentages of outputs and fill the percentVector
+	for (int j = 0; j < _network->at(1).size(); ++j) {
+		// Percentage of the current output in relation to the total amount
+		double percentage = (_network->at(1).at(j).getOutputValue() / totalSum) * 100;
+		percentVector.push_back(percentage);
+	}
+
+	// Find highest element
+	auto maxIt = max_element(percentVector.begin(), percentVector.end());
+
+	// Update accuracy statistics
+	if (maxIt != percentVector.end()) {
+		int index = distance(percentVector.begin(), maxIt);
+		_totalTests++;
+
+		if (_classification == index) {
+			_totalAccuracy += *maxIt;
+#ifdef DEBUG_SHOW_FITNESSDETAILS_CORRECT
+			std::cout << "\033[32m"
+				<< std::setw(15) << _network->at(1).at(_classification).getClassificationName()
+				<< " erkannt als "
+				<< std::setw(15) << _network->at(1).at(index).getClassificationName()
+				<< " mit "
+				<< std::setw(6) << *maxIt << "%\033[0m" << std::endl;
+#endif // DEBUG_SHOW_FITNESSDETAILS_CORRECT
+		}
+
+#ifdef DEBUG_SHOW_FITNESSDETAILS_WRONG
+		else if (_classification != index) {
+			std::cout << "\033[31m"
+				<< std::setw(15) << _network->at(1).at(_classification).getClassificationName()
+				<< " erkannt als "
+				<< std::setw(15) << _network->at(1).at(index).getClassificationName()
+				<< " mit "
+				<< std::setw(6) << *maxIt << "%\033[0m" << std::endl;
+		}
+#endif // DEBUG_SHOW_FITNESSDETAILS_WRONG
+
+	}
+}
 //
 //void TRAINING::biasAdaption(std::vector<std::vector<Neuron>>* _network, std::vector<double>* _errors, const double _epsilon) {
 //

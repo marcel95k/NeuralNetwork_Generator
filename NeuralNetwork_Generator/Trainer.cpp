@@ -39,7 +39,6 @@ void Trainer::trainNetwork(Network& _network) {
 
 	Layer& outputLayer = _network.atLayer(_network.getNetworkSize() - 1);
 
-
 	auto total_start = std::chrono::high_resolution_clock::now();
 
 	for (int epoch = 0; epoch < getEpochs(); epoch++) {

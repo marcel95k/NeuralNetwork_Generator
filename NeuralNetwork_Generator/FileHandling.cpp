@@ -13,6 +13,10 @@ bool FILEHANDLING::networkExisting(const std::string& _filename, const std::stri
 	}
 	return false;
 }
+
+bool FILEHANDLING::isEmptySpace(const std::string& _line) {
+	return std::all_of(_line.begin(), _line.end(), [](char c) { return std::isspace(c); });
+}
 //
 //void FILEHANDLING::writeGrayscaleToFile(const std::string _mainFolder, std::vector<std::vector<Neuron>>* _network, const int _classification, const int _counter, cv::Mat _centered) {
 //
@@ -201,6 +205,54 @@ void FILEHANDLING::createNewNetworkFolder(const Network& _network) {
 //	return layer;
 //}
 //
+void FILEHANDLING::removeEmptySpacesfromNetworkList() {
+
+	std::ifstream inputFile(SAVED_NETWORKS);
+	std::ofstream outputFIle(SAVED_NETWORKS);
+
+	if (!inputFile || !outputFIle) {
+		throw NNG_Exception("Datei nicht gefunden: " SAVED_NETWORKS);
+	}
+
+	std::string line;
+	while (std::getline(inputFile, line)) {
+		if (!FILEHANDLING::isEmptySpace(line)) {
+			outputFIle << line << '\n';
+		}
+	}
+
+	inputFile.close();
+	outputFIle.close();
+}
+
+std::vector<std::string> FILEHANDLING::getNetworkList() {
+
+	try {
+	//	FILEHANDLING::removeEmptySpacesfromNetworkList();
+	}
+	catch (const NNG_Exception& exception) {
+		std::cerr << std::endl << exception.what() << std::endl;
+		std::string msg = exception.what();
+		UI::DISPLAY::displayNotificationOpenCV(msg);
+		//awaitAnyKey();
+	}
+
+	std::vector<std::string>tempNetworkList;
+	std::ifstream savedNetworks(SAVED_NETWORKS);
+
+	if (!savedNetworks) {
+		throw NNG_Exception("Datei nicht gefunden: " SAVED_NETWORKS);
+	}
+
+	std::string content;
+	while (std::getline(savedNetworks, content)) {
+		tempNetworkList.push_back(content);
+	}
+	savedNetworks.close();
+
+	return tempNetworkList;
+}
+
 void FILEHANDLING::displaySavedNetworks() {
 
 	std::ifstream savedNetworks(SAVED_NETWORKS);

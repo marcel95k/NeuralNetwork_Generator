@@ -19,6 +19,12 @@ std::vector<Button> BUTTONS::mainMenuButtons = {
 	{{50, 500, 300, 40}, "Beenden", MenuState::EXIT}
 };
 
+std::vector<Button> BUTTONS::newNetMenuButtons = {
+	{{50, 50, 300, 40}, "Zu erst speichern", MenuState::SAVE},
+	{{50, 100, 300, 40}, "Weiter (Neues Netz erstellen)", MenuState::SUB_NEWNET},
+	{{50, 150, 300,	40}, "Abbrechen", MenuState::MAIN},
+};
+
 std::vector<Button> BUTTONS::createTrainingdataMenuButtons = {
 	{{50, 50, 300, 40}, "Trainingsdaten erstellen", MenuState::SUB_CREATE_TRAININGDATA},
 	{{50, 100, 300,	40}, "Validierungsdaten erstellen", MenuState::SUB_CREATE_VALIDATIONDATA},
@@ -31,9 +37,20 @@ std::vector<Button> BUTTONS::saveMenuButtons = {
 	{{50, 150, 300,	40}, "Zurueck", MenuState::MAIN},
 };
 
+std::vector<Button> BUTTONS::loadMenuButtons = {
+	{{50, 50, 300, 40}, "Zu erst speichern", MenuState::SAVE},
+	{{50, 100, 300, 40}, "Weiter (Laden)", MenuState::SUB_LOAD},
+	{{50, 150, 300,	40}, "Abbrechen", MenuState::MAIN},
+};
+
 std::vector<Button> BUTTONS::initializeMenuButtons = {
 	{{50, 50, 300, 40}, "Abbrechen", MenuState::MAIN},
 	{{50, 100, 300,	40}, "Weiter (Initialisieren)", MenuState::SUB_INITIALIZE},
+};
+
+std::vector<Button> BUTTONS::deleteMenuButtons = {
+	{{50, 50, 300, 40}, "Abbrechen", MenuState::MAIN},
+	{{50, 100, 300,	40}, "Weiter (Loeschen)", MenuState::SUB_DELETE},
 };
 
 std::vector<Button> BUTTONS::notificationMenuButtons = {
@@ -153,13 +170,13 @@ MenuState UI::PROCESSING::menuLoop(const std::vector<std::string>& _menuList, co
 }
 
 // UI::QUERY
-int UI::QUERY::promptUserForInteger_OpenCV(const std::string& _question) {
+int UI::QUERY::promptUserForInteger_OpenCV(const std::string& _prompt) {
 
 	currentInput = "";
 	inputConfirmed = false;
 	inputActive = false;
 
-	cv::Mat inputWindow(200, 400, CV_8UC3, cv::Scalar(230, 230, 230));
+	cv::Mat inputWindow(200, 400, CV_8UC3, cv::Scalar(240, 240, 240));
 	cv::namedWindow("Eingabe");
 	cv::setMouseCallback("Eingabe", UI::onTextboxMouse);
 
@@ -171,7 +188,7 @@ int UI::QUERY::promptUserForInteger_OpenCV(const std::string& _question) {
 		cv::Mat display = inputWindow.clone();
 		frameCounter++;
 
-		UI::DISPLAY::displayPromptInWindow(display, _question);
+		UI::DISPLAY::displayPromptInWindow(display, _prompt);
 
 		UI::MISC::makeTextboxBlink(frameCounter, blinkState, boxColor);
 
@@ -212,13 +229,13 @@ int UI::QUERY::promptUserForInteger_OpenCV(const std::string& _question) {
 	return std::stoi(currentInput);
 }
 
-std::string UI::QUERY::promptUserForString_OpenCV(const std::string& _question) {
+std::string UI::QUERY::promptUserForString_OpenCV(const std::string& _prompt) {
 
 	currentInput = "";
 	inputConfirmed = false;
 	inputActive = false;
 
-	cv::Mat inputWindow(200, 400, CV_8UC3, cv::Scalar(230, 230, 230));
+	cv::Mat inputWindow(200, 400, CV_8UC3, cv::Scalar(240, 240, 240));
 	cv::namedWindow("Eingabe");
 	cv::setMouseCallback("Eingabe", UI::onTextboxMouse);
 
@@ -230,7 +247,7 @@ std::string UI::QUERY::promptUserForString_OpenCV(const std::string& _question) 
 		cv::Mat display = inputWindow.clone();
 		frameCounter++;
 
-		UI::DISPLAY::displayPromptInWindow(display, _question);
+		UI::DISPLAY::displayPromptInWindow(display, _prompt);
 
 		UI::MISC::makeTextboxBlink(frameCounter, blinkState, boxColor);
 
@@ -243,7 +260,7 @@ std::string UI::QUERY::promptUserForString_OpenCV(const std::string& _question) 
 			cv::imshow("Eingabe", display);
 		}
 		else if (cv::getWindowProperty("Eingabe", cv::WND_PROP_VISIBLE) < 1) {
-			return "";	// By closing the window any empty string will be returned
+			return "";	// Return an empty string by closing the window
 		}
 
 		int key = cv::waitKey(30);
@@ -265,9 +282,7 @@ std::string UI::QUERY::promptUserForString_OpenCV(const std::string& _question) 
 	if (cv::getWindowProperty("Eingabe", cv::WND_PROP_VISIBLE) == 1) {
 		cv::destroyWindow("Eingabe");
 	}
-	if (currentInput == "") {
-		currentInput = "Undefiniert"; // currentInput will be changed to "Undefiniert" when ENTER was pressed while the textbox was empty
-	}
+
 	return currentInput;
 }
 
@@ -279,12 +294,65 @@ std::string UI::QUERY::userSetNetworkNameSave() {
 	return tempNetworkName;
 }
 
-std::string UI::QUERY::userSetNetworkNameLoad() {
+std::string UI::QUERY::userSetNetworkNameLoad(const std::string& _prompt) {
 
-	std::string tempNetworkName;
+	currentInput = "";
+	inputConfirmed = false;
+	inputActive = false;
+
+	cv::Mat inputWindow(800, 800, CV_8UC3, cv::Scalar(230, 230, 230));
+	cv::namedWindow("Eingabe");
+	cv::setMouseCallback("Eingabe", UI::onTextboxMouse);
+
+	int frameCounter = 0;
+	bool blinkState = false;
+	cv::Scalar boxColor;
+
+	while (!inputConfirmed) {
+		cv::Mat display = inputWindow.clone();
+		frameCounter++;
+
+		UI::DISPLAY::displayPromptInWindow(display, _prompt);
+
+		UI::MISC::makeTextboxBlink(frameCounter, blinkState, boxColor);
+
+		cv::rectangle(display, inputBoxRect, boxColor, -1);
+		cv::putText(display, currentInput, cv::Point(inputBoxRect.x + 5, inputBoxRect.y + 30),
+			cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(255, 255, 255), 1);
+
+		if (cv::getWindowProperty("Eingabe", cv::WND_PROP_VISIBLE) == 1) {
+			cv::moveWindow("Eingabe", 700, 100);
+			cv::imshow("Eingabe", display);
+		}
+		else if (cv::getWindowProperty("Eingabe", cv::WND_PROP_VISIBLE) < 1) {
+			return "";	// Return an empty string by closing the window
+		}
+
+		int key = cv::waitKey(30);
+
+		if (inputActive && key != -1) {
+			if (key == 13 || key == 10) {  // Enter
+				inputConfirmed = true;
+			}
+
+			else if (key == 8 && !currentInput.empty()) {  // Backspace
+				currentInput.pop_back();
+			}
+			else if (key != 8) {
+				currentInput += static_cast<char>(key);
+			}
+		}
+	}
+
+	if (cv::getWindowProperty("Eingabe", cv::WND_PROP_VISIBLE) == 1) {
+		cv::destroyWindow("Eingabe");
+	}
+
+	return currentInput;
+	/*std::string tempNetworkName;
 	std::cout << "Laden: ";
 	std::cin >> tempNetworkName;
-	return tempNetworkName;
+	return tempNetworkName;*/
 }
 
 int UI::QUERY::userSetAmountOfHiddenLayers() {
@@ -502,11 +570,19 @@ MenuState UI::DISPLAY::displayNotificationOpenCV(const std::string& _message) {
 
 	while (selectedAction == MenuState::ERROR) {
 		cv::imshow("Meldung", errorDisplay);
-		if (cv::waitKey(30) == 27)  // ESC zum Beenden
+		if (cv::waitKey(30) == 27) { // ESC zum Beenden
 			break;
+		}
+		if (cv::getWindowProperty("Meldung", cv::WND_PROP_VISIBLE) < 1) {
+			break;
+		}
+
+
 	}
 
-	cv::destroyWindow("Meldung");
+	if (cv::getWindowProperty("Meldung", cv::WND_PROP_VISIBLE) == 1) {
+		cv::destroyWindow("Meldung");
+	}
 	return selectedAction;
 
 }
@@ -540,6 +616,38 @@ MenuState UI::DISPLAY::MENU::displayMainMenuOpenCV(Network& _network) {
 	}
 
 	cv::destroyWindow("Menü");
+	return selectedAction;
+}
+
+MenuState UI::DISPLAY::MENU::displayNewNetMenuOpenCV(Network& _network) {
+
+	if (_network.getModifiedStatus() == false && _network.getSavedStatus() == true) {
+		return MenuState::SUB_NEWNET;	// Continue to creating a new network if the current network was saved and was not modified
+	}
+
+	selectedAction = MenuState::NEWNET;
+	BUTTONS::activeButtons = &BUTTONS::newNetMenuButtons;
+
+	cv::Mat newNetMenuImg(250, 400, CV_8UC3, cv::Scalar(240, 240, 240));
+
+	for (const auto& btn : BUTTONS::newNetMenuButtons) {
+		cv::rectangle(newNetMenuImg, btn.rect, cv::Scalar(70, 70, 70), -1);
+		cv::putText(newNetMenuImg, btn.label,
+			cv::Point(btn.rect.x + 10, btn.rect.y + 30),
+			cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 1);
+	}
+
+	cv::namedWindow("Neues Netz erstellen");
+	cv::moveWindow("Neues Netz erstellen", 700, 100);
+	cv::setMouseCallback("Neues Netz erstellen", UI::onMouse);
+
+	while (selectedAction == MenuState::NEWNET) {
+		cv::imshow("Neues Netz erstellen", newNetMenuImg);
+		if (cv::waitKey(30) == 27)  // ESC zum Beenden
+			break;
+	}
+
+	cv::destroyWindow("Neues Netz erstellen");
 	return selectedAction;
 }
 
@@ -621,6 +729,38 @@ MenuState UI::DISPLAY::MENU::displaySaveMenuOpenCV(Network& _network) {
 	return selectedAction;
 }
 
+MenuState UI::DISPLAY::MENU::displayLoadMenuOpenCV(Network& _network) {
+
+	if (_network.getModifiedStatus() == false && _network.getSavedStatus() == true) {
+		return MenuState::SUB_LOAD;	// Continue to loading network if the current network was saved and was not modified
+	}
+
+	selectedAction = MenuState::LOAD;
+	BUTTONS::activeButtons = &BUTTONS::loadMenuButtons;
+
+	cv::Mat loadMenuImg(250, 400, CV_8UC3, cv::Scalar(240, 240, 240));
+
+	for (const auto& btn : BUTTONS::loadMenuButtons) {
+		cv::rectangle(loadMenuImg, btn.rect, cv::Scalar(70, 70, 70), -1);
+		cv::putText(loadMenuImg, btn.label,
+			cv::Point(btn.rect.x + 10, btn.rect.y + 30),
+			cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 1);
+	}
+
+	cv::namedWindow("Laden");
+	cv::moveWindow("Laden", 700, 100);
+	cv::setMouseCallback("Laden", UI::onMouse);
+
+	while (selectedAction == MenuState::LOAD) {
+		cv::imshow("Laden", loadMenuImg);
+		if (cv::waitKey(30) == 27)  // ESC zum Beenden
+			break;
+	}
+
+	cv::destroyWindow("Laden");
+	return selectedAction;
+}
+
 MenuState UI::DISPLAY::MENU::displayInitializeMenuOpenCV(Network& _network) {
 
 	try {
@@ -657,6 +797,45 @@ MenuState UI::DISPLAY::MENU::displayInitializeMenuOpenCV(Network& _network) {
 	}
 
 	cv::destroyWindow("Netz initialisieren");
+	return selectedAction;
+}
+
+MenuState UI::DISPLAY::MENU::displayDeleteMenuOpenCV(Network& _network) {
+
+	try {
+		ERRORHANDLING::FLAGCHECK::checkNetBeforeDeleting(_network);
+	}
+	catch (const NNG_Exception& exception) {
+		std::cerr << std::endl << exception.what() << std::endl;
+		std::string msg = exception.what();
+		displayNotificationOpenCV(msg);
+		//awaitAnyKey();
+		return MenuState::MAIN;
+	}
+
+	selectedAction = MenuState::DELETE;
+	BUTTONS::activeButtons = &BUTTONS::deleteMenuButtons;
+
+	cv::Mat deleteMenuImg(250, 400, CV_8UC3, cv::Scalar(240, 240, 240));
+
+	for (const auto& btn : BUTTONS::deleteMenuButtons) {
+		cv::rectangle(deleteMenuImg, btn.rect, cv::Scalar(70, 70, 70), -1);
+		cv::putText(deleteMenuImg, btn.label,
+			cv::Point(btn.rect.x + 10, btn.rect.y + 30),
+			cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 1);
+	}
+
+	cv::namedWindow("Netz loeschen");
+	cv::moveWindow("Netz loeschen", 700, 100);
+	cv::setMouseCallback("Netz loeschen", UI::onMouse);
+
+	while (selectedAction == MenuState::DELETE) {
+		cv::imshow("Netz loeschen", deleteMenuImg);
+		if (cv::waitKey(30) == 27)  // ESC zum Beenden
+			break;
+	}
+
+	cv::destroyWindow("Netz loeschen");
 	return selectedAction;
 }
 
@@ -809,9 +988,10 @@ MenuState UI::DISPLAY::MENU::testMenu(Network& _network) {
 		//awaitAnyKey();
 		return MenuState::MAIN;
 	}
-
-	GRAPHICS::drawBarGraph(_network);
+	std::cout << "Vor drawTestImage" << std::endl;
+//	GRAPHICS::drawBarGraph(_network);
 	GRAPHICS::drawTestImage(_network);
+	std::cout << "Nach drawTestImage" << std::endl;
 	std::cout << "Bin in " << __func__ << std::endl;
 	return MenuState::MAIN; 
 }
@@ -907,10 +1087,8 @@ MenuState UI::DISPLAY::SUBMENU::SUBNewNetMenu(Network& _network) {
 			UI::DISPLAY::displayNotificationOpenCV("Netzwerk erstellen abgebrochen!");
 			return MenuState::MAIN;
 		}
-
 		topology.push_back(amountOfHiddenNeurons);
 	}
-
 	if (topology.size() < 0) {
 		_network.resizeNetwork(0);
 		UI::DISPLAY::displayNotificationOpenCV("Netzwerk erstellen abgebrochen!");
@@ -918,14 +1096,13 @@ MenuState UI::DISPLAY::SUBMENU::SUBNewNetMenu(Network& _network) {
 	}
 
 	int amountOfOutputNeurons = UI::QUERY::promptUserForInteger_OpenCV("Anzahl Neuronen in Output Layer:");
-
 	if (amountOfOutputNeurons <= 0) { // Also checking if amountOfOutputNeurons equals "0" because a network without output neurons won't make any sense
 		_network.resizeNetwork(0);
 		UI::DISPLAY::displayNotificationOpenCV("Netzwerk erstellen abgebrochen! Kein Output!");
 		return MenuState::MAIN;
 	}
-
 	topology.push_back(amountOfOutputNeurons);
+
 	try {
 		_network = NETWORKHANDLER::NEWNET::buildNewNet(amountOfHiddenLayers, topology);
 	}
@@ -940,16 +1117,14 @@ MenuState UI::DISPLAY::SUBMENU::SUBNewNetMenu(Network& _network) {
 		std::string outputLabel = UI::QUERY::promptUserForString_OpenCV("Klassifikation von Output " + std::to_string(i+1) + ":");
 
 		if (outputLabel == "") {
-			_network.resizeNetwork(0);
-			UI::DISPLAY::displayNotificationOpenCV("Netzwerk erstellen abgebrochen!");
-			return MenuState::MAIN;
+			outputLabel = "Undefiniert";
 		}
-
 		outputLabels.push_back(outputLabel);
 	}
 	_network.setOutputLabels(outputLabels);
 
 	_network.setModifiedStatus(true);
+	_network.setSavedStatus(false);
 
 	return MenuState::MAIN;
 }
@@ -1004,15 +1179,59 @@ MenuState UI::DISPLAY::SUBMENU::SUBLoadNetworkMenu(Network& _network) {
 
 	clearScreen();
 	FILEHANDLING::displaySavedNetworks();
+	std::vector<std::string>networkList;
+	int windowHeight = 40;
 
-	std::string networkName = UI::QUERY::userSetNetworkNameLoad();
+	try {
+		networkList = FILEHANDLING::getNetworkList();
+	}
+	catch (const NNG_Exception& exception) {
+		std::cerr << std::endl << exception.what() << std::endl;
+		std::string msg = exception.what();
+		displayNotificationOpenCV(msg);
+		//awaitAnyKey();
+		return MenuState::MAIN;
+	}
+	if (networkList.empty()) {
+		UI::DISPLAY::displayNotificationOpenCV("Keine gespeicherten Netzwerke gefunden.");
+		return MenuState::MAIN;
+	}
+	windowHeight *= networkList.size();
+	
+	cv::Mat savedNetworksWindow(windowHeight, 400, CV_8UC3, cv::Scalar(240, 240, 240));
+	for (size_t i = 0; i < networkList.size(); ++i) {
+		cv::putText(savedNetworksWindow, networkList[i], cv::Point(20, 40 + i * 30),
+			cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 0, 0), 1);
+	}
+	cv::namedWindow("Gespeicherte Netzwerke");
+	cv::moveWindow("Gespeicherte Netzwerke", 300, 100);
+	cv::imshow("Gespeicherte Netzwerke", savedNetworksWindow);
+
+	std::string networkName = UI::QUERY::promptUserForString_OpenCV("Laden: ");
+
+	if (networkName == "") {
+		if (cv::getWindowProperty("Gespeicherte Netzwerke", cv::WND_PROP_VISIBLE) == 1) {
+			cv::destroyWindow("Gespeicherte Netzwerke");
+		}
+		UI::DISPLAY::displayNotificationOpenCV("Netzwerk laden abgebrochen!");
+		return MenuState::MAIN;
+	}
 
 	try {
 		NETWORKHANDLER::DATAMANAGEMENT::loadNetwork(_network, networkName);
 	}
 	catch (const NNG_Exception& exception) {
 		std::cerr << std::endl << exception.what() << std::endl;
-		awaitAnyKey();
+		std::string msg = exception.what();
+		displayNotificationOpenCV(msg);
+		if (cv::getWindowProperty("Gespeicherte Netzwerke", cv::WND_PROP_VISIBLE) == 1) {
+			cv::destroyWindow("Gespeicherte Netzwerke");
+		}
+		//awaitAnyKey();
+		return MenuState::MAIN;
+	}
+	if (cv::getWindowProperty("Gespeicherte Netzwerke", cv::WND_PROP_VISIBLE) == 1) {
+		cv::destroyWindow("Gespeicherte Netzwerke");
 	}
 
 	return MenuState::MAIN;
@@ -1076,9 +1295,20 @@ MenuState UI::DISPLAY::SUBMENU::SUBTestMenu(Network& _network) {
 
 MenuState UI::DISPLAY::SUBMENU::SUBInitializeMenu(Network& _network) {
 
-	_network.randomize();
+	try {
+		_network.randomize();
+	}
+	catch (const NNG_Exception& exception) {
+		std::cerr << std::endl << exception.what() << std::endl;
+		std::string msg = exception.what();
+		displayNotificationOpenCV(msg);
+		//awaitAnyKey();
+		return MenuState::MAIN;
+	}
+
 	std::string info = "Netzwerk neu initialisiert!";
 	UI::DISPLAY::displayNotificationOpenCV(info);
+
 	return MenuState::MAIN;
 }
 
@@ -1089,8 +1319,14 @@ MenuState UI::DISPLAY::SUBMENU::SUBDeleteMenu(Network& _network) {
 	}
 	catch (const NNG_Exception& exception) {
 		std::cerr << std::endl << exception.what() << std::endl;
-		awaitAnyKey();
+		std::string msg = exception.what();
+		displayNotificationOpenCV(msg);
+		//awaitAnyKey();
+		return MenuState::MAIN;
 	}
+
+	std::string info = "Netzwerk geloescht!";
+	UI::DISPLAY::displayNotificationOpenCV(info);
 
 	return MenuState::MAIN;
 }

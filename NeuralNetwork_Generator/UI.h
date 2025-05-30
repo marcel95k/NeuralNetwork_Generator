@@ -58,9 +58,12 @@ struct Button {
 namespace BUTTONS {
 
 	extern std::vector<Button> mainMenuButtons;
+	extern std::vector<Button> newNetMenuButtons;
 	extern std::vector<Button> createTrainingdataMenuButtons;
 	extern std::vector<Button> saveMenuButtons;
+	extern std::vector<Button> loadMenuButtons;
 	extern std::vector<Button> initializeMenuButtons;
+	extern std::vector<Button> deleteMenuButtons;
 
 	extern std::vector<Button> notificationMenuButtons;
 
@@ -88,10 +91,10 @@ namespace UI {
 
 	namespace QUERY {
 
-		int promptUserForInteger_OpenCV(const std::string& _question);
-		std::string promptUserForString_OpenCV(const std::string& _question);
+		int promptUserForInteger_OpenCV(const std::string& _prompt);
+		std::string promptUserForString_OpenCV(const std::string& _prompt);
 		std::string userSetNetworkNameSave();
-		std::string userSetNetworkNameLoad();
+		std::string userSetNetworkNameLoad(const std::string& _prompt);
 		int userSetAmountOfHiddenLayers();
 		std::vector<int> userSetAmountOfHiddenNeurons(const int _amountOfHiddenLayers);
 		int userSetAmountOfOutputNeurons();
@@ -104,7 +107,7 @@ namespace UI {
 
 	namespace DISPLAY {
 
-		void displayPromptInWindow(cv::Mat& _display, const std::string& _question);
+		void displayPromptInWindow(cv::Mat& _display, const std::string& _prompt);
 		void displayMenuOptions(const std::vector<std::string>& _menuList, const Network& _network);
 		void displayNetworkInfo(const Network& _network);
 		MenuState displayNotificationOpenCV(const std::string& _message); // <== TODO: Text formatting, not centered yet
@@ -112,9 +115,12 @@ namespace UI {
 		namespace MENU {
 
 			MenuState displayMainMenuOpenCV(Network& _network);
+			MenuState displayNewNetMenuOpenCV(Network& _network);
 			MenuState displayCreateTrainingdataMenuOpenCV(Network& _network);
 			MenuState displaySaveMenuOpenCV(Network& _network);
+			MenuState displayLoadMenuOpenCV(Network& _network);
 			MenuState displayInitializeMenuOpenCV(Network& _network);
+			MenuState displayDeleteMenuOpenCV(Network& _network);
 
 			MenuState mainMenu(const Network& _network);
 			MenuState newNetMenu(const Network& _network);

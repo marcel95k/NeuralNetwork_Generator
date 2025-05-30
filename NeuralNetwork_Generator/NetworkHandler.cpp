@@ -57,6 +57,7 @@ void NETWORKHANDLER::DATAMANAGEMENT::saveNewNetworkAs(Network& _network) {
 	FILEHANDLING::addNetworkToList(_network);
 
 	_network.setModifiedStatus(false);
+	_network.setSavedStatus(true);
 	_network.saveToFile("Networks/" + _network.getNetworkName() + "/" + _network.getNetworkName() + ".nng");
 }
 
@@ -65,7 +66,17 @@ void NETWORKHANDLER::DATAMANAGEMENT::loadNetwork(Network& _network, const std::s
 	if (FILEHANDLING::networkExisting(SAVED_NETWORKS, _networkName) == false) {
 		throw NNG_Exception("Netzwerk nicht gefunden!");
 	}
-	_network.loadFromFile("Networks/" + _networkName + "/" + _networkName + ".nng");
+
+	try {
+		_network.loadFromFile("Networks/" + _networkName + "/" + _networkName + ".nng");
+	}
+	catch (const NNG_Exception& exception) {
+		std::cerr << std::endl << exception.what() << std::endl;
+		std::string msg = exception.what();
+		UI::DISPLAY::displayNotificationOpenCV(msg);
+		//awaitAnyKey();
+	}
+	//_network.loadFromFile("Networks/" + _networkName + "/" + _networkName + ".nng");
 }
 
 void NETWORKHANDLER::DATAMANAGEMENT::deleteNetwork(Network& _network) {
