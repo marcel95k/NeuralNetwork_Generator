@@ -75,6 +75,7 @@ namespace UI {
 
 	void onMouse(int event, int x, int y, int, void*);
 	void onTextboxMouse(int event, int x, int y, int, void*);
+	void putButtonsOnWindow(Mat& _img, const std::vector<Button>& _buttons);
 
 	namespace MISC {
 
