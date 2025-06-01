@@ -27,7 +27,7 @@ enum class  MenuState {
 	TEST,
 	INITIALIZE,
 	SHOW_NETWORKINFO,
-	DELETE,
+	DELETE_NET,
 	EXIT,
 
 	SUB_NEWNET,
@@ -40,9 +40,9 @@ enum class  MenuState {
 	SUB_TRAIN_CUSTOM,
 	SUB_TEST,
 	SUB_INITIALIZE,
-	SUB_DELETE,
+	SUB_DELETE_NET,
 
-	ERROR,
+	NOTIFICATION,
 };
 
 inline bool operator<(MenuState lhs, MenuState rhs) {

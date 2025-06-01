@@ -15,7 +15,7 @@ std::vector<Button> BUTTONS::mainMenuButtons = {
 	{{50, 300, 300, 40}, "Netz testen", MenuState::TEST},
 	{{50, 350, 300, 40}, "Initialisieren", MenuState::INITIALIZE},
 	{{50, 400, 300, 40}, "Netz Info anzeigen", MenuState::SHOW_NETWORKINFO},
-	{{50, 450, 300, 40}, "Netz loeschen", MenuState::DELETE},
+	{{50, 450, 300, 40}, "Netz loeschen", MenuState::DELETE_NET},
 	{{50, 500, 300, 40}, "Beenden", MenuState::EXIT}
 };
 
@@ -50,7 +50,7 @@ std::vector<Button> BUTTONS::initializeMenuButtons = {
 
 std::vector<Button> BUTTONS::deleteMenuButtons = {
 	{{50, 50, 300, 40}, "Abbrechen", MenuState::MAIN},
-	{{50, 100, 300,	40}, "Weiter (Loeschen)", MenuState::SUB_DELETE},
+	{{50, 100, 300,	40}, "Weiter (Loeschen)", MenuState::SUB_DELETE_NET},
 };
 
 std::vector<Button> BUTTONS::notificationMenuButtons = {
@@ -203,7 +203,7 @@ int UI::QUERY::promptUserForInteger_OpenCV(const std::string& _prompt) {
 
 		cv::rectangle(display, inputBoxRect, boxColor, -1);
 		cv::putText(display, currentInput, cv::Point(inputBoxRect.x + 5, inputBoxRect.y + 30),
-			cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(255, 255, 255), 1);
+			cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(0, 0, 0), 2);
 
 		if (cv::getWindowProperty("Eingabe", cv::WND_PROP_VISIBLE) == 1) {
 			cv::moveWindow("Eingabe", 700, 400);
@@ -261,7 +261,7 @@ std::string UI::QUERY::promptUserForString_OpenCV(const std::string& _prompt) {
 
 		cv::rectangle(display, inputBoxRect, boxColor, -1);
 		cv::putText(display, currentInput, cv::Point(inputBoxRect.x + 5, inputBoxRect.y + 30),
-			cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(255, 255, 255), 1);
+			cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(0, 0, 0), 2);
 
 		if (cv::getWindowProperty("Eingabe", cv::WND_PROP_VISIBLE) == 1) {
 			cv::moveWindow("Eingabe", 700, 400);
@@ -558,7 +558,7 @@ void UI::DISPLAY::displayNetworkInfo(const Network& _network) {
 
 MenuState UI::DISPLAY::displayNotificationOpenCV(const std::string& _message) {
 
-	selectedAction = MenuState::ERROR;
+	selectedAction = MenuState::NOTIFICATION;
 	BUTTONS::activeButtons = &BUTTONS::notificationMenuButtons;
 
 	cv::Mat errorDisplay(200, 500, CV_8UC3, cv::Scalar(240, 240, 240));
@@ -576,7 +576,7 @@ MenuState UI::DISPLAY::displayNotificationOpenCV(const std::string& _message) {
 	cv::moveWindow("Meldung", 700, 400);
 	cv::setMouseCallback("Meldung", UI::onMouse);
 
-	while (selectedAction == MenuState::ERROR) {
+	while (selectedAction == MenuState::NOTIFICATION) {
 		cv::imshow("Meldung", errorDisplay);
 		if (cv::waitKey(30) == 27) { // ESC zum Beenden
 			break;
@@ -789,7 +789,7 @@ MenuState UI::DISPLAY::MENU::displayDeleteMenuOpenCV(Network& _network) {
 		return MenuState::MAIN;
 	}
 
-	selectedAction = MenuState::DELETE;
+	selectedAction = MenuState::DELETE_NET;
 	BUTTONS::activeButtons = &BUTTONS::deleteMenuButtons;
 
 	cv::Mat deleteMenuImg(250, 400, CV_8UC3, cv::Scalar(240, 240, 240));
@@ -800,7 +800,7 @@ MenuState UI::DISPLAY::MENU::displayDeleteMenuOpenCV(Network& _network) {
 	cv::moveWindow("Netz loeschen", 700, 100);
 	cv::setMouseCallback("Netz loeschen", UI::onMouse);
 
-	while (selectedAction == MenuState::DELETE) {
+	while (selectedAction == MenuState::DELETE_NET) {
 		cv::imshow("Netz loeschen", deleteMenuImg);
 		if (cv::waitKey(30) == 27)  // ESC zum Beenden
 			break;
@@ -826,7 +826,7 @@ MenuState UI::DISPLAY::MENU::mainMenu(const Network& _network) {;
 		{3, MenuState::SAVE}, {4, MenuState::LOAD},
 		{5, MenuState::TRAINING}, {6, MenuState::TEST},
 		{7, MenuState::INITIALIZE}, {8, MenuState::SHOW_NETWORKINFO},
-		{9, MenuState::DELETE}, {0, MenuState::EXIT}
+		{9, MenuState::DELETE_NET}, {0, MenuState::EXIT}
 	};
 
 	return UI::PROCESSING::menuLoop(menuList, menuActions, _network);
@@ -1027,7 +1027,7 @@ MenuState UI::DISPLAY::MENU::deleteMenu(const Network& _network) {
 
 	std::map<int, MenuState> menuActions = {
 	{1, MenuState::MAIN},
-	{2, MenuState::SUB_DELETE},
+	{2, MenuState::SUB_DELETE_NET},
 	};
 
 	return UI::PROCESSING::menuLoop(menuList, menuActions, _network);

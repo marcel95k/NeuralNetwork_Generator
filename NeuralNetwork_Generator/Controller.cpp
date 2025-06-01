@@ -7,7 +7,7 @@ void Controller::run() {
     while (current != MenuState::EXIT) {
         switch (current) {
 
-        case MenuState::ERROR:
+        case MenuState::NOTIFICATION:
              //current = UI::MENU::mainMenu(network);
             current = UI::DISPLAY::displayNotificationOpenCV(message);
             break;
@@ -44,7 +44,7 @@ void Controller::run() {
         case MenuState::SHOW_NETWORKINFO:
             current = UI::DISPLAY::MENU::showNetworkInfoMenu(network);
             break;
-        case MenuState::DELETE:
+        case MenuState::DELETE_NET:
            // current = UI::DISPLAY::MENU::deleteMenu(network);
             current = UI::DISPLAY::MENU::displayDeleteMenuOpenCV(network);
             break;
@@ -79,7 +79,7 @@ void Controller::run() {
         case MenuState::SUB_INITIALIZE:
             current = UI::DISPLAY::SUBMENU::SUBInitializeMenu(network);
             break;
-        case MenuState::SUB_DELETE:
+        case MenuState::SUB_DELETE_NET:
             current = UI::DISPLAY::SUBMENU::SUBDeleteMenu(network);
             break;
         default:
