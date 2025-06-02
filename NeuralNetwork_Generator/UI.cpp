@@ -751,7 +751,6 @@ MenuState UI::DISPLAY::MENU::displayInitializeMenuOpenCV(Network& _network) {
 		std::cerr << std::endl << exception.what() << std::endl;
 		std::string msg = exception.what();
 		displayNotificationOpenCV(msg);
-		//awaitAnyKey();
 		return MenuState::MAIN;
 	}
 
@@ -759,7 +758,6 @@ MenuState UI::DISPLAY::MENU::displayInitializeMenuOpenCV(Network& _network) {
 	BUTTONS::activeButtons = &BUTTONS::initializeMenuButtons;
 
 	cv::Mat initializeMenuImg(250, 400, CV_8UC3, cv::Scalar(240, 240, 240));
-
 	UI::putButtonsOnWindow(initializeMenuImg, BUTTONS::initializeMenuButtons);
 
 	cv::namedWindow("Netz initialisieren");
@@ -768,12 +766,32 @@ MenuState UI::DISPLAY::MENU::displayInitializeMenuOpenCV(Network& _network) {
 
 	while (selectedAction == MenuState::INITIALIZE) {
 		cv::imshow("Netz initialisieren", initializeMenuImg);
-		if (cv::waitKey(30) == 27)  // ESC zum Beenden
-			break;
+
+		int key = cv::waitKey(30);
+
+		if (key == 27) { // ESC
+			cv::destroyWindow("Netz initialisieren");
+			return MenuState::MAIN;
+		}
+		else if (key == 13) { // ENTER simuliert Button-Klick
+			// Finde die erste Schaltfläche mit SUB_INITIALIZE
+			for (const auto& btn : *BUTTONS::activeButtons) {
+				if (btn.action == MenuState::SUB_INITIALIZE) {
+					selectedAction = btn.action;
+					break;
+				}
+			}
+			cv::destroyWindow("Netz initialisieren");
+			return selectedAction;
+		}
 	}
 
 	cv::destroyWindow("Netz initialisieren");
-	return selectedAction;
+
+	// Sicherstellen, dass nie INITIALIZE zurückgegeben wird
+	return (selectedAction == MenuState::INITIALIZE)
+		? MenuState::MAIN
+		: selectedAction;
 }
 
 MenuState UI::DISPLAY::MENU::displayDeleteMenuOpenCV(Network& _network) {
